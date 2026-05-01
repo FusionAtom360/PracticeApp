@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;500;700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap');
+
+    :root {
+      --bg: #F9F7F4;
+      --surface: #FFFFFF;
+      --surface-2: #F2EFE9;
+      --border: rgba(30, 25, 20, 0.10);
+      --border-strong: rgba(30, 25, 20, 0.22);
+      --text-primary: #1A1714;
+      --text-secondary: #5C5549;
+      --text-muted: #9B9185;
+      --accent: #1A1714;
+      --accent-warm: #B05B2C;
+      --accent-gold: #C4953A;
+      --accent-sage: #5A7A5E;
+      --font-display: 'Playfair Display', Georgia, serif;
+      --font-body: 'DM Sans', sans-serif;
+      --font-mono: 'DM Mono', monospace;
+      --radius: 4px;
+      --radius-lg: 10px;
+      --transition: 200ms ease;
+    }
+
+    [data-theme="dark"] {
+      --bg: #141210;
+      --surface: #1E1B18;
+      --surface-2: #262320;
+      --border: rgba(255, 248, 235, 0.08);
+      --border-strong: rgba(255, 248, 235, 0.18);
+      --text-primary: #F5EFE4;
+      --text-secondary: #A89E8E;
+      --text-muted: #6B6358;
+      --accent: #F5EFE4;
+      --accent-warm: #D4845A;
+      --accent-gold: #D4A84B;
+      --accent-sage: #7DA882;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      padding: clamp(0.75rem, 2vw, 1.5rem);
+      transition: background var(--transition);
+    }
+
+    #root {
+      background: var(--bg);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 14px;
+      line-height: 1.6;
+      padding: 0 0 4rem;
+      transition: background var(--transition), color var(--transition);
+      min-height: 100vh;
+      width: min(100%, 1100px);
+      margin: 0 auto;
+      border-radius: 12px;
+      overflow: clip;
+    }
+
+    .header {
+      border-bottom: 1px solid var(--border-strong);
+      padding: 2.5rem 2.5rem 2rem;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .wordmark {
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 400;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .header-title {
+      font-family: var(--font-display);
+      font-size: 34px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1;
+      color: var(--text-primary);
+    }
+
+    .theme-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface);
+      border: 0.5px solid var(--border-strong);
+      border-radius: 100px;
+      padding: 5px 14px 5px 10px;
+      cursor: pointer;
+      font-family: var(--font-body);
+      font-size: 13px;
+      color: var(--text-secondary);
+      transition: all var(--transition);
+      white-space: nowrap;
+    }
+
+    .theme-toggle:hover {
+      background: var(--surface-2);
+    }
+
+    .toggle-icon {
+      font-size: 14px;
+    }
+
+    .theme-icon {
+      font-size: 16px;
+      line-height: 1;
+      font-variation-settings:
+        'FILL' 0,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 24;
+    }
+
+    .nav {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--border);
+      padding: 0 2.5rem;
+      overflow-x: auto;
+    }
+
+    .nav-item {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 14px 0;
+      margin-right: 2rem;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all var(--transition);
+      white-space: nowrap;
+    }
+
+    .nav-item:hover {
+      color: var(--text-secondary);
+    }
+
+    .nav-item.active {
+      color: var(--text-primary);
+      border-bottom-color: var(--accent-warm);
+    }
+
+    .section {
+      display: none;
+      padding: 2.5rem;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.015em;
+      margin-bottom: 2rem;
+      color: var(--text-primary);
+    }
+
+    .card {
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+      transition: background var(--transition);
+    }
+
+    .card-label {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+
+    .color-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .swatch-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .swatch {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius);
+      border: 0.5px solid rgba(0, 0, 0, 0.06);
+      transition: transform 0.15s;
+      cursor: default;
+    }
+
+    .swatch:hover {
+      transform: scale(1.08);
+    }
+
+    .swatch-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    .type-specimen {
+      margin-bottom: 1.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 0.5px solid var(--border);
+    }
+
+    .type-specimen:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .type-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      margin-top: 6px;
+    }
+
+    .grid {
+      display: grid;
+      gap: 1.25rem;
+    }
+
+    .grid-2 {
+      grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+    }
+
+    .grid-3 {
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
+
+    .mb-card {
+      margin-bottom: 1.25rem;
+    }
+
+    .mt-card {
+      margin-top: 1.25rem;
+    }
+
+    .palette-row {
+      display: flex;
+    }
+
+    .palette-strip {
+      flex: 1;
+      height: 56px;
+    }
+
+    .palette-ink .palette-strip:nth-child(1) {
+      background: #1A1714;
+    }
+
+    .palette-ink .palette-strip:nth-child(2) {
+      background: #3A3530;
+    }
+
+    .palette-ink .palette-strip:nth-child(3) {
+      background: #5C5549;
+    }
+
+    .palette-ink .palette-strip:nth-child(4) {
+      background: #9B9185;
+    }
+
+    .palette-ink .palette-strip:nth-child(5) {
+      background: #C8C0B4;
+    }
+
+    .palette-ink .palette-strip:nth-child(6) {
+      background: #E8E2D8;
+    }
+
+    .palette-ink .palette-strip:nth-child(7) {
+      background: #F9F7F4;
+    }
+
+    .palette-ember .palette-strip:nth-child(1) {
+      background: #5C2010;
+    }
+
+    .palette-ember .palette-strip:nth-child(2) {
+      background: #8C3A1E;
+    }
+
+    .palette-ember .palette-strip:nth-child(3) {
+      background: #B05B2C;
+    }
+
+    .palette-ember .palette-strip:nth-child(4) {
+      background: #CC7A48;
+    }
+
+    .palette-ember .palette-strip:nth-child(5) {
+      background: #E0A882;
+    }
+
+    .palette-ember .palette-strip:nth-child(6) {
+      background: #F2D4BA;
+    }
+
+    .palette-ember .palette-strip:nth-child(7) {
+      background: #FBF0E8;
+    }
+
+    .palette-gold .palette-strip:nth-child(1) {
+      background: #3D2D08;
+    }
+
+    .palette-gold .palette-strip:nth-child(2) {
+      background: #7A5C1E;
+    }
+
+    .palette-gold .palette-strip:nth-child(3) {
+      background: #C4953A;
+    }
+
+    .palette-gold .palette-strip:nth-child(4) {
+      background: #D4A84B;
+    }
+
+    .palette-gold .palette-strip:nth-child(5) {
+      background: #E8D4A0;
+    }
+
+    .palette-gold .palette-strip:nth-child(6) {
+      background: #FBF5E4;
+    }
+
+    .palette-sage .palette-strip:nth-child(1) {
+      background: #1A2E1C;
+    }
+
+    .palette-sage .palette-strip:nth-child(2) {
+      background: #3A5E3E;
+    }
+
+    .palette-sage .palette-strip:nth-child(3) {
+      background: #5A7A5E;
+    }
+
+    .palette-sage .palette-strip:nth-child(4) {
+      background: #7DA882;
+    }
+
+    .palette-sage .palette-strip:nth-child(5) {
+      background: #BDDCBE;
+    }
+
+    .palette-sage .palette-strip:nth-child(6) {
+      background: #EBF2EB;
+    }
+
+    .palette-slate .palette-strip:nth-child(1) {
+      background: #0E1520;
+    }
+
+    .palette-slate .palette-strip:nth-child(2) {
+      background: #1E2A3C;
+    }
+
+    .palette-slate .palette-strip:nth-child(3) {
+      background: #2E4060;
+    }
+
+    .palette-slate .palette-strip:nth-child(4) {
+      background: #4A6688;
+    }
+
+    .palette-slate .palette-strip:nth-child(5) {
+      background: #9AB0CC;
+    }
+
+    .palette-slate .palette-strip:nth-child(6) {
+      background: #EAF0F7;
+    }
+
+    .palette-block {
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      border: 0.5px solid var(--border);
+    }
+
+    .palette-name {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 10px 14px 8px;
+      background: var(--surface);
+      color: var(--text-secondary);
+      border-bottom: 0.5px solid var(--border);
+    }
+
+    .token-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 10px;
+    }
+
+    .token-chip {
+      padding: 12px 14px;
+      border-radius: var(--radius);
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .token-primary {
+      background: var(--text-primary);
+      color: var(--bg);
+    }
+
+    .token-accent {
+      background: var(--accent-warm);
+      color: #fff;
+    }
+
+    .token-highlight {
+      background: var(--accent-gold);
+      color: #fff;
+    }
+
+    .token-success {
+      background: var(--accent-sage);
+      color: #fff;
+    }
+
+    .token-muted {
+      background: var(--surface-2);
+      color: var(--text-secondary);
+      border: 0.5px solid var(--border);
+    }
+
+    .type-display-xl {
+      font-family: var(--font-display);
+      font-size: 48px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+
+    .type-display-lg {
+      font-family: var(--font-display);
+      font-size: 32px;
+      font-weight: 500;
+      letter-spacing: -0.015em;
+      line-height: 1.2;
+    }
+
+    .type-display-md {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+    }
+
+    .type-body {
+      font-family: var(--font-body);
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 1.7;
+      color: var(--text-secondary);
+    }
+
+    .type-label {
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .type-mono {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--text-secondary);
+    }
+
+    .type-meta-spaced {
+      margin-top: 12px;
+    }
+
+    .btn-demo {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 500;
+      border-radius: var(--radius);
+      padding: 9px 20px;
+      cursor: pointer;
+      transition: all 0.15s;
+      border: none;
+      letter-spacing: 0.01em;
+    }
+
+    .btn-primary {
+      background: var(--text-primary);
+      color: var(--bg);
+    }
+
+    .btn-primary:hover {
+      opacity: 0.85;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--text-primary);
+      border: 0.5px solid var(--border-strong);
+    }
+
+    .btn-secondary:hover {
+      background: var(--surface-2);
+    }
+
+    .btn-warm {
+      background: var(--accent-warm);
+      color: #fff;
+    }
+
+    .btn-warm:hover {
+      opacity: 0.9;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-secondary);
+      border: 0.5px solid var(--border);
+    }
+
+    .btn-ghost:hover {
+      background: var(--surface-2);
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-top: 12px;
+    }
+
+    .btn-sm {
+      padding: 7px 16px;
+      font-size: 13px;
+    }
+
+    .btn-lg {
+      padding: 11px 28px;
+      font-size: 15px;
+    }
+
+    .btn-disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 100px;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.03em;
+    }
+
+    .tag-neutral {
+      background: var(--surface-2);
+      color: var(--text-secondary);
+      border: 0.5px solid var(--border);
+    }
+
+    .tag-warm {
+      background: #FAF0E8;
+      color: #8C4A20;
+      border: 0.5px solid #EDCDB4;
+    }
+
+    [data-theme="dark"] .tag-warm {
+      background: #2C1A0E;
+      color: #D4845A;
+      border-color: #4A2A14;
+    }
+
+    .tag-gold {
+      background: #FBF5E4;
+      color: #7A5C1E;
+      border: 0.5px solid #E8D4A0;
+    }
+
+    [data-theme="dark"] .tag-gold {
+      background: #261E0A;
+      color: #D4A84B;
+      border-color: #3D300E;
+    }
+
+    .tag-sage {
+      background: #EBF2EB;
+      color: #3A5E3E;
+      border: 0.5px solid #BDDCBE;
+    }
+
+    [data-theme="dark"] .tag-sage {
+      background: #0E1E10;
+      color: #7DA882;
+      border-color: #1A3A1C;
+    }
+
+    .tag-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .tag-badge {
+      border-radius: var(--radius);
+      font-size: 11px;
+      padding: 2px 7px;
+    }
+
+    .input-demo {
+      width: 100%;
+      background: var(--surface);
+      border: 0.5px solid var(--border-strong);
+      border-radius: var(--radius);
+      padding: 9px 14px;
+      font-family: var(--font-body);
+      font-size: 14px;
+      color: var(--text-primary);
+      outline: none;
+      transition: border-color 0.15s;
+      margin-top: 8px;
+    }
+
+    .input-demo:focus {
+      border-color: var(--accent-warm);
+      box-shadow: 0 0 0 3px rgba(176, 91, 44, 0.12);
+    }
+
+    .select-demo {
+      width: 100%;
+      background: var(--surface);
+      border: 0.5px solid var(--border-strong);
+      border-radius: var(--radius);
+      padding: 9px 14px;
+      font-family: var(--font-body);
+      font-size: 14px;
+      color: var(--text-primary);
+      outline: none;
+      appearance: none;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    .input-offset {
+      margin-top: 10px;
+    }
+
+    .divider {
+      height: 0.5px;
+      background: var(--border);
+      margin: 2rem 0;
+    }
+
+    .icon-demo {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius);
+      border: 0.5px solid var(--border-strong);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s;
+      background: var(--surface);
+      color: var(--text-primary);
+    }
+
+    .material-symbols-outlined {
+      font-size: 18px;
+      line-height: 1;
+      font-variation-settings:
+        'FILL' 0,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 24;
+    }
+
+    .icon-demo:hover {
+      background: var(--surface-2);
+    }
+
+    .icon-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .notify {
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      font-size: 13px;
+      line-height: 1.5;
+      margin-bottom: 10px;
+      border-left: 3px solid;
+      background: var(--surface);
+    }
+
+    .notify-info {
+      border-color: #378ADD;
+      background: #EFF6FE;
+      color: #185FA5;
+    }
+
+    [data-theme="dark"] .notify-info {
+      background: #081C34;
+      color: #85B7EB;
+    }
+
+    .notify-success {
+      border-color: #5A7A5E;
+      background: #EBF2EB;
+      color: #3A5E3E;
+    }
+
+    [data-theme="dark"] .notify-success {
+      background: #0E1E10;
+      color: #7DA882;
+    }
+
+    .notify-warning {
+      border-color: #C4953A;
+      background: #FBF5E4;
+      color: #7A5C1E;
+    }
+
+    [data-theme="dark"] .notify-warning {
+      background: #261E0A;
+      color: #D4A84B;
+    }
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--surface-2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 500;
+      font-size: 13px;
+      color: var(--text-secondary);
+      border: 0.5px solid var(--border);
+    }
+
+    .avatar-row {
+      display: flex;
+      gap: -6px;
+      margin-top: 12px;
+    }
+
+    .avatar-row .avatar {
+      margin-left: -8px;
+      border: 2px solid var(--bg);
+    }
+
+    .avatar-row .avatar:first-child {
+      margin-left: 0;
+    }
+
+    .avatar-ember {
+      background: #F2D4BA;
+      color: #8C3A1E;
+      border-color: #EDCDB4;
+    }
+
+    .avatar-sage {
+      background: #EBF2EB;
+      color: #3A5E3E;
+      border-color: #BDDCBE;
+    }
+
+    .avatar-gold {
+      background: #FBF5E4;
+      color: #7A5C1E;
+      border-color: #E8D4A0;
+    }
+
+    .avatar-more {
+      background: var(--surface-2);
+      color: var(--text-muted);
+      border-color: var(--border);
+      font-size: 11px;
+    }
+
+    .spacing-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .spacing-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .spacing-block {
+      background: var(--accent-warm);
+      opacity: 0.7;
+      border-radius: 2px;
+    }
+
+    .spacing-val {
+      font-size: 10px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    .spacing-size-4 {
+      width: 4px;
+      height: 4px;
+    }
+
+    .spacing-size-8 {
+      width: 8px;
+      height: 8px;
+    }
+
+    .spacing-size-12 {
+      width: 12px;
+      height: 12px;
+    }
+
+    .spacing-size-16 {
+      width: 16px;
+      height: 16px;
+    }
+
+    .spacing-size-24 {
+      width: 24px;
+      height: 24px;
+    }
+
+    .spacing-size-32 {
+      width: 32px;
+      height: 32px;
+    }
+
+    .spacing-size-48 {
+      width: 48px;
+      height: 48px;
+    }
+
+    .spacing-size-64 {
+      width: 64px;
+      height: 64px;
+    }
+
+    .demo-row {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+      align-items: flex-end;
+    }
+
+    .demo-stack {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .radius-sample {
+      width: 48px;
+      height: 48px;
+      background: var(--surface-2);
+      border: 0.5px solid var(--border-strong);
+    }
+
+    .radius-2 {
+      border-radius: 2px;
+    }
+
+    .radius-4 {
+      border-radius: 4px;
+    }
+
+    .radius-8 {
+      border-radius: 8px;
+    }
+
+    .radius-12 {
+      border-radius: 12px;
+    }
+
+    .radius-24 {
+      border-radius: 24px;
+    }
+
+    .radius-pill {
+      border-radius: 100px;
+    }
+
+    .shadow-row {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    .shadow-item {
+      width: 72px;
+      height: 56px;
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    .shadow-0 {
+      border: 0.5px solid var(--border);
+    }
+
+    .shadow-1 {
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    }
+
+    .shadow-2 {
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+    }
+
+    .shadow-3 {
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.16);
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 0;
+      }
+
+      #root {
+        border-radius: 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="root">
+    <div class="header">
+      <div>
+        <div class="wordmark">Design System</div>
+        <div class="header-title">Style Guide</div>
+      </div>
+      <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">
+        <span class="material-symbols-outlined theme-icon" aria-hidden="true">light_mode</span> Light mode
+      </button>
+    </div>
+
+    <nav class="nav">
+      <div class="nav-item active" onclick="showSection('colors', this)">Colors</div>
+      <div class="nav-item" onclick="showSection('typography', this)">Typography</div>
+      <div class="nav-item" onclick="showSection('components', this)">Components</div>
+      <div class="nav-item" onclick="showSection('spacing', this)">Spacing & Elevation</div>
+    </nav>
+
+    <section id="section-colors" class="section active">
+      <div class="section-label">Foundation</div>
+      <div class="section-title">Color</div>
+
+      <div class="grid grid-2 mb-card">
+        <div class="palette-block palette-ink">
+          <div class="palette-name">Ink</div>
+          <div class="palette-row">
+            <div class="palette-strip"></div>
+            <div class="palette-strip"></div>
+            <div class="palette-strip"></div>
+            <div class="palette-strip"></div>
+            <div class="palette-strip"></div>
+            <div class="palette-strip"></div>
+            <div class="palette-strip"></div>
+          </div>
+        </div>
+        <div class="palette-block palette-ember">
+          <div class="palette-name">Ember</div>
+          <div class="palette-row">
+            <div class="palette-strip"></div>
+            <div class="palette-strip"></div>
+            <div class="palette-strip"></div>
+            <div class="palette-strip"></div>
+            <div class="palette-strip"></div>
+            <div class="palette-strip"></div>
+            <div class="palette-strip"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-3">
+        <div class="palette-block palette-gold">
+          <div class="palette-name">Gold</div>
+          <div class="palette-row">
+            <div class="palette-strip"></div>
+            <div class="palette-strip"></div>
+            <div class="palette-strip"></div>
+            <div class="palette-strip"></div>
+            <div class="palette-strip"></div>
+            <div class="palette-strip"></div>
+          </div>
+        </div>
+        <div class="palette-block palette-sage">
+          <div class="palette-name">Sage</div>
+          <div class="palette-row">
+            <div class="palette-strip"></div>
+            <div class="palette-strip"></div>
+            <div class="palette-strip"></div>
+            <div class="palette-strip"></div>
+            <div class="palette-strip"></div>
+            <div class="palette-strip"></div>
+          </div>
+        </div>
+        <div class="palette-block palette-slate">
+          <div class="palette-name">Slate</div>
+          <div class="palette-row">
+            <div class="palette-strip"></div>
+            <div class="palette-strip"></div>
+            <div class="palette-strip"></div>
+            <div class="palette-strip"></div>
+            <div class="palette-strip"></div>
+            <div class="palette-strip"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="card-label">Semantic tokens</div>
+      <div class="token-grid">
+        <div class="token-chip token-primary">Primary</div>
+        <div class="token-chip token-accent">Accent</div>
+        <div class="token-chip token-highlight">Highlight</div>
+        <div class="token-chip token-success">Success</div>
+        <div class="token-chip token-muted">Muted</div>
+      </div>
+    </section>
+
+    <section id="section-typography" class="section">
+      <div class="section-label">Foundation</div>
+      <div class="section-title">Typography</div>
+
+      <div class="card">
+        <div class="type-specimen">
+          <div class="type-display-xl">
+            The quick brown fox</div>
+          <div class="type-meta">Playfair Display · 48px / 700 · Display heading</div>
+        </div>
+        <div class="type-specimen">
+          <div class="type-display-lg">
+            Refined editorial presence</div>
+          <div class="type-meta">Playfair Display · 32px / 500 · Section heading</div>
+        </div>
+        <div class="type-specimen">
+          <div class="type-display-md">
+            Subtlety is the mark of sophistication</div>
+          <div class="type-meta">Playfair Display · 22px / 400 · Sub-heading</div>
+        </div>
+        <div class="type-specimen">
+          <div class="type-body">
+            Body text uses DM Sans for clean legibility at all sizes. Long-form content breathes with generous
+            line-height. The pairing of a classical serif display with a geometric sans creates a sense of considered
+            luxury — timeless without being stiff.</div>
+          <div class="type-meta">DM Sans · 16px / 400 · Body</div>
+        </div>
+        <div class="type-specimen">
+          <div class="type-label">
+            Label text · Caption · Overline</div>
+          <div class="type-meta">DM Sans · 12px / 500 · uppercase · Metadata</div>
+        </div>
+      </div>
+
+      <div class="card mt-card">
+        <div class="card-label">Monospace</div>
+        <div class="type-mono">
+          const palette = {<br>
+          &nbsp;&nbsp;ember: '#B05B2C',<br>
+          &nbsp;&nbsp;gold: '#C4953A',<br>
+          &nbsp;&nbsp;sage: '#5A7A5E',<br>
+          };
+        </div>
+        <div class="type-meta type-meta-spaced">DM Mono · 14px / 400 · Code & technical</div>
+      </div>
+    </section>
+
+    <section id="section-components" class="section">
+      <div class="section-label">Building blocks</div>
+      <div class="section-title">Components</div>
+
+      <div class="card">
+        <div class="card-label">Buttons</div>
+        <div class="btn-row">
+          <button class="btn-demo btn-primary">Primary action</button>
+          <button class="btn-demo btn-secondary">Secondary</button>
+          <button class="btn-demo btn-warm">Accent</button>
+          <button class="btn-demo btn-ghost">Ghost</button>
+        </div>
+        <div class="btn-row">
+          <button class="btn-demo btn-primary btn-sm">Small</button>
+          <button class="btn-demo btn-secondary btn-lg">Large</button>
+          <button class="btn-demo btn-primary btn-disabled">Disabled</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Tags & badges</div>
+        <div class="tag-row">
+          <span class="tag tag-neutral">Default</span>
+          <span class="tag tag-warm">Ember</span>
+          <span class="tag tag-gold">Gold</span>
+          <span class="tag tag-sage">Sage</span>
+          <span class="tag tag-neutral tag-badge">Badge</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Form inputs</div>
+        <input type="text" class="input-demo" placeholder="Text input" />
+        <input type="text" class="input-demo input-offset" placeholder="With value" value="example@example.com" />
+        <select class="select-demo">
+          <option>Select an option</option>
+          <option>Design</option>
+          <option>Engineering</option>
+          <option>Product</option>
+        </select>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Notifications</div>
+        <div class="notify notify-info">Informational — action required or context provided here.</div>
+        <div class="notify notify-success">Success — the operation completed without errors.</div>
+        <div class="notify notify-warning">Warning — review before proceeding further.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Avatars</div>
+        <div class="avatar-row">
+          <div class="avatar">JK</div>
+          <div class="avatar avatar-ember">AL</div>
+          <div class="avatar avatar-sage">MR</div>
+          <div class="avatar avatar-gold">TP</div>
+          <div class="avatar avatar-more">
+            +4</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Icon buttons</div>
+        <div class="icon-row">
+          <div class="icon-demo" title="Search">
+            <span class="material-symbols-outlined" aria-hidden="true">search</span>
+          </div>
+          <div class="icon-demo" title="Add">
+            <span class="material-symbols-outlined" aria-hidden="true">add</span>
+          </div>
+          <div class="icon-demo" title="Settings">
+            <span class="material-symbols-outlined" aria-hidden="true">settings</span>
+          </div>
+          <div class="icon-demo" title="Close">
+            <span class="material-symbols-outlined" aria-hidden="true">close</span>
+          </div>
+          <div class="icon-demo" title="Menu">
+            <span class="material-symbols-outlined" aria-hidden="true">menu</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="section-spacing" class="section">
+      <div class="section-label">Foundation</div>
+      <div class="section-title">Spacing & Elevation</div>
+
+      <div class="card">
+        <div class="card-label">Spacing scale (4px base unit)</div>
+        <div class="spacing-row">
+          <div class="spacing-item">
+            <div class="spacing-block spacing-size-4"></div>
+            <div class="spacing-val">4px</div>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-block spacing-size-8"></div>
+            <div class="spacing-val">8px</div>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-block spacing-size-12"></div>
+            <div class="spacing-val">12px</div>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-block spacing-size-16"></div>
+            <div class="spacing-val">16px</div>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-block spacing-size-24"></div>
+            <div class="spacing-val">24px</div>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-block spacing-size-32"></div>
+            <div class="spacing-val">32px</div>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-block spacing-size-48"></div>
+            <div class="spacing-val">48px</div>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-block spacing-size-64"></div>
+            <div class="spacing-val">64px</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Border radius</div>
+        <div class="demo-row">
+          <div class="demo-stack">
+            <div class="radius-sample radius-2"></div>
+            <div class="spacing-val">2px</div>
+          </div>
+          <div class="demo-stack">
+            <div class="radius-sample radius-4"></div>
+            <div class="spacing-val">4px · sm</div>
+          </div>
+          <div class="demo-stack">
+            <div class="radius-sample radius-8"></div>
+            <div class="spacing-val">8px · md</div>
+          </div>
+          <div class="demo-stack">
+            <div class="radius-sample radius-12"></div>
+            <div class="spacing-val">12px · lg</div>
+          </div>
+          <div class="demo-stack">
+            <div class="radius-sample radius-24"></div>
+            <div class="spacing-val">24px · xl</div>
+          </div>
+          <div class="demo-stack">
+            <div class="radius-sample radius-pill"></div>
+            <div class="spacing-val">full · pill</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Elevation</div>
+        <div class="shadow-row">
+          <div class="demo-stack">
+            <div class="shadow-item shadow-0">flat</div>
+            <div class="spacing-val">border only</div>
+          </div>
+          <div class="demo-stack">
+            <div class="shadow-item shadow-1">low</div>
+            <div class="spacing-val">hover state</div>
+          </div>
+          <div class="demo-stack">
+            <div class="shadow-item shadow-2">mid</div>
+            <div class="spacing-val">dropdown</div>
+          </div>
+          <div class="demo-stack">
+            <div class="shadow-item shadow-3">high</div>
+            <div class="spacing-val">modal</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    let isDark = false;
+    function toggleTheme() {
+      isDark = !isDark;
+      const root = document.getElementById('root');
+      document.documentElement.setAttribute('data-theme', isDark ? 'dark' : '');
+      root.setAttribute('data-theme', isDark ? 'dark' : '');
+      const btn = document.getElementById('theme-btn');
+      btn.innerHTML = isDark
+        ? '<span class="material-symbols-outlined theme-icon" aria-hidden="true">dark_mode</span> Dark mode'
+        : '<span class="material-symbols-outlined theme-icon" aria-hidden="true">light_mode</span> Light mode';
+    }
+
+    function showSection(id, el) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      document.getElementById('section-' + id).classList.add('active');
+      el.classList.add('active');
+    }
+  </script>
+</body>
+
+</html>

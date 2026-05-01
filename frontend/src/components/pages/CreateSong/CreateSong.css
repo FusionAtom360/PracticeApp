@@ -1,0 +1,118 @@
+.create-song {
+	max-width: 1100px;
+	margin: 0 auto;
+	padding: clamp(2rem, 4vw, 4rem) clamp(1rem, 3vw, 2.5rem);
+}
+
+.create-song__panel {
+	border: 1px solid var(--border);
+	border-radius: 24px;
+	background:
+		radial-gradient(circle at top left, rgba(176, 91, 44, 0.08), transparent 32%),
+		linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(248, 244, 238, 0.95));
+	box-shadow: 0 18px 60px rgba(40, 30, 20, 0.08);
+	padding: clamp(1.5rem, 3vw, 2.5rem);
+}
+
+.create-song__header {
+	display: grid;
+	gap: 0.5rem;
+	margin-bottom: 1.5rem;
+}
+
+.create-song__kicker {
+	text-transform: uppercase;
+	letter-spacing: 0.18em;
+	font-size: 0.78rem;
+	color: var(--accent-warm);
+	font-weight: 700;
+}
+
+.create-song__header h1 {
+	font-size: clamp(2.2rem, 4vw, 3.8rem);
+}
+
+.create-song__description {
+	max-width: 68ch;
+}
+
+.create-song__form {
+	display: grid;
+	gap: 1.25rem;
+}
+
+.create-song__grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 1rem;
+}
+
+.create-song__field {
+	display: grid;
+	gap: 0.45rem;
+	color: var(--text-secondary);
+}
+
+.create-song__field span {
+	font-size: 0.9rem;
+	font-weight: 700;
+	color: var(--text-primary);
+}
+
+.create-song__field input {
+	width: 100%;
+	border: 1px solid var(--border-strong);
+	border-radius: 14px;
+	background: rgba(255, 255, 255, 0.85);
+	color: var(--text-primary);
+	padding: 0.9rem 1rem;
+	transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+}
+
+.create-song__field input:focus {
+	outline: none;
+	border-color: var(--accent-warm);
+	box-shadow: 0 0 0 3px rgba(176, 91, 44, 0.14);
+	background: white;
+}
+
+.create-song__field input[type="file"] {
+	padding: 0.75rem 1rem;
+}
+
+.create-song__field small {
+	color: var(--text-muted);
+}
+
+.create-song__field--full {
+	grid-column: 1 / -1;
+}
+
+.create-song__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.75rem;
+	justify-content: flex-end;
+}
+
+.create-song__error {
+	border-radius: 14px;
+	border: 1px solid rgba(176, 91, 44, 0.25);
+	background: rgba(176, 91, 44, 0.08);
+	color: #7b3418;
+	padding: 0.9rem 1rem;
+}
+
+@media (max-width: 760px) {
+	.create-song__grid {
+		grid-template-columns: 1fr;
+	}
+
+	.create-song__actions {
+		justify-content: stretch;
+	}
+
+	.create-song__actions > * {
+		width: 100%;
+	}
+}

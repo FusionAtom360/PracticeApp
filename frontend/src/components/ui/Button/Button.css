@@ -1,0 +1,91 @@
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-body);
+    font-weight: 500;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.15s;
+    border: none;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+}
+
+/* Size Variants */
+.btn--sm {
+    font-size: 0.8125rem;
+    padding: 0.4375rem 1rem;
+}
+
+.btn--md {
+    font-size: 0.875rem;
+    padding: 0.5625rem 1.25rem;
+}
+
+.btn--lg {
+    font-size: 0.9375rem;
+    padding: 0.6875rem 1.75rem;
+}
+
+/* Style Variants */
+.btn--primary {
+    background: var(--text-primary);
+    color: var(--bg);
+}
+
+.btn--primary:hover:not(:disabled) {
+    opacity: 0.85;
+}
+
+.btn--primary:active:not(:disabled) {
+    opacity: 0.7;
+}
+
+.btn--secondary {
+    background: transparent;
+    color: var(--text-primary);
+    border: 0.5px solid var(--border-strong);
+}
+
+.btn--secondary:hover:not(:disabled) {
+    background: var(--surface-2);
+}
+
+.btn--secondary:active:not(:disabled) {
+    background: var(--border);
+}
+
+.btn--ghost {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 0.5px solid var(--border);
+}
+
+.btn--ghost:hover:not(:disabled) {
+    background: var(--surface-2);
+}
+
+.btn--ghost:active:not(:disabled) {
+    background: var(--surface-2);
+    color: var(--text-primary);
+}
+
+.btn--warm {
+    background: var(--accent-warm);
+    color: #fff;
+}
+
+.btn--warm:hover:not(:disabled) {
+    opacity: 0.9;
+}
+
+.btn--warm:active:not(:disabled) {
+    opacity: 0.8;
+}
+
+/* Disabled State */
+.btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}

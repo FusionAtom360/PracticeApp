@@ -1,0 +1,149 @@
+.song-header {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 2.5rem;
+    align-items: end;
+    position: relative;
+}
+
+.song-header:has(.header-image) {
+    grid-template-columns: auto 1fr auto;
+}
+
+.song-header:not(:has(.header-image)) {
+    grid-template-columns: 1fr auto;
+}
+
+.header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.header-title-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.song-title {
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.song-composer {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.6;
+}
+
+.header-progress-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.progress-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.header-image {
+    width: 140px;
+    height: 140px;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    border: 0.5px solid var(--border-strong);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface-2);
+    flex-shrink: 0;
+}
+
+.header-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.header-actions {
+    display: flex;
+    flex-direction: row;
+    gap: 0.75rem;
+    justify-content: center;
+    align-items: center;
+}
+
+.header-action-play .icon-button {
+    background: var(--accent-warm);
+    border-color: var(--accent-warm);
+    color: #ffffff;
+}
+
+.header-action-play .icon-button:hover {
+    background: var(--accent-warm);
+    border-color: var(--accent-warm);
+    opacity: 0.9;
+}
+
+.header-action-edit .icon-button {
+    background: var(--surface);
+    border-color: var(--border-strong);
+    color: var(--text-primary);
+}
+
+.header-guided-practice-btn {
+    margin-right: 0.75rem;
+}
+
+/* Responsive layout */
+@media (max-width: 1024px) {
+    .song-header {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .header-image {
+        width: 120px;
+        height: 120px;
+    }
+
+    .header-actions {
+        flex-direction: row;
+        gap: 0.75rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .song-header {
+        padding: 1.25rem;
+        gap: 1rem;
+    }
+
+    .song-title {
+        font-size: 22px;
+    }
+
+    .header-image {
+        width: 100px;
+        height: 100px;
+    }
+
+    .header-actions {
+        flex-direction: column;
+    }
+}

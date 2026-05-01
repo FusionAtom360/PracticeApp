@@ -1,0 +1,136 @@
+.dialog-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.5);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1000;
+	animation: fadeIn 0.15s ease-out;
+}
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+.dialog-box {
+	background: var(--surface);
+	border: 0.5px solid var(--border);
+	border-radius: var(--radius-lg);
+	max-width: 500px;
+	width: 90%;
+	max-height: 90vh;
+	overflow-y: auto;
+	animation: slideUp 0.2s ease-out;
+}
+
+@keyframes slideUp {
+	from {
+		transform: translateY(20px);
+		opacity: 0;
+	}
+	to {
+		transform: translateY(0);
+		opacity: 1;
+	}
+}
+
+.dialog-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 1.5rem;
+	border-bottom: 0.5px solid var(--border);
+	gap: 1rem;
+}
+
+.dialog-title {
+	font-family: var(--font-display);
+	font-size: 20px;
+	font-weight: 700;
+	color: var(--text-primary);
+	margin: 0;
+	flex: 1;
+}
+
+.dialog-close {
+	background: none;
+	border: none;
+	font-size: 28px;
+	color: var(--text-secondary);
+	cursor: pointer;
+	padding: 0;
+	width: 32px;
+	height: 32px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: color 0.15s;
+}
+
+.dialog-close:hover {
+	color: var(--text-primary);
+}
+
+.dialog-content {
+	padding: 1.5rem;
+	color: var(--text-primary);
+}
+
+.dialog-footer {
+	display: flex;
+	gap: 1rem;
+	padding: 1.5rem;
+	border-top: 0.5px solid var(--border);
+	justify-content: flex-end;
+}
+
+.dialog-btn {
+	padding: 0.5625rem 1.25rem;
+	border-radius: var(--radius);
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.15s;
+	border: none;
+	font-size: 0.875rem;
+}
+
+.dialog-btn--primary {
+	background: var(--text-primary);
+	color: var(--bg);
+}
+
+.dialog-btn--primary:hover:not(:disabled) {
+	opacity: 0.85;
+}
+
+.dialog-btn--primary:active:not(:disabled) {
+	opacity: 0.7;
+}
+
+.dialog-btn--secondary {
+	background: transparent;
+	color: var(--text-primary);
+	border: 0.5px solid var(--border-strong);
+}
+
+.dialog-btn--secondary:hover:not(:disabled) {
+	background: var(--surface-2);
+}
+
+.dialog-btn--secondary:active:not(:disabled) {
+	background: var(--border);
+}
+
+.dialog-btn:disabled {
+	opacity: 0.4;
+	cursor: not-allowed;
+}

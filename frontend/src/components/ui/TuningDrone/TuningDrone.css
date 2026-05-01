@@ -1,0 +1,56 @@
+.selector-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.drone-selector {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.75rem;
+}
+
+.drone-option {
+    min-height: 5.5rem;
+    padding: 0.9rem;
+    border-radius: 1rem;
+    border: 0.5px solid var(--border);
+    background: var(--surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: left;
+    cursor: pointer;
+    transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease, background 160ms ease, color 160ms ease;
+}
+
+.drone-option:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(18, 14, 11, 0.08);
+}
+
+.drone-option.is-active {
+    border-color: var(--accent-warm);
+    box-shadow: 0 0 0 1px rgba(176, 91, 44, 0.08), 0 12px 28px rgba(176, 91, 44, 0.12);
+    background: var(--accent-warm);
+}
+
+.drone-option-note {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    color: var(--text-primary);
+}
+
+.drone-option.is-active .drone-option-note {
+    color: #fff;
+}
+
+@media (max-width: 900px) {
+    .drone-selector {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}

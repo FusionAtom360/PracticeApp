@@ -1,0 +1,68 @@
+:root {
+    --progress-1: #3A5E3E;
+    --progress-2: #7DA882;
+    --progress-3: #e73838;
+}
+
+.progress-bar-container {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  width: 9rem;
+}
+
+.progress-bar-track {
+  display: flex;
+  height: 0.5rem;
+  border-radius: 0.1rem;
+  overflow: hidden;
+  background-color: #f0f0f0;
+  flex: 1;
+  min-width: 4.5rem;
+}
+
+.progress-bar-segment {
+  height: 100%;
+  transition: width 1s ease;
+}
+
+.progress-bar-old {
+  background-color: var(--progress-1);
+}
+
+.progress-bar-positive {
+  background-color: var(--progress-2);
+}
+
+.progress-bar-negative {
+  background-color: var(--progress-3);
+}
+
+.progress-bar-stats {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: 2rem;
+  text-align: right;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.progress-bar-percentage {
+  color: var(--text-secondary);
+  font-weight: 700;
+}
+
+.progress-bar-change {
+  font-weight: 700;
+}
+
+.progress-change-positive {
+  color: var(--progress-2);
+}
+
+.progress-change-negative {
+  color: var(--progress-3);
+}

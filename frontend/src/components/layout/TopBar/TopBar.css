@@ -1,0 +1,45 @@
+.top-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    height: 64px;
+    border-bottom: 1px solid var(--border);
+    background: white;
+    backdrop-filter: blur(8px);
+    display: flex;
+    justify-content: center;
+}
+
+.top-bar__inner {
+    height: 100%;
+    width: 100%;
+    max-width: 1200px;
+    padding: 0 clamp(1rem, 3vw, 2.5rem);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.top-bar__left,
+.top-bar__right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.icon-button.top-bar__multi-select--active,
+.top-bar__multi-select--active .icon-button {
+    background: var(--accent-warm);
+    border-color: var(--accent-warm);
+    color: #ffffff;
+}
+
+.icon-button.top-bar__multi-select--active:hover,
+.top-bar__multi-select--active .icon-button:hover {
+    background: var(--accent-warm);
+    border-color: var(--accent-warm);
+    opacity: 0.9;
+}

@@ -1,0 +1,36 @@
+.icon-button {
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
+    color: var(--text-primary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform var(--transition), background var(--transition), border-color var(--transition);
+}
+
+.icon-button:hover {
+    transform: translateY(-1px);
+    border-color: var(--accent-gold);
+    background: var(--surface-2);
+}
+
+.icon-button:focus-visible {
+    outline: 2px solid var(--accent-warm);
+    outline-offset: 2px;
+}
+
+.icon-button svg,
+.icon-button .MuiSvgIcon-root {
+    width: 18px;
+    height: 18px;
+}
+
+.icon-button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none;
+}

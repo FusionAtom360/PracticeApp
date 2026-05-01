@@ -1,0 +1,91 @@
+.measure-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-body);
+    font-weight: 500;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.15s;
+    border: none;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+}
+
+/* Size Variants */
+.measure-btn--sm {
+    font-size: 0.8125rem;
+    padding: 0.4375rem 1rem;
+}
+
+.measure-btn--md {
+    font-size: 0.875rem;
+    padding: 0.5625rem 1.25rem;
+}
+
+.measure-btn--lg {
+    font-size: 0.9375rem;
+    padding: 0.6875rem 1.75rem;
+}
+
+/* Style Variants */
+.measure-btn--primary {
+    background: var(--text-primary);
+    color: var(--bg);
+}
+
+.measure-btn--primary:hover:not(:disabled) {
+    opacity: 0.85;
+}
+
+.measure-btn--primary:active:not(:disabled) {
+    opacity: 0.7;
+}
+
+.measure-btn--secondary {
+    background: transparent;
+    color: var(--text-primary);
+    border: 0.5px solid var(--border-strong);
+}
+
+.measure-btn--secondary:hover:not(:disabled) {
+    background: var(--surface-2);
+}
+
+.measure-btn--secondary:active:not(:disabled) {
+    background: var(--border);
+}
+
+.measure-btn--ghost {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 0.5px solid var(--border);
+}
+
+.measure-btn--ghost:hover:not(:disabled) {
+    background: var(--surface-2);
+}
+
+.measure-btn--ghost:active:not(:disabled) {
+    background: var(--surface-2);
+    color: var(--text-primary);
+}
+
+.measure-btn--warm {
+    background: var(--accent-warm);
+    color: #fff;
+}
+
+.measure-btn--warm:hover:not(:disabled) {
+    opacity: 0.9;
+}
+
+.measure-btn--warm:active:not(:disabled) {
+    opacity: 0.8;
+}
+
+/* Disabled State */
+.measure-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}

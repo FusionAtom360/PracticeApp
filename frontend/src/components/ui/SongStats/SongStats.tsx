@@ -24,7 +24,7 @@ const SongStats: React.FC<SongStatsProps> = ({ timePracticed, tempo, accuracy, l
     return (
         <div className="song-stats">
             <StatItem value={timePracticed} label="Time Practiced" />
-            <StatItem value={`${tempo} BPM`} label="Tempo" />
+            <StatItem value={`${tempo} BPM`} label="Current Tempo" />
             <StatItem value={`${accuracy}%`} label="Accuracy" />
             <StatItem value={lastPractice} label="Last Practice" />
         </div>

@@ -4,7 +4,7 @@ import PlayArrowOutlinedIcon from "@mui/icons-material/PlayArrowOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import ArchiveOutlinedIcon from "@mui/icons-material/ArchiveOutlined";
 import UnarchiveOutlinedIcon from "@mui/icons-material/UnarchiveOutlined";
-import AutoAwesomeOutlinedIcon from "@mui/icons-material/AutoAwesomeOutlined";
+// import AutoAwesomeOutlinedIcon from "@mui/icons-material/AutoAwesomeOutlined";
 import type { Song } from "../../../lib/songs";
 import {
     calculateSongProgress,
@@ -17,7 +17,6 @@ import {
 } from "../../../lib/songs";
 import { ProgressBar } from "../../ui/ProgressBar/ProgressBar";
 import IconButton from "../../ui/IconButton/IconButton";
-import Button from "../../ui/Button/Button";
 import SongEdit from "../SongEdit/SongEdit";
 import SongStats from "../../ui/SongStats/SongStats";
 import { useSongs } from "../../../context/SongContext";

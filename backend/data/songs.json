@@ -1291,13 +1291,43 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
           "mode": "stability",
-          "elapsedTime": 74,
-          "timeElapsed": 74
+          "elapsedTime": 78,
+          "timeElapsed": 78
         },
         {
           "number": 2,
@@ -1722,13 +1752,43 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
           "mode": "rapid",
-          "elapsedTime": 74,
-          "timeElapsed": 74
+          "elapsedTime": 78,
+          "timeElapsed": 78
         },
         {
           "number": 3,
@@ -2153,13 +2213,43 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
           "mode": "rapid",
-          "elapsedTime": 74,
-          "timeElapsed": 74
+          "elapsedTime": 78,
+          "timeElapsed": 78
         },
         {
           "number": 4,
@@ -2584,13 +2674,43 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
           "mode": "rapid",
-          "elapsedTime": 74,
-          "timeElapsed": 74
+          "elapsedTime": 78,
+          "timeElapsed": 78
         },
         {
           "number": 5,
@@ -3015,13 +3135,43 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
           "mode": "rapid",
-          "elapsedTime": 74,
-          "timeElapsed": 74
+          "elapsedTime": 78,
+          "timeElapsed": 78
         },
         {
           "number": 6,
@@ -3446,13 +3596,43 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
           "mode": "rapid",
-          "elapsedTime": 74,
-          "timeElapsed": 74
+          "elapsedTime": 78,
+          "timeElapsed": 78
         },
         {
           "number": 7,
@@ -3877,13 +4057,43 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
           "mode": "rapid",
-          "elapsedTime": 74,
-          "timeElapsed": 74
+          "elapsedTime": 78,
+          "timeElapsed": 78
         },
         {
           "number": 8,
@@ -4343,13 +4553,43 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
           "mode": "rapid",
-          "elapsedTime": 74,
-          "timeElapsed": 74
+          "elapsedTime": 78,
+          "timeElapsed": 78
         },
         {
           "number": 9,
@@ -4809,12 +5049,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 74,
-          "timeElapsed": 74
+          "elapsedTime": 78,
+          "timeElapsed": 78
         },
         {
           "number": 10,
@@ -5274,12 +5544,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 74,
-          "timeElapsed": 74
+          "elapsedTime": 78,
+          "timeElapsed": 78
         },
         {
           "number": 11,
@@ -5739,12 +6039,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 74,
-          "timeElapsed": 74
+          "elapsedTime": 78,
+          "timeElapsed": 78
         },
         {
           "number": 12,
@@ -6204,12 +6534,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 74,
-          "timeElapsed": 74
+          "elapsedTime": 78,
+          "timeElapsed": 78
         },
         {
           "number": 13,
@@ -6669,12 +7029,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 74,
-          "timeElapsed": 74
+          "elapsedTime": 78,
+          "timeElapsed": 78
         },
         {
           "number": 14,
@@ -7008,12 +7398,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 54,
-          "timeElapsed": 54
+          "elapsedTime": 58,
+          "timeElapsed": 58
         },
         {
           "number": 15,
@@ -7347,12 +7767,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 54,
-          "timeElapsed": 54
+          "elapsedTime": 58,
+          "timeElapsed": 58
         },
         {
           "number": 16,
@@ -7686,12 +8136,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 54,
-          "timeElapsed": 54
+          "elapsedTime": 58,
+          "timeElapsed": 58
         },
         {
           "number": 17,
@@ -8025,12 +8505,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 54,
-          "timeElapsed": 54
+          "elapsedTime": 58,
+          "timeElapsed": 58
         },
         {
           "number": 18,
@@ -8364,12 +8874,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 54,
-          "timeElapsed": 54
+          "elapsedTime": 58,
+          "timeElapsed": 58
         },
         {
           "number": 19,
@@ -8703,12 +9243,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 54,
-          "timeElapsed": 54
+          "elapsedTime": 58,
+          "timeElapsed": 58
         },
         {
           "number": 20,
@@ -9042,12 +9612,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 54,
-          "timeElapsed": 54
+          "elapsedTime": 58,
+          "timeElapsed": 58
         },
         {
           "number": 21,
@@ -9381,12 +9981,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 54,
-          "timeElapsed": 54
+          "elapsedTime": 58,
+          "timeElapsed": 58
         },
         {
           "number": 22,
@@ -9720,12 +10350,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 54,
-          "timeElapsed": 54
+          "elapsedTime": 58,
+          "timeElapsed": 58
         },
         {
           "number": 23,
@@ -10059,12 +10719,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 54,
-          "timeElapsed": 54
+          "elapsedTime": 58,
+          "timeElapsed": 58
         },
         {
           "number": 24,
@@ -10398,12 +11088,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 54,
-          "timeElapsed": 54
+          "elapsedTime": 58,
+          "timeElapsed": 58
         },
         {
           "number": 25,
@@ -10737,12 +11457,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 54,
-          "timeElapsed": 54
+          "elapsedTime": 58,
+          "timeElapsed": 58
         },
         {
           "number": 26,
@@ -11076,12 +11826,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 54,
-          "timeElapsed": 54
+          "elapsedTime": 58,
+          "timeElapsed": 58
         },
         {
           "number": 27,
@@ -11415,12 +12195,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 54,
-          "timeElapsed": 54
+          "elapsedTime": 58,
+          "timeElapsed": 58
         },
         {
           "number": 28,
@@ -11754,12 +12564,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 54,
-          "timeElapsed": 54
+          "elapsedTime": 58,
+          "timeElapsed": 58
         },
         {
           "number": 29,
@@ -12093,12 +12933,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 54,
-          "timeElapsed": 54
+          "elapsedTime": 58,
+          "timeElapsed": 58
         },
         {
           "number": 30,
@@ -12432,12 +13302,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 54,
-          "timeElapsed": 54
+          "elapsedTime": 58,
+          "timeElapsed": 58
         },
         {
           "number": 31,
@@ -12771,12 +13671,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 54,
-          "timeElapsed": 54
+          "elapsedTime": 58,
+          "timeElapsed": 58
         },
         {
           "number": 32,
@@ -13110,12 +14040,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 54,
-          "timeElapsed": 54
+          "elapsedTime": 58,
+          "timeElapsed": 58
         },
         {
           "number": 33,
@@ -13449,12 +14409,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 54,
-          "timeElapsed": 54
+          "elapsedTime": 58,
+          "timeElapsed": 58
         },
         {
           "number": 34,
@@ -13788,12 +14778,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 54,
-          "timeElapsed": 54
+          "elapsedTime": 58,
+          "timeElapsed": 58
         },
         {
           "number": 35,
@@ -14127,12 +15147,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 54,
-          "timeElapsed": 54
+          "elapsedTime": 58,
+          "timeElapsed": 58
         },
         {
           "number": 36,
@@ -14466,12 +15516,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 54,
-          "timeElapsed": 54
+          "elapsedTime": 58,
+          "timeElapsed": 58
         },
         {
           "number": 37,
@@ -14805,12 +15885,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 54,
-          "timeElapsed": 54
+          "elapsedTime": 58,
+          "timeElapsed": 58
         },
         {
           "number": 38,
@@ -15144,12 +16254,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 54,
-          "timeElapsed": 54
+          "elapsedTime": 58,
+          "timeElapsed": 58
         },
         {
           "number": 39,
@@ -15483,12 +16623,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 54,
-          "timeElapsed": 54
+          "elapsedTime": 58,
+          "timeElapsed": 58
         },
         {
           "number": 40,
@@ -15822,12 +16992,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 54,
-          "timeElapsed": 54
+          "elapsedTime": 58,
+          "timeElapsed": 58
         },
         {
           "number": 41,
@@ -16161,12 +17361,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 54,
-          "timeElapsed": 54
+          "elapsedTime": 58,
+          "timeElapsed": 58
         },
         {
           "number": 42,
@@ -16500,12 +17730,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 54,
-          "timeElapsed": 54
+          "elapsedTime": 58,
+          "timeElapsed": 58
         },
         {
           "number": 43,
@@ -16839,12 +18099,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 54,
-          "timeElapsed": 54
+          "elapsedTime": 58,
+          "timeElapsed": 58
         },
         {
           "number": 44,
@@ -17178,12 +18468,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 54,
-          "timeElapsed": 54
+          "elapsedTime": 58,
+          "timeElapsed": 58
         },
         {
           "number": 45,
@@ -17517,12 +18837,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 54,
-          "timeElapsed": 54
+          "elapsedTime": 58,
+          "timeElapsed": 58
         },
         {
           "number": 46,
@@ -17856,12 +19206,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 54,
-          "timeElapsed": 54
+          "elapsedTime": 58,
+          "timeElapsed": 58
         },
         {
           "number": 47,
@@ -18195,12 +19575,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 54,
-          "timeElapsed": 54
+          "elapsedTime": 58,
+          "timeElapsed": 58
         },
         {
           "number": 48,
@@ -18534,12 +19944,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 54,
-          "timeElapsed": 54
+          "elapsedTime": 58,
+          "timeElapsed": 58
         },
         {
           "number": 49,
@@ -18873,12 +20313,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 54,
-          "timeElapsed": 54
+          "elapsedTime": 58,
+          "timeElapsed": 58
         },
         {
           "number": 50,
@@ -19212,12 +20682,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 54,
-          "timeElapsed": 54
+          "elapsedTime": 58,
+          "timeElapsed": 58
         },
         {
           "number": 51,
@@ -19551,12 +21051,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 54,
-          "timeElapsed": 54
+          "elapsedTime": 58,
+          "timeElapsed": 58
         },
         {
           "number": 52,
@@ -19890,12 +21420,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 54,
-          "timeElapsed": 54
+          "elapsedTime": 58,
+          "timeElapsed": 58
         },
         {
           "number": 53,
@@ -20229,12 +21789,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 54,
-          "timeElapsed": 54
+          "elapsedTime": 58,
+          "timeElapsed": 58
         },
         {
           "number": 54,
@@ -20568,12 +22158,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 54,
-          "timeElapsed": 54
+          "elapsedTime": 58,
+          "timeElapsed": 58
         },
         {
           "number": 55,
@@ -20907,12 +22527,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 54,
-          "timeElapsed": 54
+          "elapsedTime": 58,
+          "timeElapsed": 58
         },
         {
           "number": 56,
@@ -21246,12 +22896,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 54,
-          "timeElapsed": 54
+          "elapsedTime": 58,
+          "timeElapsed": 58
         },
         {
           "number": 57,
@@ -21585,12 +23265,42 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 54,
-          "timeElapsed": 54
+          "elapsedTime": 58,
+          "timeElapsed": 58
         },
         {
           "number": 58,
@@ -21924,18 +23634,48 @@
               "type": "metronome",
               "value": 60,
               "outcome": "success"
+            },
+            {
+              "timestamp": 1777954291,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954292,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954293,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
+            },
+            {
+              "timestamp": 1777954294,
+              "type": "metronome",
+              "value": 60,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
-          "elapsedTime": 54,
-          "timeElapsed": 54
+          "elapsedTime": 58,
+          "timeElapsed": 58
         }
       ],
-      "imageUrl": "http://172.16.147.112:3001/images/7b77ba3f-3177-46f2-a3ce-3cd55e8bae47.png",
-      "audioUrl": null,
-      "elapsedTime": 74,
-      "timeElapsed": 74
+      "imageUrl": "http://localhost:3001/images/7b77ba3f-3177-46f2-a3ce-3cd55e8bae47.png",
+      "audioUrl": "http://localhost:3001/audio/b426a866-1645-4408-9859-f10c5f380524.mp3",
+      "elapsedTime": 78,
+      "timeElapsed": 78
     },
     {
       "id": "53162b29-6057-4f09-972e-ace40255386e",
@@ -22033,6 +23773,12 @@
               "value": 44,
               "outcome": "success",
               "timestamp": 1777698204
+            },
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
             }
           ],
           "current": 0,
@@ -22086,6 +23832,12 @@
               "value": 30,
               "outcome": "success",
               "timestamp": 1777689845
+            },
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
             }
           ],
           "current": 0,
@@ -22139,12 +23891,19 @@
               "value": 30,
               "outcome": "success",
               "timestamp": 1777689845
+            },
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
             }
           ],
           "current": 0,
           "ignoreTempo": false,
           "elapsedTime": 0,
-          "timeElapsed": 0
+          "timeElapsed": 0,
+          "mode": "stability"
         },
         {
           "number": 4,
@@ -22191,6 +23950,12 @@
               "value": 30,
               "outcome": "success",
               "timestamp": 1777689845
+            },
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
             }
           ],
           "current": 0,
@@ -22243,6 +24008,12 @@
               "value": 30,
               "outcome": "success",
               "timestamp": 1777689845
+            },
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
             }
           ],
           "current": 0,
@@ -22296,6 +24067,12 @@
               "value": 30,
               "outcome": "success",
               "timestamp": 1777689845
+            },
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
             }
           ],
           "current": 0,
@@ -22348,6 +24125,12 @@
               "value": 30,
               "outcome": "success",
               "timestamp": 1777689845
+            },
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
             }
           ],
           "current": 0,
@@ -22400,6 +24183,12 @@
               "value": 30,
               "outcome": "success",
               "timestamp": 1777689845
+            },
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
             }
           ],
           "current": 0,
@@ -22452,6 +24241,12 @@
               "value": 30,
               "outcome": "success",
               "timestamp": 1777689845
+            },
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
             }
           ],
           "mode": "stability",
@@ -22505,6 +24300,12 @@
               "value": 30,
               "outcome": "success",
               "timestamp": 1777689845
+            },
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
             }
           ],
           "mode": "stability",
@@ -22558,6 +24359,12 @@
               "value": 30,
               "outcome": "success",
               "timestamp": 1777689845
+            },
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
             }
           ],
           "mode": "stability",
@@ -22641,6 +24448,12 @@
               "value": 30,
               "outcome": "success",
               "timestamp": 1777692592
+            },
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
             }
           ],
           "current": 0,
@@ -22693,6 +24506,12 @@
               "value": 30,
               "outcome": "success",
               "timestamp": 1777689845
+            },
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
             }
           ],
           "current": 0,
@@ -22745,6 +24564,12 @@
               "value": 30,
               "outcome": "success",
               "timestamp": 1777689845
+            },
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
             }
           ],
           "current": 0,
@@ -22797,6 +24622,12 @@
               "value": 30,
               "outcome": "success",
               "timestamp": 1777689845
+            },
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
             }
           ],
           "current": 0,
@@ -22849,6 +24680,12 @@
               "value": 30,
               "outcome": "success",
               "timestamp": 1777689845
+            },
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
             }
           ],
           "current": 0,
@@ -22901,6 +24738,12 @@
               "value": 30,
               "outcome": "success",
               "timestamp": 1777689845
+            },
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
             }
           ],
           "current": 0,
@@ -22953,6 +24796,12 @@
               "value": 30,
               "outcome": "success",
               "timestamp": 1777689845
+            },
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
             }
           ],
           "current": 0,
@@ -22963,425 +24812,845 @@
         {
           "number": 19,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 20,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 21,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 22,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 23,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 24,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 25,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 26,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 27,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 28,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 29,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 30,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 31,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 32,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 33,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 34,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 35,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 36,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 37,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 38,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 39,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 40,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 41,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 42,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 43,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 44,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 45,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 46,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 47,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 48,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 49,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 50,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 51,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 52,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 53,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 54,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 55,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 56,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 57,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 58,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 59,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 60,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 61,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 62,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 63,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 64,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 65,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 66,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 67,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 68,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 69,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 70,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 71,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 72,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 73,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 74,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 75,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 76,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 77,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         },
         {
           "number": 78,
           "target": 120,
-          "events": [],
+          "events": [
+            {
+              "timestamp": 1777954128,
+              "type": "metronome",
+              "value": 44,
+              "outcome": "success"
+            }
+          ],
           "elapsedTime": 0,
           "timeElapsed": 0
         }
       ],
-      "imageUrl": "http://172.16.147.112:3001/images/d70ff6a9-0c22-4c93-93d5-05162847a820.png",
+      "imageUrl": "http://localhost:3001/images/d70ff6a9-0c22-4c93-93d5-05162847a820.png",
       "audioUrl": null,
       "elapsedTime": 0,
       "timeElapsed": 0
@@ -30324,7 +32593,7 @@
           "timeElapsed": 0
         }
       ],
-      "imageUrl": "http://172.16.147.112:3001/images/ba36906a-b4a3-4e36-84de-e58db1a3ab45.png",
+      "imageUrl": "http://localhost:3001/images/ba36906a-b4a3-4e36-84de-e58db1a3ab45.png",
       "audioUrl": null,
       "elapsedTime": 0,
       "timeElapsed": 0

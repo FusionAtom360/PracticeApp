@@ -1,40 +1,119 @@
+@font-face {
+    font-family: 'Leland';
+    src: url('../../../assets/fonts/Leland.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+
 .metronome-shell {
     border: 0.5px solid var(--border);
+    max-width: fit-content;
     border-radius: 1rem;
-    padding: 1.25rem;
+    padding: 1.5rem;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
 }
 
 .main-controls-row {
     display: grid;
-    grid-template-columns: auto minmax(13rem, 1fr) auto;
+    grid-template-columns: auto 1fr auto;
+    grid-template-rows: auto auto auto;
+    align-items: stretch;
+    gap: 0rem;
+    position: relative;
+}
+
+.corner-buttons {
+    display: flex;
+    justify-content: center;
     align-items: center;
-    gap: 0.75rem;
+    height: 100%;
+}
+
+.corner-buttons.top-left {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: flex-start;
+}
+
+.corner-buttons.top-right {
+    grid-column: 3;
+    grid-row: 1;
+    align-self: flex-start;
+}
+
+.corner-buttons.bottom-left {
+    grid-column: 1;
+    grid-row: 3;
+    align-self: flex-end;
+}
+
+.corner-buttons.bottom-right {
+    grid-column: 3;
+    grid-row: 3;
+    align-self: flex-end;
+}
+
+.control-button-left {
+    display: flex;
+    justify-content: right;
+    align-items: right;
+}
+
+.control-button-right {
+    display: flex;
+    justify-content: left;
+    align-items: left;
 }
 
 .tempo-adjust-btn {
-    width: 3rem;
-    height: 3rem;
+    width: 3.5rem;
+    height: 3.5rem;
     border-radius: 999px;
     font-family: var(--font-display);
     font-size: 1.75rem;
     padding: 0;
     line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
 }
 
 .tempo-adjust-btn.btn--ghost {
     background: var(--surface);
 }
 
+.tempo-adjust-btn:active:not(:disabled) {
+    transform: scale(0.95);
+}
+
 .tempo-circle {
-    width: min(22rem, 100%);
+    min-width: 17rem;
     aspect-ratio: 1;
     margin: 0 auto;
     border-radius: 50%;
     border: 0.5px solid var(--border-strong);
-    box-shadow: inset 0 0 0 16px rgba(255, 255, 255, 0.4), 0 18px 36px rgba(18, 14, 11, 0.08);
+    box-shadow: inset 0 0 0 8px rgba(255, 255, 255, 0.4), 0 18px 36px rgba(18, 14, 11, 0.08);
     display: grid;
     place-items: center;
+    transition: box-shadow 0.05s ease-out;
+    user-select: none;
+    touch-action: none;
+    grid-column: 2;
+    grid-row: 1 / 4;
+}
+
+.tempo-circle--beat-flash {
+    box-shadow: inset 0 0 0 8px var(--accent-warm), 0 18px 36px rgba(18, 14, 11, 0.08);
+}
+
+/* Visual state when user is in TAP mode */
+.tempo-circle.tap-mode {
+    box-shadow: inset 0 0 0 8px var(--accent-warm), 0 18px 36px rgba(18, 14, 11, 0.08);
+    border-color: var(--accent-warm);
 }
 
 .bpm-display {
@@ -47,7 +126,154 @@
     letter-spacing: 0.18em;
     text-transform: uppercase;
     color: var(--text-muted);
-    margin-bottom: 0.75rem;
+}
+
+.practice-clock {
+    font-family: var(--font-mono);
+    font-size: 1.5rem;
+    letter-spacing: 0.08em;
+    color: var(--text);
+    width: 100%;
+    text-align: center;
+}
+
+.practice-presets {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+/* Dialog Settings */
+.dialog-settings-content {
+    padding: 1rem 0;
+}
+
+.settings-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.settings-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.settings-mode-options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+}
+
+.mode-btn {
+    padding: 0.75rem 1rem;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: capitalize;
+}
+
+.mode-btn:hover:not(:disabled) {
+    border-color: var(--accent-warm);
+    background: var(--surface);
+}
+
+.mode-btn.active {
+    background: var(--accent-warm);
+    color: #fff;
+    border-color: var(--accent-warm);
+    font-weight: 600;
+}
+
+.mode-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.mode-btn:active:not(:disabled) {
+    transform: scale(0.95);
+}
+
+.practice-streak {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+}
+
+.streak-dot {
+    width: 0.65rem;
+    height: 0.65rem;
+    border-radius: 50%;
+    background: var(--surface-2);
+    border: 1px solid var(--border-strong);
+    transition: background-color 120ms ease, border-color 120ms ease;
+}
+
+.streak-dot.is-filled {
+    background: var(--accent-warm);
+    border-color: var(--accent-warm);
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.streak-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.streak-count {
+    font-size: 1.15rem;
+    font-family: var(--font-mono);
+}
+
+.practice-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.practice-check-btn, .practice-x-btn {
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.practice-x-btn.btn--ghost {
+    border-color: var(--accent-warm);
+    color: var(--accent-warm);
 }
 
 .pulse-row {
@@ -56,6 +282,34 @@
     justify-content: center;
     gap: 0.65rem;
     margin-bottom: 0.5rem;
+}
+
+.beat-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    font-size: 1.25rem;
+}
+
+.beat-note {
+    font-family: 'Leland', serif;
+    font-size: 1.5rem;
+    color: var(--accent-warm);
+    line-height: 1;
+}
+
+.beat-label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
 }
 
 .pulse-indicator {
@@ -75,10 +329,32 @@
 
 .bpm-number {
     font-family: var(--font-display);
-    font-size: clamp(3.5rem, 9vw, 6rem);
+    font-size: 7rem;
     line-height: 0.95;
     letter-spacing: -0.06em;
     color: var(--text-primary);
+}
+
+.bpm-equals {
+    display: inline-block;
+    font-size: 4rem;
+    transform: translateY(-0.25em);
+    padding-right: 0.5rem;
+}
+
+.bpm-marking {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+}
+
+.tempo-symbol {
+    font-family: 'Leland', serif;
+    font-size: 4rem;
+    line-height: 0.9rem;
+    transform: translateY(1.5rem);
+    padding-right: 0.5rem;
 }
 
 .bpm-label {
@@ -195,52 +471,110 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.9rem;
-    margin: 0.5rem 0 0.25rem;
+    gap: 0.75rem;
+    margin-top: 1rem;
 }
 
 .icon-control {
-    width: 3.25rem;
-    height: 3.25rem;
+    width: 2.75rem;
+    height: 2.75rem;
     border-radius: 999px;
     padding: 0;
 }
 
+.practice-action-btn {
+    width: 3.75rem;
+    height: 3.75rem;
+    border-radius: 999px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: var(--surface);
+    border: none;
+    box-shadow: 0 6px 18px rgba(18,14,11,0.08);
+    transition: transform 140ms ease, filter 140ms ease, box-shadow 140ms ease;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.practice-success-btn {
+    background: var(--progress-1);
+    color: #fff;
+    box-shadow: 0 6px 18px rgba(90,122,94,0.16);
+}
+
+.practice-success-btn:active:not(:disabled) {
+    transform: scale(0.94);
+}
+
+.practice-fail-btn {
+    background: var(--progress-3);
+    color: #fff;
+    box-shadow: 0 6px 18px rgba(239,68,68,0.14);
+}
+
+.practice-fail-btn:active:not(:disabled) {
+    transform: scale(0.94);
+}
+
+.practice-action-btn svg,
+.practice-action-btn .MuiSvgIcon-root {
+    font-size: 1.6rem;
+}
+
+/* Unified hover for practice action buttons */
+.practice-action-btn:hover,
+.practice-check-btn:hover,
+.practice-x-btn:hover {
+    filter: brightness(1.06);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 22px rgba(18,14,11,0.12);
+}
+
+/* Feedback ring on tempo circle */
+.tempo-circle--feedback-success {
+    box-shadow: inset 0 0 0 8px var(--accent-sage), 0 18px 36px rgba(18, 14, 11, 0.08);
+}
+
+.tempo-circle--feedback-failure {
+    box-shadow: inset 0 0 0 8px var(--progress-3), 0 18px 36px rgba(18, 14, 11, 0.08);
+}
+
+@keyframes ringPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+    100% { transform: scale(1); }
+}
+
 .play-control-btn {
-    min-width: 5.5rem;
-    height: 5.5rem;
+    width: 4.5rem;
+    height: 4.5rem;
     border-radius: 50%;
     padding: 0;
-    box-shadow: 0 12px 24px rgba(176, 91, 44, 0.16);
+    box-shadow: 0 8px 16px rgba(176, 91, 44, 0.12);
+    transition: all 0.2s ease;
+}
+
+.play-control-btn:active:not(:disabled) {
+    transform: scale(0.95);
 }
 
 .play-icon {
-    font-size: 3rem;
+    font-size: 2rem;
     line-height: 1;
 }
 
 @keyframes beatPulse {
-    0%,
-    100% {
-        transform: translate(-50%, -50%) scale(1);
-        box-shadow: 0 0 0 10px rgba(176, 91, 44, 0.08);
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(176, 91, 44, 0.3);
     }
-
     50% {
-        transform: translate(-50%, -50%) scale(1.18);
-        box-shadow: 0 0 0 16px rgba(176, 91, 44, 0.03);
-    }
-}
-
-@media (max-width: 900px) {
-    .main-controls-row {
-        grid-template-columns: auto minmax(12rem, 1fr) auto;
-    }
-}
-
-@media (max-width: 640px) {
-    .main-controls-row,
-    .metronome-controls {
-        grid-template-columns: 1fr;
+        transform: scale(1.1);
+        box-shadow: 0 0 0 4px rgba(176, 91, 44, 0.15);
     }
 }

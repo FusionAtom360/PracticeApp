@@ -30,6 +30,10 @@
     gap: 0.5rem;
 }
 
+.top-bar__left {
+    gap: 0.625rem;
+}
+
 .icon-button.top-bar__multi-select--active,
 .top-bar__multi-select--active .icon-button {
     background: var(--accent-warm);

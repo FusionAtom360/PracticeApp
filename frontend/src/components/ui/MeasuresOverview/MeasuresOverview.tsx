@@ -7,29 +7,35 @@ import Button from '../Button/Button';
 import MeasureEdit from '../../layout/MeasureEdit/MeasureEdit';
 import { useSongs } from '../../../context/SongContext';
 import './MeasuresOverview.css';
+import { useEffect } from 'react';
 
 interface MeasuresOverviewProps {
 	song: Song | null;
 }
 
 const MeasuresOverview: React.FC<MeasuresOverviewProps> = ({ song }) => {
-	const { addPracticeEvent, saveSongsToServer, songs, isMultiSelectMode, selectedMeasures, setSelectedMeasures, clearSelectedMeasures } = useSongs();
+	const { saveSongsToServer, songs, selectedMeasures, setSelectedMeasures, clearSelectedMeasures, setActiveSong } = useSongs();
 	const navigate = useNavigate();
 	const [editingMeasure, setEditingMeasure] = useState<Measure | null>(null);
 	const [firstSelectedNumber, setFirstSelectedNumber] = useState<number | null>(null);
+	const [hasRangeSelection, setHasRangeSelection] = useState(false);
 	const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 	const [isSaving, setIsSaving] = useState(false);
 
 	const measures = song?.measures ?? [];
 
-	const handleMeasureCardClick = (measureNumber: number) => {
-		if (!isMultiSelectMode) return;
+	useEffect(() => {
+		setActiveSong(song?.id ?? null);
+	}, [song?.id, setActiveSong]);
 
-		if (firstSelectedNumber === null) {
+	const handleMeasureCardClick = (measureNumber: number) => {
+		if (firstSelectedNumber === null || hasRangeSelection) {
 			setFirstSelectedNumber(measureNumber);
 			setSelectedMeasures(measureNumber, measureNumber);
+			setHasRangeSelection(false);
 		} else {
 			setSelectedMeasures(firstSelectedNumber, measureNumber);
+			setHasRangeSelection(true);
 		}
 	};
 
@@ -45,8 +51,7 @@ const MeasuresOverview: React.FC<MeasuresOverviewProps> = ({ song }) => {
 		try {
 			const updatedMeasures = [...measures];
 
-			// If in multi-select mode and have selected measures, apply to all selected
-			if (isMultiSelectMode && selectedMeasures.length > 0) {
+			if (selectedMeasures.length > 0) {
 				for (const measureNumber of selectedMeasures) {
 					const measureIndex = updatedMeasures.findIndex(m => m.number === measureNumber);
 					if (measureIndex !== -1) {
@@ -55,6 +60,7 @@ const MeasuresOverview: React.FC<MeasuresOverviewProps> = ({ song }) => {
 				}
 				clearSelectedMeasures();
 				setFirstSelectedNumber(null);
+				setHasRangeSelection(false);
 			} else {
 				// Single measure edit
 				const measureIndex = measures.findIndex(m => m.number === updatedMeasure.number);
@@ -82,7 +88,7 @@ const MeasuresOverview: React.FC<MeasuresOverviewProps> = ({ song }) => {
 				return (
 						<div
 							key={index}
-							className={`measure-card ${isMultiSelectMode && selectedMeasures.includes(measureNumber) ? 'measure-card--selected' : ''}`}
+							className={`measure-card ${selectedMeasures.includes(measureNumber) ? 'measure-card--selected' : ''}`}
 							data-measure-number={measureNumber}
 							onClick={() => handleMeasureCardClick(measureNumber)}
 						>
@@ -113,12 +119,19 @@ const MeasuresOverview: React.FC<MeasuresOverviewProps> = ({ song }) => {
 										// If nothing is selected, make the clicked measure the active selection
 										if (!selectedMeasures || selectedMeasures.length === 0) {
 											setSelectedMeasures(measureNumber, measureNumber);
+											setFirstSelectedNumber(measureNumber);
+											setHasRangeSelection(false);
+										} else if (!selectedMeasures.includes(measureNumber)) {
+											// Clicked outside the active range: reset to this measure.
+											setSelectedMeasures(measureNumber, measureNumber);
+											setFirstSelectedNumber(measureNumber);
+											setHasRangeSelection(false);
 										}
 
 										navigate(`/songs/${encodeURIComponent((song.id ?? "").trim())}/practice`);
 									}}
 								/>
-								<Button
+								{/* <Button
 									label="Record Success"
 									onClick={(e: React.MouseEvent) => {
 										e.stopPropagation();
@@ -139,7 +152,7 @@ const MeasuresOverview: React.FC<MeasuresOverviewProps> = ({ song }) => {
 									className="secondary"
 									variant="secondary"
 									size="sm"
-								/>
+								/> */}
 							</div>
 						</div>
 					);

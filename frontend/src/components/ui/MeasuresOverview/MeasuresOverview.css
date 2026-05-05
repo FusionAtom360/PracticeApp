@@ -13,7 +13,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 2rem;
+    gap: 1rem;
     transition: background var(--transition), box-shadow 0.15s;
 }
 
@@ -46,11 +46,12 @@
     display: flex;
     align-items: center;
     gap: 1.5rem;
+    min-width: 0;
 }
 
 .measure-progress {
     flex: 1;
-    min-width: 9.375rem;
+    min-width: 0;
 }
 
 .measure-actions {

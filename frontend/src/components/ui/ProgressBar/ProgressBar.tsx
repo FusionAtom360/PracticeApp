@@ -12,8 +12,8 @@ export function ProgressBar({ old_value, new_value }: ProgressBarProps) {
   const unchangedPortion = Math.min(oldNormalized, newNormalized) * 100;
   const increasePortion = Math.max(difference, 0) * 100;
   const decreasePortion = Math.max(-difference, 0) * 100;
-  const percentage = Math.round(newNormalized * 100);
-  const roundedChange = Math.round(difference * 100);
+  const percentage = Math.floor(newNormalized * 100);
+  const roundedChange = Math.floor(difference * 100);
   const changeText = `${roundedChange > 0 ? `+${roundedChange}` : roundedChange}%`;
   const changeClass = roundedChange >= 0 ? 'progress-change-positive' : 'progress-change-negative';
 

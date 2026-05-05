@@ -4,11 +4,16 @@
     border-radius: var(--radius-lg);
     padding: 2rem;
     margin-bottom: 2rem;
+}
+
+.header-grid {
+    width: 100%;
     display: grid;
     grid-template-columns: 1fr auto;
-    gap: 2.5rem;
+    gap: 0.25rem;
     align-items: end;
     position: relative;
+
 }
 
 .song-header:has(.header-image) {
@@ -26,6 +31,7 @@
 }
 
 .header-title-section {
+    width: 100%;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
@@ -107,7 +113,8 @@
 }
 
 .header-guided-practice-btn {
-    margin-right: 0.75rem;
+    background-color: var(--text-primary);
+    color: var(--bg);
 }
 
 /* Responsive layout */
@@ -144,6 +151,6 @@
     }
 
     .header-actions {
-        flex-direction: column;
+        flex-direction: row;
     }
 }

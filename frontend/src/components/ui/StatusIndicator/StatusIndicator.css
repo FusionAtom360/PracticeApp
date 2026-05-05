@@ -1,0 +1,21 @@
+:root {
+	--status-indicator-healthy: #2f9e44;
+	--status-indicator-error: #d94848;
+}
+
+.status-indicator {
+	display: inline-block;
+	width: 0.625rem;
+	height: 0.625rem;
+	border-radius: 999px;
+	flex: 0 0 0.625rem;
+	box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9);
+}
+
+.status-indicator--healthy {
+	background: var(--status-indicator-healthy);
+}
+
+.status-indicator--error {
+	background: var(--status-indicator-error);
+}

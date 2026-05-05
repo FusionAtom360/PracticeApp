@@ -5,6 +5,7 @@ import SongOverview from "./components/pages/SongOverview/SongOverview";
 import PracticeSession from "./components/pages/PracticeSession/PracticeSession";
 import CreateSong from "./components/pages/CreateSong/CreateSong";
 import TopBar from "./components/layout/TopBar/TopBar";
+import MiniPlayer from "./components/ui/MiniPlayer/MiniPlayer";
 
 function App() {
     return (
@@ -12,6 +13,7 @@ function App() {
             <SongProvider>
                 <div className="app">
                     <TopBar />
+                    <MiniPlayer />
                     <Routes>
                         <Route path="/" element={<SongSelection />} />
                         <Route path="/create" element={<CreateSong />} />

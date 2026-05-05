@@ -98,10 +98,10 @@
     gap: 1rem;
 }
 
-@media (max-width: 900px) {
-    .practice-grid {
-        grid-template-columns: 1fr;
-    }
+.practice-grid {
+    display: flex;
+justify-content: center;
+align-items: center;
 }
 
 @media (max-width: 640px) {

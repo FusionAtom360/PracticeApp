@@ -2,7 +2,7 @@ import { useNavigate } from "react-router";
 import ArrowBackIcon from "@mui/icons-material/ArrowBackOutlined";
 import HomeIcon from "@mui/icons-material/HomeOutlined";
 import PianoIcon from "@mui/icons-material/PianoOutlined";
-import BarChartIcon from "@mui/icons-material/BarChartOutlined";
+// import BarChartIcon from "@mui/icons-material/BarChartOutlined";
 import DarkModeButton from "../../ui/DarkModeButton/DarkModeButton";
 import IconButton from "../../ui/IconButton/IconButton";
 import StatusIndicator from "../../ui/StatusIndicator/StatusIndicator";
@@ -30,13 +30,13 @@ export default function TopBar() {
                     <StatusIndicator />
                 </div>
                 <div className="top-bar__right">
-                    <IconButton
+                    {/* <IconButton
                         Icon={BarChartIcon}
                         label="Open statistics"
                         onClick={() => {
                             navigate("/statistics");
                         }}
-                    />
+                    /> */}
                     <IconButton
                         Icon={PianoIcon}
                         label="Open piano"

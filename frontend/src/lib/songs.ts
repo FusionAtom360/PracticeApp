@@ -35,6 +35,25 @@ interface EncodedFile {
     type: string;
 }
 
+function getApiBaseUrl(): string {
+    const configuredBaseUrl = import.meta.env.VITE_API_BASE_URL;
+
+    if (typeof configuredBaseUrl === 'string' && configuredBaseUrl.trim()) {
+        return configuredBaseUrl.replace(/\/$/, '');
+    }
+
+    if (import.meta.env.DEV) {
+        return 'http://localhost:3000';
+    }
+
+    return window.location.origin;
+}
+
+function createApiUrl(path: string): string {
+    const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+    return `${getApiBaseUrl()}${normalizedPath}`;
+}
+
 export function calculateMeasureProgress(measure: Measure): number {
     if (!measure || measure.target <= 0) return 0;
 
@@ -309,7 +328,7 @@ async function encodeFile(file: File | null | undefined) {
 }
 
 export async function fetchSongs(signal?: AbortSignal) {
-    const apiUrl = `http://practice.josephyakligian.com:3000/songs`;
+    const apiUrl = createApiUrl('/songs');
     const response = await fetch(apiUrl, { signal });
 
     if (!response.ok) {
@@ -321,7 +340,7 @@ export async function fetchSongs(signal?: AbortSignal) {
 }
 
 export async function saveSongs(songs: Song[]) {
-    const apiUrl = `http://practice.josephyakligian.com:3000/songs`;
+    const apiUrl = createApiUrl('/songs');
     const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -337,7 +356,7 @@ export async function saveSongs(songs: Song[]) {
 }
 
 export async function createSong(input: CreateSongInput) {
-    const apiUrl = `http://practice.josephyakligian.com:3000/songs/create`;
+    const apiUrl = createApiUrl('/songs/create');
     const [imageFile, audioFile] = await Promise.all([
         encodeFile(input.imageFile),
         encodeFile(input.audioFile),
@@ -375,7 +394,7 @@ export async function createSong(input: CreateSongInput) {
 }
 
 export async function updateSong(songId: string, input: SongUpdateInput) {
-    const apiUrl = `http://practice.josephyakligian.com:3000/songs/${encodeURIComponent(songId)}/update`;
+    const apiUrl = createApiUrl(`/songs/${encodeURIComponent(songId)}/update`);
     const [imageFile, audioFile] = await Promise.all([
         encodeFile(input.imageFile),
         encodeFile(input.audioFile),

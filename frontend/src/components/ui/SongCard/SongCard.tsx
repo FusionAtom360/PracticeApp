@@ -4,14 +4,16 @@ import "./SongCard.css";
 
 interface SongCardProps {
     title?: string;
+    subtitle?: string;
     artist?: string;
     imageSrc?: string | null;
     onClick?: () => void;
 }
 
 function SongCard({
-    title = "Song Title",
-    artist = "Artist Name",
+    title = "Piece Title",
+    subtitle,
+    artist = "Artist",
     imageSrc,
     onClick,
 }: SongCardProps) {
@@ -38,6 +40,7 @@ function SongCard({
             </div>
             <div className="song-card-info">
                 <h3>{title}</h3>
+                {subtitle && <h4>{subtitle}</h4>}
                 <p>{artist}</p>
             </div>
         </button>

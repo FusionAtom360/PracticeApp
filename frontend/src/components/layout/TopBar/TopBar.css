@@ -6,7 +6,7 @@
     z-index: 1000;
     height: 64px;
     border-bottom: 1px solid var(--border);
-    background: white;
+    background: var(--surface);
     backdrop-filter: blur(8px);
     display: flex;
     justify-content: center;

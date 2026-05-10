@@ -246,6 +246,7 @@ app.post('/songs/create', async (req, res) => {
     try {
         const body = req.body ?? {};
         const title = typeof body.title === 'string' ? body.title.trim() : '';
+        const subtitle = typeof body.subtitle === 'string' ? body.subtitle.trim() : '';
         const composer = typeof body.composer === 'string' ? body.composer.trim() : '';
         const measureCount = Number(body.measureCount);
         const initialTempo = Number(body.initialTempo);
@@ -294,6 +295,7 @@ app.post('/songs/create', async (req, res) => {
             id,
             archived: false,
             title,
+            subtitle,
             composer,
             image: imageFilename,
             audio: audioFilename,
@@ -342,6 +344,7 @@ app.post('/songs/:id/update', async (req, res) => {
 
         const existingSong = songs[songIndex];
         const title = typeof body.title === 'string' && body.title.trim() ? body.title.trim() : existingSong.title;
+        const subtitle = typeof body.subtitle === 'string' ? body.subtitle.trim() : existingSong.subtitle ?? '';
         const composer = typeof body.composer === 'string' && body.composer.trim() ? body.composer.trim() : existingSong.composer;
         const archived = typeof body.archived === 'boolean' ? body.archived : existingSong.archived ?? false;
         const imageFile = parseJsonFilePayload(body.imageFile);
@@ -369,6 +372,7 @@ app.post('/songs/:id/update', async (req, res) => {
         const updatedSong = {
             ...existingSong,
             title,
+            subtitle,
             composer,
             archived,
             image: nextImage,

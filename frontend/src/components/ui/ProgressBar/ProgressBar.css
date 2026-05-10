@@ -1,9 +1,3 @@
-:root {
-    --progress-1: #3A5E3E;
-    --progress-2: #7DA882;
-    --progress-3: #e73838;
-}
-
 .progress-bar-container {
   display: flex;
   gap: 0.5rem;
@@ -17,7 +11,7 @@
   height: 0.5rem;
   border-radius: 0.1rem;
   overflow: hidden;
-  background-color: #f0f0f0;
+  background-color: var(--progress-background);
   flex: 1;
   min-width: 0;
 }

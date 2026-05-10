@@ -6,11 +6,10 @@
 }
 
 .metronome-shell {
-    border: 0.5px solid var(--border);
+    border: 0.03125rem solid var(--border);
     max-width: fit-content;
     border-radius: 1rem;
     padding: 1.5rem;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
@@ -95,8 +94,8 @@
     aspect-ratio: 1;
     margin: 0 auto;
     border-radius: 50%;
-    border: 0.5px solid var(--border-strong);
-    box-shadow: inset 0 0 0 8px rgba(255, 255, 255, 0.4), 0 18px 36px rgba(18, 14, 11, 0.08);
+    border: 0.03125rem solid var(--border-strong);
+    box-shadow: inset 0 0 0 8px var(--surface-2), 0 0 36px var(--shadow);
     display: grid;
     place-items: center;
     transition: box-shadow 0.05s ease-out;
@@ -107,12 +106,12 @@
 }
 
 .tempo-circle--beat-flash {
-    box-shadow: inset 0 0 0 8px var(--accent-warm), 0 18px 36px rgba(18, 14, 11, 0.08);
+    box-shadow: inset 0 0 0 8px var(--accent-warm), 0 0 36px var(--shadow);
 }
 
 /* Visual state when user is in TAP mode */
 .tempo-circle.tap-mode {
-    box-shadow: inset 0 0 0 8px var(--accent-warm), 0 18px 36px rgba(18, 14, 11, 0.08);
+    box-shadow: inset 0 0 0 8px var(--accent-warm), 0 0 36px var(--shadow);
     border-color: var(--accent-warm);
 }
 
@@ -174,7 +173,7 @@
 .mode-btn {
     padding: 0.75rem 1rem;
     background: var(--surface-2);
-    border: 1px solid var(--border);
+    border: 0.0625rem solid var(--border);
     border-radius: 0.5rem;
     font-size: 0.9rem;
     font-weight: 500;
@@ -218,7 +217,7 @@
     height: 0.65rem;
     border-radius: 50%;
     background: var(--surface-2);
-    border: 1px solid var(--border-strong);
+    border: 0.0625rem solid var(--border-strong);
     transition: background-color 120ms ease, border-color 120ms ease;
 }
 
@@ -234,7 +233,7 @@
     padding: 0;
     margin: -1px;
     overflow: hidden;
-    clip: rect(0, 0, 0, 0);
+    clip: rect(0rem, 0rem, 0rem, 0rem);
     white-space: nowrap;
     border: 0;
 }
@@ -292,7 +291,7 @@
     margin-top: 0.75rem;
     padding: 0.75rem 1rem;
     background: var(--surface);
-    border: 1px solid var(--border);
+    border: 0.0625rem solid var(--border);
     border-radius: 0.5rem;
     font-size: 1.25rem;
 }
@@ -317,7 +316,7 @@
     height: 0.75rem;
     border-radius: 50%;
     background: var(--surface-2);
-    border: 1px solid var(--border-strong);
+    border: 0.0625rem solid var(--border-strong);
     box-shadow: 0 0 0 6px rgba(176, 91, 44, 0.05);
 }
 
@@ -378,7 +377,7 @@
     width: 2.4rem;
     height: 2.4rem;
     border-radius: 999px;
-    border: 0.5px solid var(--border-strong);
+    border: 0.03125rem solid var(--border-strong);
     display: grid;
     place-items: center;
     font-weight: 600;
@@ -447,8 +446,8 @@
     height: 1rem;
     border-radius: 50%;
     background: var(--surface);
-    border: 2px solid var(--accent-warm);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+    border: 0.125rem solid var(--accent-warm);
+    box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.12);
 }
 
 .tempo-track::-moz-range-thumb {
@@ -456,8 +455,8 @@
     height: 1rem;
     border-radius: 50%;
     background: var(--surface);
-    border: 2px solid var(--accent-warm);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+    border: 0.125rem solid var(--accent-warm);
+    box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.12);
 }
 
 .metronome-actions {
@@ -476,15 +475,15 @@
 }
 
 .icon-control {
-    width: 2.75rem;
-    height: 2.75rem;
+    width: 3.5rem;
+    height: 3.5rem;
     border-radius: 999px;
     padding: 0;
 }
 
 .practice-action-btn {
-    width: 3.75rem;
-    height: 3.75rem;
+    width: 5rem;
+    height: 5rem;
     border-radius: 999px;
     padding: 0;
     display: flex;
@@ -529,19 +528,19 @@
 /* Unified hover for practice action buttons */
 .practice-action-btn:hover,
 .practice-check-btn:hover,
-.practice-x-btn:hover {
+.practice-x-btn:hover,
+.play-control-btn:hover {
     filter: brightness(1.06);
     transform: translateY(-2px);
-    box-shadow: 0 10px 22px rgba(18,14,11,0.12);
 }
 
 /* Feedback ring on tempo circle */
 .tempo-circle--feedback-success {
-    box-shadow: inset 0 0 0 8px var(--accent-sage), 0 18px 36px rgba(18, 14, 11, 0.08);
+    box-shadow: inset 0 0 0 0.5rem var(--accent-sage), 0 0 2.25rem var(--progress-1);
 }
 
 .tempo-circle--feedback-failure {
-    box-shadow: inset 0 0 0 8px var(--progress-3), 0 18px 36px rgba(18, 14, 11, 0.08);
+    box-shadow: inset 0 0 0 0.5rem var(--progress-3), 0 0 2.25rem var(--progress-3);
 }
 
 @keyframes ringPulse {
@@ -551,11 +550,11 @@
 }
 
 .play-control-btn {
-    width: 4.5rem;
-    height: 4.5rem;
+    width: 6rem;
+    height: 6rem;
     border-radius: 50%;
     padding: 0;
-    box-shadow: 0 8px 16px rgba(176, 91, 44, 0.12);
+    box-shadow: 0 0.5rem 1rem rgba(176, 91, 44, 0.12);
     transition: all 0.2s ease;
 }
 
@@ -575,6 +574,6 @@
     }
     50% {
         transform: scale(1.1);
-        box-shadow: 0 0 0 4px rgba(176, 91, 44, 0.15);
+        box-shadow: 0 0 0 0.25rem rgba(176, 91, 44, 0.15);
     }
 }

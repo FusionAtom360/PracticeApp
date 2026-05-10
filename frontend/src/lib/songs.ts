@@ -17,6 +17,7 @@ export interface Measure {
 export interface Song {
     id: string;
     title: string;
+    subtitle?: string;
     composer: string;
     archived?: boolean;
     elapsedTime?: number;
@@ -124,7 +125,7 @@ export function calculateMeasureProgressBefore24h(measure: Measure): number {
     if (eventsBefore24h.length > 0) {
         const lastEvent = eventsBefore24h[eventsBefore24h.length - 1];
         if (lastEvent && typeof lastEvent.timestamp === 'number') {
-            const secondsElapsed = nowSeconds - lastEvent.timestamp;
+            const secondsElapsed = twentyFourHoursAgoSeconds - lastEvent.timestamp;
             daysSinceLastPracticed = Math.floor(secondsElapsed / (24 * 60 * 60));
         }
     }
@@ -265,6 +266,7 @@ export function formatTimePracticed(seconds?: number): string {
 
 export interface SongUpdateInput {
     title?: string;
+    subtitle?: string;
     composer?: string;
     archived?: boolean;
     imageFile?: File | null;
@@ -273,6 +275,7 @@ export interface SongUpdateInput {
 
 export interface CreateSongInput {
     title: string;
+    subtitle?: string;
     composer: string;
     measureCount: number;
     initialTempo: number;
@@ -345,6 +348,7 @@ export async function createSong(input: CreateSongInput) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
             title: input.title,
+            subtitle: input.subtitle,
             composer: input.composer,
             measureCount: input.measureCount,
             initialTempo: input.initialTempo,
@@ -382,6 +386,7 @@ export async function updateSong(songId: string, input: SongUpdateInput) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
             title: input.title,
+            subtitle: input.subtitle,
             composer: input.composer,
             archived: input.archived,
             imageFile,

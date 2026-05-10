@@ -28,6 +28,10 @@
 	letter-spacing: 0.05em;
 }
 
+.form-label input {
+	margin-right: 0.5rem;
+}
+
 .form-input {
 	padding: 0.625rem 1rem;
 	border: 0.5px solid var(--border);

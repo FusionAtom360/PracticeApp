@@ -127,10 +127,49 @@ export default function Metronome({
     songId = null,
     onPracticeEvent,
 }: MetronomeProps) {
+    const practiceScopeKey = useMemo(() => {
+        if (isFreeMode || !songId) {
+            return null;
+        }
+
+        const selectedMeasureNumbers = Array.isArray(selectedMeasures)
+            ? selectedMeasures
+                  .map((m) => Number(m?.number))
+                  .filter((n) => Number.isInteger(n) && n > 0)
+                  .sort((a, b) => a - b)
+            : [];
+
+        if (selectedMeasureNumbers.length > 0) {
+            return `selected:${selectedMeasureNumbers.join(",")}`;
+        }
+
+        const measureNumber = Number(measure?.number);
+        if (Number.isInteger(measureNumber) && measureNumber > 0) {
+            return `measure:${measureNumber}`;
+        }
+
+        return "song";
+    }, [isFreeMode, songId, selectedMeasures, measure]);
+
+    const practiceStreakStorageKey = useMemo(() => {
+        if (!songId || !practiceScopeKey) {
+            return null;
+        }
+
+        return `practice-streak:${songId}:${practiceScopeKey}`;
+    }, [songId, practiceScopeKey]);
+
+    const [currentPulse, setCurrentPulse] = useState(4); // always default to quarter on mount
+
     const initialTempo = useMemo(() => {
         if (isFreeMode) {
-            const saved = localStorage.getItem("practice-free-bpm");
-            return saved ? parseInt(saved, 10) : 120;
+            const savedQuarter = localStorage.getItem("practice-free-bpm");
+            const quarter = savedQuarter ? parseInt(savedQuarter, 10) : null;
+            if (Number.isInteger(quarter) && quarter > 0) {
+                // Convert stored quarter-note BPM to displayed BPM for current pulse
+                return Math.max(20, Math.round(quarter * (currentPulse / 4)));
+            }
+            return 120;
         }
 
         // Check if any selected measure has no events (fresh measures)
@@ -165,6 +204,7 @@ export default function Metronome({
     );
     const [showSettingsDialog, setShowSettingsDialog] = useState(false);
     const [streak, setStreak] = useState(0);
+    const [errorStreak, setErrorStreak] = useState(0);
     const [tempoFeedback, setTempoFeedback] = useState<
         "success" | "failure" | null
     >(null);
@@ -172,7 +212,7 @@ export default function Metronome({
     const [beatFlash, setBeatFlash] = useState(false);
     const [tapMode, setTapMode] = useState(false);
     const [practiceClockSeconds, setPracticeClockSeconds] = useState(0);
-    const [currentPulse, setCurrentPulse] = useState(4); // 1=whole, 2=half, 4=quarter, 8=eighth, 16=sixteenth
+    // currentPulse state initialized above to read persisted value
     const audioContextRef = useRef<AudioContext | null>(null);
     const schedulerIntervalRef = useRef<number | null>(null);
     const clockIntervalRef = useRef<number | null>(null);
@@ -195,6 +235,7 @@ export default function Metronome({
     const suppressIncClickRef = useRef(false);
     const beatDurationRef = useRef<number>(60 / initialTempo);
     const hasInitializedFromMeasureRef = useRef<string | null>(null);
+    const practiceClockSecondsRef = useRef(0);
 
     const tempoName = getTempoName(currentBPM);
 
@@ -208,9 +249,86 @@ export default function Metronome({
     );
 
     useEffect(() => {
-        if (isFreeMode)
-            localStorage.setItem("practice-free-bpm", String(currentBPM));
-    }, [isFreeMode, currentBPM]);
+        if (isFreeMode) {
+            try {
+                // Persist as quarter-note BPM (rounded)
+                const quarter = Math.round(currentBPM * (4 / currentPulse));
+                localStorage.setItem("practice-free-bpm", String(quarter));
+            } catch {
+                // ignore storage failures
+            }
+        }
+    }, [isFreeMode, currentBPM, currentPulse]);
+
+    useEffect(() => {
+        let nextStreak = 0;
+        let nextErrorStreak = 0;
+
+        if (!practiceStreakStorageKey || !practiceMode) {
+            queueMicrotask(() => {
+                setStreak(nextStreak);
+                setErrorStreak(nextErrorStreak);
+            });
+            return;
+        }
+
+        try {
+            const raw = localStorage.getItem(practiceStreakStorageKey);
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                const successStreak = Number(parsed?.successStreak);
+                const failureStreak = Number(parsed?.failureStreak);
+                const storedMode = parsed?.mode;
+
+                if (storedMode === practiceMode) {
+                    nextStreak =
+                        Number.isInteger(successStreak) && successStreak > 0
+                            ? successStreak
+                            : 0;
+                    nextErrorStreak =
+                        Number.isInteger(failureStreak) && failureStreak > 0
+                            ? failureStreak
+                            : 0;
+                }
+            }
+        } catch {
+            nextStreak = 0;
+            nextErrorStreak = 0;
+        }
+
+        queueMicrotask(() => {
+            setStreak(nextStreak);
+            setErrorStreak(nextErrorStreak);
+        });
+    }, [practiceStreakStorageKey, practiceMode]);
+
+    useEffect(() => {
+        if (!practiceStreakStorageKey) {
+            return;
+        }
+
+        try {
+            if (!practiceMode) {
+                localStorage.removeItem(practiceStreakStorageKey);
+                return;
+            }
+
+            localStorage.setItem(
+                practiceStreakStorageKey,
+                JSON.stringify({
+                    mode: practiceMode,
+                    successStreak: streak,
+                    failureStreak: errorStreak,
+                }),
+            );
+        } catch {
+            // ignore storage failures
+        }
+    }, [practiceStreakStorageKey, practiceMode, streak, errorStreak]);
+
+    useEffect(() => {
+        practiceClockSecondsRef.current = practiceClockSeconds;
+    }, [practiceClockSeconds]);
 
     // When measure data arrives after initial load, sync the BPM from the last logged value
     useEffect(() => {
@@ -235,7 +353,7 @@ export default function Metronome({
                 }
             }
         }
-    }, [measure, isFreeMode]);
+    }, [measure, isFreeMode, currentPulse]);
 
     useEffect(() => {
         beatDurationRef.current = 60 / currentBPM;
@@ -353,7 +471,7 @@ export default function Metronome({
         if (!practiceMode) {
             setCurrentBPM((b) => Math.max(20, b - 1));
         }
-    }, [practiceMode, currentPulse]);
+    }, [practiceMode, currentPulse, targetTempo]);
 
     const applyIncreaseStep = useCallback(() => {
         if (practiceMode && currentPulse < 16) {
@@ -366,7 +484,7 @@ export default function Metronome({
         if (!practiceMode) {
             setCurrentBPM((b) => Math.min(300, b + 1));
         }
-    }, [practiceMode, currentPulse]);
+    }, [practiceMode, currentPulse, targetTempo]);
 
     const applyDecreaseBPM = useCallback(() => {
         setCurrentBPM((b) => Math.max(20, b - 1));
@@ -519,10 +637,10 @@ export default function Metronome({
 
             // If resuming from pause, continue counting from where we left off
             // Otherwise, start fresh
-            if (practiceClockSeconds > 0) {
+            if (practiceClockSecondsRef.current > 0) {
                 // Resuming from pause - adjust start ref so clock continues
                 practiceSessionStartRef.current =
-                    now - practiceClockSeconds * 1000;
+                    now - practiceClockSecondsRef.current * 1000;
             } else {
                 // Starting fresh
                 practiceSessionStartRef.current = now;
@@ -617,29 +735,29 @@ export default function Metronome({
 
             setIsLogging(true);
             try {
-                await onPracticeEvent(outcome, currentBPM, elapsedSeconds);
+                // Persist practice events as quarter-note BPM values
+                const storedQuarter = Math.round(currentBPM * (4 / currentPulse));
+                await onPracticeEvent(outcome, storedQuarter, elapsedSeconds);
                 lastPracticeLogRef.current = now;
             } finally {
                 setIsLogging(false);
             }
         },
-        [
-            practiceMode,
-            onPracticeEvent,
-            isLogging,
-            getElapsedPracticeSeconds,
-            currentBPM,
-        ],
+        [practiceMode, onPracticeEvent, isLogging, getElapsedPracticeSeconds, currentBPM, currentPulse],
     );
 
     const handleSuccess = useCallback(async () => {
         if (!practiceMode || !onPracticeEvent || isLogging) return;
         await commitPracticeEvent("success");
-        const newStreak = streak + 1;
-        setStreak(newStreak);
-        if (newStreak >= thresholds[practiceMode].success) {
-            setCurrentBPM((b) => getNextBPMMark(b, targetTempo));
+        const nextStreak = streak + 1;
+        setErrorStreak(0);
+        if (nextStreak >= thresholds[practiceMode].success) {
+            // Don't exceed display max based on pulse (targetTempo is quarter-note BPM)
+            const maxDisplay = Math.max(20, Math.floor(targetTempo * (currentPulse / 4)));
+            setCurrentBPM((b) => getNextBPMMark(b, maxDisplay));
             setStreak(0);
+        } else {
+            setStreak(nextStreak);
         }
         // flash green ring on tempo circle
         try {
@@ -657,17 +775,22 @@ export default function Metronome({
         commitPracticeEvent,
         isLogging,
         onPracticeEvent,
+        currentPulse,
     ]);
 
     const handleFailure = useCallback(async () => {
         if (!practiceMode || !onPracticeEvent || isLogging) return;
         await commitPracticeEvent("failure");
-        const newStreak = streak - 1;
-        setStreak(newStreak);
-        if (Math.abs(newStreak) >= thresholds[practiceMode].failure) {
-            setCurrentBPM((b) => getPreviousBPMMark(b, 20));
-            setStreak(0);
-        }
+        setStreak(0);
+        setErrorStreak((prevErrorStreak) => {
+            const nextErrorStreak = prevErrorStreak + 1;
+            if (nextErrorStreak >= thresholds[practiceMode].failure) {
+                setCurrentBPM((b) => getPreviousBPMMark(b, 20));
+                return 0;
+            }
+
+            return nextErrorStreak;
+        });
         // flash red ring on tempo circle
         try {
             setTempoFeedback("failure");
@@ -678,7 +801,6 @@ export default function Metronome({
         }
     }, [
         practiceMode,
-        streak,
         thresholds,
         commitPracticeEvent,
         isLogging,
@@ -691,7 +813,7 @@ export default function Metronome({
     }, [practiceMode, thresholds]);
 
     const filledStreakDots = useMemo(
-        () => Math.min(Math.abs(streak), streakDotCount),
+        () => Math.min(Math.abs(streak) + 1, streakDotCount),
         [streak, streakDotCount],
     );
 
@@ -1132,7 +1254,7 @@ export default function Metronome({
                             (_, index) => (
                                 <span
                                     key={`streak-dot-${index}`}
-                                    className={`streak-dot ${index < filledStreakDots + 1 ? "is-filled" : ""}`}
+                                        className={`streak-dot ${index < filledStreakDots ? "is-filled" : ""}`}
                                     aria-hidden="true"
                                 />
                             ),
@@ -1238,6 +1360,7 @@ export default function Metronome({
                                                 : "rapid";
                                         setPracticeMode(newMode);
                                         setStreak(0);
+                                        setErrorStreak(0);
                                         if (
                                             !isFreeMode &&
                                             setMeasureMode &&
@@ -1263,6 +1386,7 @@ export default function Metronome({
                                                 : "speed";
                                         setPracticeMode(newMode);
                                         setStreak(0);
+                                        setErrorStreak(0);
                                         if (
                                             !isFreeMode &&
                                             setMeasureMode &&
@@ -1288,6 +1412,7 @@ export default function Metronome({
                                                 : "stability";
                                         setPracticeMode(newMode);
                                         setStreak(0);
+                                        setErrorStreak(0);
                                         if (
                                             !isFreeMode &&
                                             setMeasureMode &&

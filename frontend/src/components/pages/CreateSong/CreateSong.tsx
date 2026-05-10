@@ -10,9 +10,10 @@ export default function CreateSong() {
 	const navigate = useNavigate();
 	const { reloadSongs } = useSongs();
 	const [title, setTitle] = useState("");
+	const [subtitle, setSubtitle] = useState("");
 	const [composer, setComposer] = useState("");
 	const [measureCount, setMeasureCount] = useState("1");
-	const [initialTempo, setInitialTempo] = useState("72");
+	const [initialTempo, setInitialTempo] = useState("");
 	const [targetTempo, setTargetTempo] = useState("120");
 	const [imageFile, setImageFile] = useState<File | null>(null);
 	const [audioFile, setAudioFile] = useState<File | null>(null);
@@ -23,6 +24,7 @@ export default function CreateSong() {
 		event.preventDefault();
 
 		const trimmedTitle = title.trim();
+		const trimmedSubtitle = subtitle.trim();
 		const trimmedComposer = composer.trim();
 		const measureTotal = Number(measureCount);
 		const initialTempoValue = Number(initialTempo);
@@ -49,6 +51,7 @@ export default function CreateSong() {
 		try {
 			const result = await createSong({
 				title: trimmedTitle,
+				subtitle: trimmedSubtitle,
 				composer: trimmedComposer,
 				measureCount: measureTotal,
 				initialTempo: initialTempoValue,
@@ -87,6 +90,16 @@ export default function CreateSong() {
 						</label>
 
 						<label className="create-song__field">
+							<span>Subtitle</span>
+							<input
+								type="text"
+								value={subtitle}
+								onChange={(event) => setSubtitle(event.target.value)}
+								placeholder="I. Adagio sostenuto"
+							/>
+						</label>
+
+						<label className="create-song__field">
 							<span>Composer</span>
 							<input
 								type="text"
@@ -117,7 +130,6 @@ export default function CreateSong() {
 								step="1"
 								value={initialTempo}
 								onChange={(event) => setInitialTempo(event.target.value)}
-								required
 							/>
 						</label>
 

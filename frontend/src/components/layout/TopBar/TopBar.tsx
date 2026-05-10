@@ -27,7 +27,7 @@ export default function TopBar() {
                         label="Go to home"
                         onClick={() => navigate("/")}
                     />
-                    <StatusIndicator />
+                    {/* <StatusIndicator /> */}
                 </div>
                 <div className="top-bar__right">
                     {/* <IconButton

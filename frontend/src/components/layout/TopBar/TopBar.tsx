@@ -5,7 +5,7 @@ import PianoIcon from "@mui/icons-material/PianoOutlined";
 // import BarChartIcon from "@mui/icons-material/BarChartOutlined";
 import DarkModeButton from "../../ui/DarkModeButton/DarkModeButton";
 import IconButton from "../../ui/IconButton/IconButton";
-import StatusIndicator from "../../ui/StatusIndicator/StatusIndicator";
+// import StatusIndicator from "../../ui/StatusIndicator/StatusIndicator";
 import { useSongs } from "../../../context/SongContext";
 import "./TopBar.css";
 

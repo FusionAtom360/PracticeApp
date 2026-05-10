@@ -164,8 +164,8 @@ export default function Metronome({
     const initialTempo = useMemo(() => {
         if (isFreeMode) {
             const savedQuarter = localStorage.getItem("practice-free-bpm");
-            const quarter = savedQuarter ? parseInt(savedQuarter, 10) : null;
-            if (Number.isInteger(quarter) && quarter > 0) {
+            const quarter = savedQuarter ? Number.parseInt(savedQuarter, 10) : NaN;
+            if (Number.isFinite(quarter) && quarter > 0) {
                 // Convert stored quarter-note BPM to displayed BPM for current pulse
                 return Math.max(20, Math.round(quarter * (currentPulse / 4)));
             }

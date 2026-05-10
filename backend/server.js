@@ -11,7 +11,7 @@ const imagesDir = join(dataDir, 'images');
 const audioDir = join(dataDir, 'audio');
 const backupsDir = join(dataDir, 'backups');
 const dataFile = join(dataDir, 'songs.json');
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 3000;
 
 let hasChanges = false;
 const MAX_BACKUPS = 24;

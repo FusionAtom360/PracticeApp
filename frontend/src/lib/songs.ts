@@ -309,7 +309,7 @@ async function encodeFile(file: File | null | undefined) {
 }
 
 export async function fetchSongs(signal?: AbortSignal) {
-    const apiUrl = `http://${window.location.hostname}:3001/songs`;
+    const apiUrl = `http://practice.josephyakligian.com:3000/songs`;
     const response = await fetch(apiUrl, { signal });
 
     if (!response.ok) {
@@ -321,7 +321,7 @@ export async function fetchSongs(signal?: AbortSignal) {
 }
 
 export async function saveSongs(songs: Song[]) {
-    const apiUrl = `http://${window.location.hostname}:3001/songs`;
+    const apiUrl = `http://practice.josephyakligian.com:3000/songs`;
     const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -337,7 +337,7 @@ export async function saveSongs(songs: Song[]) {
 }
 
 export async function createSong(input: CreateSongInput) {
-    const apiUrl = `http://${window.location.hostname}:3001/songs/create`;
+    const apiUrl = `http://practice.josephyakligian.com:3000/songs/create`;
     const [imageFile, audioFile] = await Promise.all([
         encodeFile(input.imageFile),
         encodeFile(input.audioFile),
@@ -375,7 +375,7 @@ export async function createSong(input: CreateSongInput) {
 }
 
 export async function updateSong(songId: string, input: SongUpdateInput) {
-    const apiUrl = `http://${window.location.hostname}:3001/songs/${encodeURIComponent(songId)}/update`;
+    const apiUrl = `http://practice.josephyakligian.com:3000/songs/${encodeURIComponent(songId)}/update`;
     const [imageFile, audioFile] = await Promise.all([
         encodeFile(input.imageFile),
         encodeFile(input.audioFile),

@@ -73,10 +73,10 @@ async function createBackup() {
         const data = await readFile(dataFile, 'utf8');
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
         const backupFile = join(backupsDir, `songs-${timestamp}.json`);
-        
+
         await writeFile(backupFile, data, 'utf8');
         console.log(`✓ Backup created: songs-${timestamp}.json`);
-        
+
         // Clean up old backups
         await cleanupOldBackups();
     } catch (err) {
@@ -88,7 +88,7 @@ async function cleanupOldBackups() {
     try {
         const files = await readdir(backupsDir);
         const backupFiles = files.filter((f) => f.startsWith('songs-') && f.endsWith('.json')).sort().reverse();
-        
+
         if (backupFiles.length > MAX_BACKUPS) {
             const filesToDelete = backupFiles.slice(MAX_BACKUPS);
             for (const file of filesToDelete) {
@@ -110,7 +110,7 @@ async function startBackupScheduler() {
             hasChanges = false;
         }
     }, 60 * 60 * 1000); // 1 hour in milliseconds
-    
+
     console.log(`✓ Backup scheduler started (runs every 1 hour, keeps ${MAX_BACKUPS} backups)`);
 }
 

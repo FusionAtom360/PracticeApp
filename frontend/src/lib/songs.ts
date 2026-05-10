@@ -49,7 +49,7 @@ function getApiBaseUrl(): string {
     return window.location.origin;
 }
 
-function createApiUrl(path: string): string {
+export function createApiUrl(path: string): string {
     const normalizedPath = path.startsWith('/') ? path : `/${path}`;
     return `${getApiBaseUrl()}${normalizedPath}`;
 }

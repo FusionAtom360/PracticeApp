@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
-import { fetchSongs, saveSongs, updateSong, type Measure, type Song, type SongUpdateInput } from "../lib/songs";
+import { createApiUrl, fetchSongs, saveSongs, updateSong, type Measure, type Song, type SongUpdateInput } from "../lib/songs";
 
 const SELECTED_BY_SONG_STORAGE_KEY = "practiceapp.selectedMeasuresBySong";
 const GLOBAL_KEY = "__global__";
@@ -361,7 +361,7 @@ export function SongProvider({ children }: { children: ReactNode }) {
                 throw new Error('Valid measure number required');
             }
 
-            const apiUrl = `http://${window.location.hostname}:3001/songs/${encodeURIComponent(id)}/measures/${measureNumber}/events`;
+            const apiUrl = createApiUrl(`/songs/${encodeURIComponent(id)}/measures/${measureNumber}/events`);
             const response = await fetch(apiUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -401,7 +401,7 @@ export function SongProvider({ children }: { children: ReactNode }) {
             }
 
             const measureNumber = measureNumbers[0];
-            const apiUrl = `http://${window.location.hostname}:3001/songs/${encodeURIComponent(id)}/measures/${measureNumber}/events`;
+            const apiUrl = createApiUrl(`/songs/${encodeURIComponent(id)}/measures/${measureNumber}/events`);
             const response = await fetch(apiUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

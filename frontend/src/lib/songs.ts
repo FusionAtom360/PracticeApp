@@ -46,7 +46,7 @@ function getApiBaseUrl(): string {
         return 'http://localhost:3000';
     }
 
-    return window.location.origin;
+    return 'https://practice.josephyakligian.com';
 }
 
 export function createApiUrl(path: string): string {

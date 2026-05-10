@@ -49,6 +49,7 @@ interface SongContextType {
     playSong: (songId: string) => void;
     togglePlay: () => void;
     seek: (seconds: number) => void;
+    closePlayer: () => void;
 }
 
 const SongContext = createContext<SongContextType | undefined>(undefined);
@@ -214,6 +215,37 @@ export function SongProvider({ children }: { children: ReactNode }) {
             });
         }
     }, []);
+
+    const closePlayer = useCallback(() => {
+        const a = audioRef.current;
+        if (!a) {
+            setIsPlaying(false);
+            setPlayerSongId(null);
+            setCurrentTime(0);
+            setDuration(0);
+            return;
+        }
+
+        fadeTo(0, 150).then(() => {
+            try {
+                a.pause();
+            } catch {}
+            try {
+                a.src = '';
+            } catch {}
+            setIsPlaying(false);
+            setPlayerSongId(null);
+            setCurrentTime(0);
+            setDuration(0);
+        }).catch(() => {
+            try { a.pause(); } catch {}
+            try { a.src = ''; } catch {}
+            setIsPlaying(false);
+            setPlayerSongId(null);
+            setCurrentTime(0);
+            setDuration(0);
+        });
+    }, [fadeTo]);
 
     const seek = useCallback((seconds: number) => {
         const a = audioRef.current;
@@ -449,7 +481,8 @@ export function SongProvider({ children }: { children: ReactNode }) {
             duration,
             playSong,
             togglePlay,
-            seek
+            seek,
+            closePlayer
         }}>
             {children}
         </SongContext.Provider>

@@ -1,20 +1,35 @@
 import React, { useMemo } from "react";
-import PlayArrowOutlinedIcon from '@mui/icons-material/PlayArrowOutlined';
-import PauseOutlinedIcon from '@mui/icons-material/PauseOutlined';
+import PlayArrowOutlinedIcon from "@mui/icons-material/PlayArrowOutlined";
+import PauseOutlinedIcon from "@mui/icons-material/PauseOutlined";
+import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
 import IconButton from "../IconButton/IconButton";
 import { useSongs } from "../../../context/SongContext";
 import "./MiniPlayer.css";
 
 export default function MiniPlayer() {
-    const { songs, playerSongId, isPlaying, currentTime, duration, togglePlay, seek } = useSongs();
+    const {
+        songs,
+        playerSongId,
+        isPlaying,
+        currentTime,
+        duration,
+        togglePlay,
+        seek,
+        closePlayer,
+    } = useSongs();
 
-    const song = useMemo(() => songs.find(s => s.id === playerSongId) ?? null, [songs, playerSongId]);
+    const song = useMemo(
+        () => songs.find((s) => s.id === playerSongId) ?? null,
+        [songs, playerSongId],
+    );
 
     if (!song) return <div className="mini-player-mini mini-player-hidden" />;
 
     const format = (sec: number) => {
-        if (!isFinite(sec) || sec <= 0) return '0:00';
-        const s = Math.floor(sec % 60).toString().padStart(2, '0');
+        if (!isFinite(sec) || sec <= 0) return "0:00";
+        const s = Math.floor(sec % 60)
+            .toString()
+            .padStart(2, "0");
         const m = Math.floor(sec / 60);
         return `${m}:${s}`;
     };
@@ -24,13 +39,28 @@ export default function MiniPlayer() {
         seek(v);
     };
 
-    const pct = duration && duration > 0 ? Math.min(100, Math.max(0, (currentTime / duration) * 100)) : 0;
+    const pct =
+        duration && duration > 0
+            ? Math.min(100, Math.max(0, (currentTime / duration) * 100))
+            : 0;
 
     return (
-        <div className="mini-player" role="region" aria-label="Mini audio player">
+        <div
+            className="mini-player"
+            role="region"
+            aria-label="Mini audio player"
+        >
             <div className="controls">
                 <div className="play-btn">
-                    <IconButton Icon={isPlaying ? PauseOutlinedIcon : PlayArrowOutlinedIcon} label={isPlaying ? 'Pause' : 'Play'} onClick={togglePlay} />
+                    <IconButton
+                        Icon={
+                            isPlaying
+                                ? PauseOutlinedIcon
+                                : PlayArrowOutlinedIcon
+                        }
+                        label={isPlaying ? "Pause" : "Play"}
+                        onClick={togglePlay}
+                    />
                 </div>
             </div>
 
@@ -44,13 +74,29 @@ export default function MiniPlayer() {
                     onChange={handleScrub}
                     style={{
                         background: `linear-gradient(90deg, var(--accent-warm) ${pct}%, var(--surface-2) ${pct}%)`,
-                        transition: 'background 120ms linear'
+                        transition: "background 120ms linear",
                     }}
                 />
-                <div style={{display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginTop: '0.25rem'}}>
+                <div
+                    style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        fontSize: "0.85rem",
+                        marginTop: "0.25rem",
+                    }}
+                >
                     <div className="time">{format(currentTime)}</div>
                     <div className="time">{format(duration)}</div>
                 </div>
+            </div>
+            <div className="controls">
+                <div className="close-btn">
+                    <IconButton
+                        Icon={CloseOutlinedIcon}
+                        label="Close player"
+                        onClick={closePlayer}
+                    />
+                </div>{" "}
             </div>
 
             <div className="meta">

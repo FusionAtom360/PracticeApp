@@ -47,6 +47,7 @@ export default function SongSelection() {
                         <SongCard
                             key={(song.id ?? "").trim() || `${song.title}-${song.composer}`}
                             title={song.title}
+                            subtitle={song.subtitle}
                             artist={song.composer}
                             imageSrc={song.imageUrl}
                             onClick={() => navigate(`/songs/${encodeURIComponent((song.id ?? "").trim())}`)}

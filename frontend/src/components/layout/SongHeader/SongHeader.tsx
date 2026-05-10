@@ -60,6 +60,7 @@ const SongHeader: React.FC<SongHeaderProps> = ({ song }) => {
         try {
             await updateSongOnServer(payload.song.id, {
                 title: payload.song.title,
+                subtitle: payload.song.subtitle,
                 composer: payload.song.composer,
                 imageFile: payload.imageFile,
                 audioFile: payload.audioFile,
@@ -84,6 +85,7 @@ const SongHeader: React.FC<SongHeaderProps> = ({ song }) => {
             <div className="song-header">
                 <div className="header-title-section">
                     <h1 className="song-title">{song.title}</h1>
+                    {song.subtitle && <h2 className="song-subtitle">{song.subtitle}</h2>}
                     <p className="song-composer">{song.composer}</p>
                 </div>
                 <div className="header-grid">

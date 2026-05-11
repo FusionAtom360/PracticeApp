@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import type { Measure, Song } from '../../../lib/songs';
 import DialogBox from '../../ui/DialogBox/DialogBox';
+import Button from '../../ui/Button/Button';
 import './MeasureEdit.css';
 
 interface MeasureEditProps {
@@ -151,24 +152,25 @@ const MeasureEdit: React.FC<MeasureEditProps> = ({
 
 				<div className="measure-edit-actions">
 					{onClearProgress && (
-						<button
+						<Button
 							className="btn btn-secondary"
 							onClick={handleClearProgress}
 							disabled={isLoading}
 							title="Clear all practice progress and event data for this measure"
+							variant="secondary"
 						>
 							Clear Progress
-						</button>
+						</Button>
 					)}
 					{onDelete && (
-						<button
+						<Button
 							className="btn btn-danger"
 							onClick={handleDelete}
 							disabled={isLoading}
 							title="Delete this measure"
 						>
 							Delete
-						</button>
+						</Button>
 					)}
 				</div>
 			</div>

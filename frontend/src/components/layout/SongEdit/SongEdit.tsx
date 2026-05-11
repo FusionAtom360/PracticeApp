@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import type { Song } from '../../../lib/songs';
 import DialogBox from '../../ui/DialogBox/DialogBox';
 import './SongEdit.css';
+import Button from '../../ui/Button/Button';
 
 interface SongEditSubmission {
 	song: Song;
@@ -184,24 +185,25 @@ const SongEdit: React.FC<SongEditProps> = ({ isOpen, song, onClose, onSave, onDe
 
 				<div className="song-edit-actions">
 					{onClearProgress && (
-						<button
+						<Button
 							className="btn btn-secondary"
 							onClick={handleClearProgress}
 							disabled={isLoading}
 							title="Clear all practice progress and event data"
+							variant="secondary"
 						>
 							Clear Progress
-						</button>
+						</Button>
 					)}
 					{onDelete && (
-						<button
+						<Button
 							className="btn btn-danger"
 							onClick={handleDelete}
 							disabled={isLoading}
 							title="Delete this piece and all associated data"
 						>
 							Delete
-						</button>
+						</Button>
 					)}
 				</div>
 			</div>

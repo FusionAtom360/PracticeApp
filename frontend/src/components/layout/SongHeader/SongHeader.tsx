@@ -14,6 +14,8 @@ import {
     calculateSongLastPracticeTime,
     formatLastPracticeTime,
     formatTimePracticed,
+    deleteSong,
+    clearSongProgress,
 } from "../../../lib/songs";
 import { ProgressBar } from "../../ui/ProgressBar/ProgressBar";
 import IconButton from "../../ui/IconButton/IconButton";
@@ -30,7 +32,7 @@ const SongHeader: React.FC<SongHeaderProps> = ({ song }) => {
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const navigate = useNavigate();
-    const { updateSongOnServer, clearSelectedMeasures, playSong, setActiveSong } = useSongs();
+    const { updateSongOnServer, clearSelectedMeasures, playSong, setActiveSong, reloadSongs } = useSongs();
 
     if (!song) {
         return null;
@@ -65,6 +67,27 @@ const SongHeader: React.FC<SongHeaderProps> = ({ song }) => {
                 imageFile: payload.imageFile,
                 audioFile: payload.audioFile,
             });
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handleDeleteSong = async (songId: string) => {
+        setIsSaving(true);
+        try {
+            await deleteSong(songId);
+            await reloadSongs();
+            navigate("/");
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handleClearSongProgress = async (songId: string) => {
+        setIsSaving(true);
+        try {
+            await clearSongProgress(songId);
+            await reloadSongs();
         } finally {
             setIsSaving(false);
         }
@@ -160,6 +183,8 @@ const SongHeader: React.FC<SongHeaderProps> = ({ song }) => {
                 song={song}
                 onClose={() => setIsEditOpen(false)}
                 onSave={handleSaveSong}
+                onDelete={handleDeleteSong}
+                onClearProgress={handleClearSongProgress}
                 isLoading={isSaving}
             />
         </>

@@ -1,17 +1,31 @@
 import React, { useState, useEffect } from 'react';
-import type { Measure } from '../../../lib/songs';
+import type { Measure, Song } from '../../../lib/songs';
 import DialogBox from '../../ui/DialogBox/DialogBox';
 import './MeasureEdit.css';
 
 interface MeasureEditProps {
 	isOpen: boolean;
 	measure: Measure | null;
+	song?: Song | null;
+	selectedMeasures?: number[];
 	onClose: () => void;
 	onSave: (updatedMeasure: Measure) => Promise<void>;
+	onDelete?: (measureNumber: number) => Promise<void>;
+	onClearProgress?: (measureNumber: number) => Promise<void>;
 	isLoading?: boolean;
 }
 
-const MeasureEdit: React.FC<MeasureEditProps> = ({ isOpen, measure, onClose, onSave, isLoading = false }) => {
+const MeasureEdit: React.FC<MeasureEditProps> = ({ 
+	isOpen, 
+	measure, 
+	song,
+	selectedMeasures = [],
+	onClose, 
+	onSave, 
+	onDelete, 
+	onClearProgress,
+	isLoading = false 
+}) => {
 	const [target, setTarget] = useState(0);
 	const [current, setCurrent] = useState(0);
 	const [ignoreTempo, setIgnoreTempo] = useState(false);
@@ -54,6 +68,48 @@ const MeasureEdit: React.FC<MeasureEditProps> = ({ isOpen, measure, onClose, onS
 		}
 	};
 
+	const handleDelete = async () => {
+		if (!measure || !onDelete) return;
+
+		const isMultiple = selectedMeasures.length > 1;
+		const confirmDelete = window.confirm(
+			isMultiple
+				? `Are you sure you want to delete ${selectedMeasures.length} selected measures? This action cannot be undone.`
+				: `Are you sure you want to delete Measure ${measure.number}? This action cannot be undone.`
+		);
+
+		if (!confirmDelete) return;
+
+		try {
+			setError(null);
+			await onDelete(measure.number ?? 1);
+			onClose();
+		} catch (err) {
+			setError(err instanceof Error ? err.message : 'Failed to delete measure');
+		}
+	};
+
+	const handleClearProgress = async () => {
+		if (!measure || !onClearProgress) return;
+
+		const isMultiple = selectedMeasures.length > 1;
+		const confirmClear = window.confirm(
+			isMultiple
+				? `Are you sure you want to clear all practice progress for ${selectedMeasures.length} selected measures? This will delete all event data.`
+				: `Are you sure you want to clear all practice progress for Measure ${measure.number}? This will delete all event data.`
+		);
+
+		if (!confirmClear) return;
+
+		try {
+			setError(null);
+			await onClearProgress(measure.number ?? 1);
+			onClose();
+		} catch (err) {
+			setError(err instanceof Error ? err.message : 'Failed to clear progress');
+		}
+	};
+
 	return (
 		<DialogBox
 			isOpen={isOpen}
@@ -91,6 +147,29 @@ const MeasureEdit: React.FC<MeasureEditProps> = ({ isOpen, measure, onClose, onS
 						/>
 						Ignore Tempo
 					</label>
+				</div>
+
+				<div className="measure-edit-actions">
+					{onClearProgress && (
+						<button
+							className="btn btn-secondary"
+							onClick={handleClearProgress}
+							disabled={isLoading}
+							title="Clear all practice progress and event data for this measure"
+						>
+							Clear Progress
+						</button>
+					)}
+					{onDelete && (
+						<button
+							className="btn btn-danger"
+							onClick={handleDelete}
+							disabled={isLoading}
+							title="Delete this measure"
+						>
+							Delete
+						</button>
+					)}
 				</div>
 			</div>
 		</DialogBox>

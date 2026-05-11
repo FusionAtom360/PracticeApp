@@ -14,10 +14,12 @@ interface SongEditProps {
 	song: Song | null;
 	onClose: () => void;
 	onSave: (payload: SongEditSubmission) => Promise<void>;
+	onDelete?: (songId: string) => Promise<void>;
+	onClearProgress?: (songId: string) => Promise<void>;
 	isLoading?: boolean;
 }
 
-const SongEdit: React.FC<SongEditProps> = ({ isOpen, song, onClose, onSave, isLoading = false }) => {
+const SongEdit: React.FC<SongEditProps> = ({ isOpen, song, onClose, onSave, onDelete, onClearProgress, isLoading = false }) => {
 	const [title, setTitle] = useState(song?.title ?? '');
 	const [composer, setComposer] = useState(song?.composer ?? '');
 	const [imageFile, setImageFile] = useState<File | null>(null);
@@ -48,6 +50,42 @@ const SongEdit: React.FC<SongEditProps> = ({ isOpen, song, onClose, onSave, isLo
 			onClose();
 		} catch (err) {
 			setError(err instanceof Error ? err.message : 'Failed to save song');
+		}
+	};
+
+	const handleDelete = async () => {
+		if (!song || !onDelete) return;
+
+		const confirmDelete = window.confirm(
+			`Are you sure you want to delete "${song.title}" by ${song.composer}? This action cannot be undone.`
+		);
+
+		if (!confirmDelete) return;
+
+		try {
+			setError(null);
+			await onDelete(song.id);
+			onClose();
+		} catch (err) {
+			setError(err instanceof Error ? err.message : 'Failed to delete song');
+		}
+	};
+
+	const handleClearProgress = async () => {
+		if (!song || !onClearProgress) return;
+
+		const confirmClear = window.confirm(
+			`Are you sure you want to clear all practice progress for "${song.title}"? This will delete all event data.`
+		);
+
+		if (!confirmClear) return;
+
+		try {
+			setError(null);
+			await onClearProgress(song.id);
+			onClose();
+		} catch (err) {
+			setError(err instanceof Error ? err.message : 'Failed to clear progress');
 		}
 	};
 
@@ -125,6 +163,29 @@ const SongEdit: React.FC<SongEditProps> = ({ isOpen, song, onClose, onSave, isLo
 						disabled={isLoading}
 					/>
 					<p className="form-help">Leave empty to keep the current audio.</p>
+				</div>
+
+				<div className="song-edit-actions">
+					{onClearProgress && (
+						<button
+							className="btn btn-secondary"
+							onClick={handleClearProgress}
+							disabled={isLoading}
+							title="Clear all practice progress and event data"
+						>
+							Clear Progress
+						</button>
+					)}
+					{onDelete && (
+						<button
+							className="btn btn-danger"
+							onClick={handleDelete}
+							disabled={isLoading}
+							title="Delete this piece and all associated data"
+						>
+							Delete
+						</button>
+					)}
 				</div>
 			</div>
 		</DialogBox>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 import type { Song, Measure } from '../../../lib/songs';
-import { calculateMeasureProgress, calculateMeasureProgressBefore24h } from '../../../lib/songs';
+import { calculateMeasureProgress, calculateMeasureProgressBefore24h, deleteMeasure, clearMeasureProgress } from '../../../lib/songs';
 import { ProgressBar } from '../ProgressBar/ProgressBar';
 import Button from '../Button/Button';
 import MeasureEdit from '../../layout/MeasureEdit/MeasureEdit';
@@ -14,7 +14,7 @@ interface MeasuresOverviewProps {
 }
 
 const MeasuresOverview: React.FC<MeasuresOverviewProps> = ({ song }) => {
-	const { saveSongsToServer, songs, selectedMeasures, setSelectedMeasures, clearSelectedMeasures, setActiveSong } = useSongs();
+	const { saveSongsToServer, songs, selectedMeasures, setSelectedMeasures, clearSelectedMeasures, setActiveSong, reloadSongs } = useSongs();
 	const navigate = useNavigate();
 	const [editingMeasure, setEditingMeasure] = useState<Measure | null>(null);
 	const [firstSelectedNumber, setFirstSelectedNumber] = useState<number | null>(null);
@@ -73,6 +73,47 @@ const MeasuresOverview: React.FC<MeasuresOverviewProps> = ({ song }) => {
 
 			await saveSongsToServer(updatedSongs);
 			setIsEditDialogOpen(false);
+		} finally {
+			setIsSaving(false);
+		}
+	};
+
+	const handleDeleteMeasure = async (measureNumber: number) => {
+		if (!song) return;
+
+		setIsSaving(true);
+		try {
+			// If multiple measures are selected, delete all of them
+			const measuresToDel = selectedMeasures.length > 0 ? selectedMeasures : [measureNumber];
+			
+			// Delete in reverse order to avoid renumbering issues
+			const sorted = [...measuresToDel].sort((a, b) => b - a);
+			for (const num of sorted) {
+				await deleteMeasure(song.id, num);
+			}
+			
+			await reloadSongs();
+			clearSelectedMeasures();
+			setFirstSelectedNumber(null);
+			setHasRangeSelection(false);
+		} finally {
+			setIsSaving(false);
+		}
+	};
+
+	const handleClearMeasureProgress = async (measureNumber: number) => {
+		if (!song) return;
+
+		setIsSaving(true);
+		try {
+			// If multiple measures are selected, clear progress for all of them
+			const measuresToClear = selectedMeasures.length > 0 ? selectedMeasures : [measureNumber];
+			
+			for (const num of measuresToClear) {
+				await clearMeasureProgress(song.id, num);
+			}
+			
+			await reloadSongs();
 		} finally {
 			setIsSaving(false);
 		}
@@ -162,8 +203,12 @@ const MeasuresOverview: React.FC<MeasuresOverviewProps> = ({ song }) => {
 			<MeasureEdit
 				isOpen={isEditDialogOpen}
 				measure={editingMeasure}
+				song={song}
+				selectedMeasures={selectedMeasures}
 				onClose={() => setIsEditDialogOpen(false)}
 				onSave={handleSaveMeasure}
+				onDelete={handleDeleteMeasure}
+				onClearProgress={handleClearMeasureProgress}
 				isLoading={isSaving}
 			/>
 		</>

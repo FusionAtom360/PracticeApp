@@ -188,7 +188,8 @@ app.use((req, res, next) => {
 
 // CORS middleware - set first so headers apply to all responses
 app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', 'https://practiceapp-f1d1b.web.app');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    // res.setHeader('Access-Control-Allow-Origin', 'https://practiceapp-f1d1b.web.app');
     res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-Requested-With');
     res.setHeader('Access-Control-Max-Age', '86400');
@@ -516,10 +517,178 @@ app.post('/songs/:id/measures/:measureNumber/events', async (req, res) => {
     }
 });
 
+app.delete('/songs/:id', async (req, res) => {
+    try {
+        const songId = typeof req.params.id === 'string' ? req.params.id : '';
+        const songs = await readSongs();
+        const songIndex = songs.findIndex((song) => song.id === songId);
+
+        if (songIndex === -1) {
+            console.warn(`✗ Delete failed: Song not found (ID: ${songId})`);
+            res.status(404).json({ error: 'Song not found' });
+            return;
+        }
+
+        const deletedSong = songs[songIndex];
+
+        // Remove associated image and audio files
+        if (deletedSong.image) {
+            await safelyRemoveFile(imagesDir, deletedSong.image);
+        }
+        if (deletedSong.audio) {
+            await safelyRemoveFile(audioDir, deletedSong.audio);
+        }
+
+        const updatedSongs = songs.filter((_, index) => index !== songIndex);
+        await writeSongs(updatedSongs);
+
+        console.log(`✓ Deleted song: "${deletedSong.title}" by ${deletedSong.composer} (ID: ${songId})`);
+
+        res.json({
+            songs: updatedSongs.map((entry) => serializeSong(req, entry)),
+        });
+    } catch (err) {
+        console.error('✗ Failed to delete song:', err.message);
+        res.status(500).json({ error: 'Failed to delete song' });
+    }
+});
+
+app.post('/songs/:id/clear-progress', async (req, res) => {
+    try {
+        const songId = typeof req.params.id === 'string' ? req.params.id : '';
+        const songs = await readSongs();
+        const songIndex = songs.findIndex((song) => song.id === songId);
+
+        if (songIndex === -1) {
+            console.warn(`✗ Clear progress failed: Song not found (ID: ${songId})`);
+            res.status(404).json({ error: 'Song not found' });
+            return;
+        }
+
+        const song = songs[songIndex];
+        if (Array.isArray(song.measures)) {
+            for (const measure of song.measures) {
+                measure.events = [];
+            }
+            song.elapsedTime = 0;
+            song.timeElapsed = 0;
+        }
+
+        const updatedSongs = songs.slice();
+        updatedSongs[songIndex] = song;
+        await writeSongs(updatedSongs);
+
+        console.log(`✓ Cleared progress for song: "${song.title}" by ${song.composer} (ID: ${songId})`);
+
+        res.json({
+            song: serializeSong(req, song),
+            songs: updatedSongs.map((entry) => serializeSong(req, entry)),
+        });
+    } catch (err) {
+        console.error('✗ Failed to clear song progress:', err.message);
+        res.status(500).json({ error: 'Failed to clear song progress' });
+    }
+});
+
+app.delete('/songs/:id/measures/:measureNumber', async (req, res) => {
+    try {
+        const songId = typeof req.params.id === 'string' ? req.params.id : '';
+        const measureNumber = Number(req.params.measureNumber);
+        const songs = await readSongs();
+        const songIndex = songs.findIndex((song) => song.id === songId);
+
+        if (songIndex === -1) {
+            console.warn(`✗ Delete measure failed: Song not found (ID: ${songId})`);
+            res.status(404).json({ error: 'Song not found' });
+            return;
+        }
+
+        const song = songs[songIndex];
+        if (!Array.isArray(song.measures)) {
+            console.warn(`✗ Song ${songId} has no measures`);
+            res.status(404).json({ error: 'Song has no measures' });
+            return;
+        }
+
+        const measureIndex = song.measures.findIndex((m) => m.number === measureNumber);
+        if (measureIndex === -1) {
+            console.warn(`✗ Measure ${measureNumber} not found in song ${songId}`);
+            res.status(404).json({ error: `Measure ${measureNumber} not found` });
+            return;
+        }
+
+        // Delete the measure and renumber remaining measures
+        song.measures.splice(measureIndex, 1);
+        song.measureCount = song.measures.length;
+
+        const updatedSongs = songs.slice();
+        updatedSongs[songIndex] = song;
+        await writeSongs(updatedSongs);
+
+        console.log(`✓ Deleted measure ${measureNumber} from song "${song.title}" (ID: ${songId})`);
+
+        res.json({
+            song: serializeSong(req, song),
+            songs: updatedSongs.map((entry) => serializeSong(req, entry)),
+        });
+    } catch (err) {
+        console.error('✗ Failed to delete measure:', err.message);
+        res.status(500).json({ error: 'Failed to delete measure' });
+    }
+});
+
+app.post('/songs/:id/measures/:measureNumber/clear-progress', async (req, res) => {
+    try {
+        const songId = typeof req.params.id === 'string' ? req.params.id : '';
+        const measureNumber = Number(req.params.measureNumber);
+        const songs = await readSongs();
+        const songIndex = songs.findIndex((song) => song.id === songId);
+
+        if (songIndex === -1) {
+            console.warn(`✗ Clear measure progress failed: Song not found (ID: ${songId})`);
+            res.status(404).json({ error: 'Song not found' });
+            return;
+        }
+
+        const song = songs[songIndex];
+        if (!Array.isArray(song.measures)) {
+            console.warn(`✗ Song ${songId} has no measures`);
+            res.status(404).json({ error: 'Song has no measures' });
+            return;
+        }
+
+        const measure = song.measures.find((m) => m.number === measureNumber);
+        if (!measure) {
+            console.warn(`✗ Measure ${measureNumber} not found in song ${songId}`);
+            res.status(404).json({ error: `Measure ${measureNumber} not found` });
+            return;
+        }
+
+        measure.events = [];
+        measure.elapsedTime = 0;
+        measure.timeElapsed = 0;
+
+        const updatedSongs = songs.slice();
+        updatedSongs[songIndex] = song;
+        await writeSongs(updatedSongs);
+
+        console.log(`✓ Cleared progress for measure ${measureNumber} in song "${song.title}" (ID: ${songId})`);
+
+        res.json({
+            song: serializeSong(req, song),
+            songs: updatedSongs.map((entry) => serializeSong(req, entry)),
+        });
+    } catch (err) {
+        console.error('✗ Failed to clear measure progress:', err.message);
+        res.status(500).json({ error: 'Failed to clear measure progress' });
+    }
+});
+
 // Error handler for payload too large
 app.use((err, req, res, next) => {
     if (err?.type === 'entity.too.large') {
-        res.setHeader('Access-Control-Allow-Origin', 'https://practiceapp-f1d1b.web.app');
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        //res.setHeader('Access-Control-Allow-Origin', 'https://practiceapp-f1d1b.web.app');
         res.status(413).json({ error: 'Uploaded song payload is too large' });
         return;
     }

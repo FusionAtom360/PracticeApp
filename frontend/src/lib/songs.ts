@@ -46,7 +46,7 @@ function getApiBaseUrl(): string {
         return 'http://localhost:3000';
     }
 
-    return 'https://practice.josephyakligian.com';
+    return 'http://localhost:3000';//'https://practice.josephyakligian.com';
 }
 
 export function createApiUrl(path: string): string {
@@ -421,6 +421,97 @@ export async function updateSong(songId: string, input: SongUpdateInput) {
 
     if (!data.song) {
         throw new Error("Failed to update song");
+    }
+
+    return {
+        song: data.song,
+        songs: Array.isArray(data.songs) ? data.songs : [data.song],
+    };
+}
+
+export async function deleteSong(songId: string) {
+    const apiUrl = createApiUrl(`/songs/${songId}`);
+
+    const response = await fetch(apiUrl, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+    });
+
+    if (!response.ok) {
+        throw new Error(`Failed to delete song: ${response.status}`);
+    }
+
+    const data: { songs?: Song[] } = await response.json();
+
+    return {
+        songs: Array.isArray(data.songs) ? data.songs : [],
+    };
+}
+
+export async function clearSongProgress(songId: string) {
+    const apiUrl = createApiUrl(`/songs/${songId}/clear-progress`);
+
+    const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+    });
+
+    if (!response.ok) {
+        throw new Error(`Failed to clear song progress: ${response.status}`);
+    }
+
+    const data: { song?: Song; songs?: Song[] } = await response.json();
+
+    if (!data.song) {
+        throw new Error("Failed to clear song progress");
+    }
+
+    return {
+        song: data.song,
+        songs: Array.isArray(data.songs) ? data.songs : [data.song],
+    };
+}
+
+export async function deleteMeasure(songId: string, measureNumber: number) {
+    const apiUrl = createApiUrl(`/songs/${songId}/measures/${measureNumber}`);
+
+    const response = await fetch(apiUrl, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+    });
+
+    if (!response.ok) {
+        throw new Error(`Failed to delete measure: ${response.status}`);
+    }
+
+    const data: { song?: Song; songs?: Song[] } = await response.json();
+
+    if (!data.song) {
+        throw new Error("Failed to delete measure");
+    }
+
+    return {
+        song: data.song,
+        songs: Array.isArray(data.songs) ? data.songs : [data.song],
+    };
+}
+
+export async function clearMeasureProgress(songId: string, measureNumber: number) {
+    const apiUrl = createApiUrl(`/songs/${songId}/measures/${measureNumber}/clear-progress`);
+
+    const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+    });
+
+    if (!response.ok) {
+        throw new Error(`Failed to clear measure progress: ${response.status}`);
+    }
+
+    const data: { song?: Song; songs?: Song[] } = await response.json();
+
+    if (!data.song) {
+        throw new Error("Failed to clear measure progress");
     }
 
     return {

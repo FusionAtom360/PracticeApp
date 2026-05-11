@@ -189,7 +189,6 @@ app.use((req, res, next) => {
 // CORS middleware - set first so headers apply to all responses
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', 'https://practiceapp-f1d1b.web.app');
-    res.setHeader('Access-Control-Allow-Origin', '*'); // DEV ONLY
     res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-Requested-With');
     res.setHeader('Access-Control-Max-Age', '86400');
@@ -520,6 +519,7 @@ app.post('/songs/:id/measures/:measureNumber/events', async (req, res) => {
 // Error handler for payload too large
 app.use((err, req, res, next) => {
     if (err?.type === 'entity.too.large') {
+        res.setHeader('Access-Control-Allow-Origin', 'https://practiceapp-f1d1b.web.app');
         res.status(413).json({ error: 'Uploaded song payload is too large' });
         return;
     }

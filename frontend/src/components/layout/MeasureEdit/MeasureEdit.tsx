@@ -18,7 +18,7 @@ interface MeasureEditProps {
 const MeasureEdit: React.FC<MeasureEditProps> = ({ 
 	isOpen, 
 	measure, 
-	song,
+	// song,
 	selectedMeasures = [],
 	onClose, 
 	onSave, 

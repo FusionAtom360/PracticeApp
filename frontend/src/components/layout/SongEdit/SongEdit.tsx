@@ -21,6 +21,7 @@ interface SongEditProps {
 
 const SongEdit: React.FC<SongEditProps> = ({ isOpen, song, onClose, onSave, onDelete, onClearProgress, isLoading = false }) => {
 	const [title, setTitle] = useState(song?.title ?? '');
+	const [subtitle, setSubtitle] = useState(song?.subtitle ?? '');
 	const [composer, setComposer] = useState(song?.composer ?? '');
 	const [imageFile, setImageFile] = useState<File | null>(null);
 	const [audioFile, setAudioFile] = useState<File | null>(null);
@@ -44,6 +45,7 @@ const SongEdit: React.FC<SongEditProps> = ({ isOpen, song, onClose, onSave, onDe
 			const updatedSong: Song = {
 				...song,
 				title: title.trim(),
+				subtitle: subtitle.trim(),
 				composer: composer.trim(),
 			};
 			await onSave({ song: updatedSong, imageFile, audioFile });
@@ -116,6 +118,21 @@ const SongEdit: React.FC<SongEditProps> = ({ isOpen, song, onClose, onSave, onDe
 						value={title}
 						onChange={(e) => setTitle(e.target.value)}
 						placeholder="Enter song title"
+						disabled={isLoading}
+					/>
+				</div>
+
+				<div className="form-group">
+					<label htmlFor="song-subtitle" className="form-label">
+						Subtitle
+					</label>
+					<input
+						id="song-subtitle"
+						type="text"
+						className="form-input"
+						value={subtitle}
+						onChange={(e) => setSubtitle(e.target.value)}
+						placeholder="Enter song subtitle"
 						disabled={isLoading}
 					/>
 				</div>

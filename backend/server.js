@@ -188,9 +188,10 @@ app.use((req, res, next) => {
 
 // CORS middleware - set first so headers apply to all responses
 app.use((req, res, next) => {
-    const origin = req.headers.origin || '*';
+    const origin = 'https://practiceapp-f1d1b.web.app';
     res.setHeader('Vary', 'Origin');
-    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Origin', 'https://practiceapp-f1d1b.web.app');
+    res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
 

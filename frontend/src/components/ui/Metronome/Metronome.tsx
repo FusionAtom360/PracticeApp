@@ -103,7 +103,7 @@ function getPracticeStartBPM(
 
     const lowestMark =
         measureMarks.length > 0 ? Math.min(...measureMarks) : floorBPM;
-    const scaledMark = lowestMark * 0.8;
+    const scaledMark = lowestMark * 0.9;
     const snappedMark = getNearestBPMMark(scaledMark);
     return Math.max(floorBPM, snappedMark);
 }

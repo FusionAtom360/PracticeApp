@@ -256,6 +256,7 @@ export default function Metronome({
     const tapModeTimeoutRef = useRef<number | null>(null);
     const isDraggingTempoRef = useRef(false);
     const hasDraggedTempoRef = useRef(false);
+    const dragStartXRef = useRef(0);
     const dragStartYRef = useRef(0);
     const suppressTempoCircleClickRef = useRef(false);
     const incHoldTimeoutRef = useRef<number | null>(null);
@@ -1065,10 +1066,11 @@ export default function Metronome({
                     className={`tempo-circle ${beatFlash ? "tempo-circle--beat-flash" : ""} ${tapMode ? "tap-mode" : ""} ${tempoFeedback ? `tempo-circle--feedback-${tempoFeedback}` : ""}`}
                     aria-label="Tempo display"
                     onPointerDown={(e) => {
-                        if (!isFreeMode) return;
                         if (e.pointerType === "mouse" && e.button !== 0) return;
+                        if (!isFreeMode && !practiceMode) return;
                         isDraggingTempoRef.current = true;
                         hasDraggedTempoRef.current = false;
+                        dragStartXRef.current = e.clientX;
                         dragStartYRef.current = e.clientY;
                         suppressTempoCircleClickRef.current = false;
                         // prevent page vertical scrolling while dragging/tapping
@@ -1078,7 +1080,16 @@ export default function Metronome({
                         e.currentTarget.setPointerCapture(e.pointerId);
                     }}
                     onPointerMove={(e) => {
-                        if (!isDraggingTempoRef.current || !isFreeMode) return;
+                        if (!isDraggingTempoRef.current) return;
+
+                        if (!isFreeMode) {
+                            const deltaX = e.clientX - dragStartXRef.current;
+                            const deltaY = e.clientY - dragStartYRef.current;
+                            if (Math.abs(deltaX) > 8 || Math.abs(deltaY) > 8) {
+                                hasDraggedTempoRef.current = true;
+                            }
+                            return;
+                        }
 
                         const deltaY = dragStartYRef.current - e.clientY;
                         const sensitivity = 3;
@@ -1094,7 +1105,7 @@ export default function Metronome({
                         dragStartYRef.current = e.clientY;
                     }}
                     onPointerUp={(e) => {
-                        if (!isFreeMode) return;
+                        if (!isDraggingTempoRef.current) return;
 
                         const wasDragging = isDraggingTempoRef.current;
                         const moved = hasDraggedTempoRef.current;
@@ -1104,8 +1115,25 @@ export default function Metronome({
                         if (typeof document !== "undefined" && document.body) {
                             document.body.style.overflow = "";
                         }
-                        if (wasDragging && !moved) {
+
+                        if (isFreeMode && wasDragging && !moved) {
                             registerTap();
+                        }
+
+                        if (!isFreeMode && practiceMode && wasDragging) {
+                            const deltaX = e.clientX - dragStartXRef.current;
+                            const deltaY = Math.abs(e.clientY - dragStartYRef.current);
+                            const swipeThreshold = 40;
+                            if (
+                                Math.abs(deltaX) >= swipeThreshold &&
+                                Math.abs(deltaX) > deltaY
+                            ) {
+                                if (deltaX > 0) {
+                                    void handleSuccess();
+                                } else {
+                                    void handleFailure();
+                                }
+                            }
                         }
 
                         if (e.currentTarget.hasPointerCapture(e.pointerId)) {

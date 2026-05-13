@@ -54,31 +54,41 @@ export function createApiUrl(path: string): string {
     return `${getApiBaseUrl()}${normalizedPath}`;
 }
 
+function getAverageRecentMetronomeTempo(
+    events: Array<{ type?: string; value?: any }>,
+    recentCount = 7,
+): number {
+    const recentMetronomeValues = events
+        .filter((event) => event && event.type === 'metronome' && typeof event.value === 'number')
+        .slice(-recentCount)
+        .map((event) => Number(event.value));
+
+    if (recentMetronomeValues.length === 0) {
+        return 0;
+    }
+
+    const total = recentMetronomeValues.reduce((sum, value) => sum + value, 0);
+    return total / recentMetronomeValues.length;
+}
+
 export function calculateMeasureProgress(measure: Measure): number {
     if (!measure || measure.target <= 0) return 0;
 
     const target = measure.target;
+    const events = Array.isArray(measure.events) ? measure.events : [];
 
     // Calculate currentTempo
     let currentTempo = 0;
     if (measure.ignoreTempo) {
         currentTempo = target;
     } else {
-        // Get the last metronome event with a tempo marking
-        const events = Array.isArray(measure.events) ? measure.events : [];
-        for (let i = events.length - 1; i >= 0; i--) {
-            const event = events[i];
-            if (event && event.type === 'metronome' && typeof event.value === 'number') {
-                currentTempo = event.value;
-                break;
-            }
-        }
+        // Use the average of recent metronome events for a smoother current tempo.
+        currentTempo = getAverageRecentMetronomeTempo(events, 7);
     }
 
     const tempoRatio = currentTempo / target;
 
     // Count successes in last 50 attempts
-    const events = Array.isArray(measure.events) ? measure.events : [];
     const lastFiftyEvents = events.slice(-50);
     const successCount = lastFiftyEvents.filter(e => e && e.outcome === 'success').length;
     // If fewer than 50 events, count missing as failures
@@ -122,14 +132,8 @@ export function calculateMeasureProgressBefore24h(measure: Measure): number {
     if (measure.ignoreTempo) {
         currentTempo = target;
     } else {
-        // Get the last metronome event before 24h with a tempo marking
-        for (let i = eventsBefore24h.length - 1; i >= 0; i--) {
-            const event = eventsBefore24h[i];
-            if (event && event.type === 'metronome' && typeof event.value === 'number') {
-                currentTempo = event.value;
-                break;
-            }
-        }
+        // Use the average of recent metronome events before the 24h cutoff.
+        currentTempo = getAverageRecentMetronomeTempo(eventsBefore24h, 7);
     }
 
     const tempoRatio = currentTempo / target;
@@ -185,15 +189,8 @@ export function calculateSongAverageTempo(song: Song): number {
         if (measure.ignoreTempo) {
             currentTempo = measure.target || 0;
         } else {
-            // Get the last metronome event with a tempo marking
             const events = Array.isArray(measure.events) ? measure.events : [];
-            for (let i = events.length - 1; i >= 0; i--) {
-                const event = events[i];
-                if (event && event.type === 'metronome' && typeof event.value === 'number') {
-                    currentTempo = event.value;
-                    break;
-                }
-            }
+            currentTempo = getAverageRecentMetronomeTempo(events, 7);
         }
 
         if (currentTempo > 0) {

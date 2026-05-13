@@ -43,16 +43,69 @@ function getTempoMarking(pulse: number): string {
     }
 }
 
-function getLastMetronomeBPM(
+function getHighestMetronomeBPM(
     events?: Array<{ type?: string; value?: number }>,
 ): number | null {
     if (!Array.isArray(events)) return null;
-    for (let i = events.length - 1; i >= 0; i--) {
-        const ev = events[i];
-        if (ev && ev.type === "metronome" && typeof ev.value === "number")
-            return ev.value;
+    let highest: number | null = null;
+
+    for (const ev of events.slice(-20)) {
+        if (ev && ev.type === "metronome" && typeof ev.value === "number") {
+            highest = highest === null ? ev.value : Math.max(highest, ev.value);
+        }
     }
-    return null;
+
+    return highest;
+}
+
+function getNearestBPMMark(value: number): number {
+    let nearest = BPMMarks[0];
+    let bestDistance = Math.abs(value - nearest);
+
+    for (let i = 1; i < BPMMarks.length; i++) {
+        const mark = BPMMarks[i];
+        const distance = Math.abs(value - mark);
+        if (distance < bestDistance) {
+            nearest = mark;
+            bestDistance = distance;
+        }
+    }
+
+    return nearest;
+}
+
+function getPracticeStartBPM(
+    selectedMeasures: Measure[] | undefined,
+    measure: Measure | null | undefined,
+    targetTempo: number,
+): number {
+    const floorBPM = targetTempo / 4;
+    const measuresToInspect =
+        Array.isArray(selectedMeasures) && selectedMeasures.length > 0
+            ? selectedMeasures
+            : measure
+              ? [measure]
+              : [];
+
+    const measureMarks = measuresToInspect
+        .map((item) => {
+            const highestLoggedBPM = getHighestMetronomeBPM(item?.events);
+            if (highestLoggedBPM !== null) {
+                return highestLoggedBPM;
+            }
+
+            const measureTarget = Number(item?.target);
+            return Number.isFinite(measureTarget) && measureTarget > 0
+                ? measureTarget / 4
+                : floorBPM;
+        })
+        .filter((value) => Number.isFinite(value) && value > 0);
+
+    const lowestMark =
+        measureMarks.length > 0 ? Math.min(...measureMarks) : floorBPM;
+    const scaledMark = lowestMark * 0.8;
+    const snappedMark = getNearestBPMMark(scaledMark);
+    return Math.max(floorBPM, snappedMark);
 }
 
 type PracticeMode = "rapid" | "speed" | "stability" | null;
@@ -172,30 +225,8 @@ export default function Metronome({
             return 120;
         }
 
-        // Check if any selected measure has no events (fresh measures)
-        const anyFresh =
-            Array.isArray(selectedMeasures) && selectedMeasures.length > 0
-                ? selectedMeasures.some(
-                      (m) => !Array.isArray(m.events) || m.events.length === 0,
-                  )
-                : !Array.isArray(measure?.events) ||
-                  measure!.events!.length === 0;
-
-        if (anyFresh) {
-            // If any measure is fresh, start at target / 4
-            return Math.max(
-                20,
-                Math.floor((measure?.target ?? targetTempo) / 4),
-            );
-        }
-
-        // Otherwise, try to get last metronome BPM from first selected measure (or active measure)
-        const last = getLastMetronomeBPM(measure?.events);
-        return (
-            last ??
-            Math.max(20, Math.floor((measure?.target ?? targetTempo) / 4))
-        );
-    }, [isFreeMode, measure, selectedMeasures, targetTempo]);
+        return getPracticeStartBPM(selectedMeasures, measure, targetTempo);
+    }, [isFreeMode, measure, selectedMeasures, targetTempo, currentPulse]);
 
     const [currentBPM, setCurrentBPM] = useState<number>(initialTempo);
     const [showBPM, setShowBPM] = useState(true);
@@ -331,30 +362,23 @@ export default function Metronome({
         practiceClockSecondsRef.current = practiceClockSeconds;
     }, [practiceClockSeconds]);
 
-    // When measure data arrives after initial load, sync the BPM from the last logged value
+    // When measure data arrives after initial load, sync to the computed practice seed BPM
     useEffect(() => {
-        if (
-            !isFreeMode &&
-            measure &&
-            Array.isArray(measure.events) &&
-            measure.events.length > 0
-        ) {
-            // Use a key to track if this is a new measure
-            const measureKey = `${measure.number}`;
-            const lastInitializedKey = hasInitializedFromMeasureRef.current;
-
-            if (measureKey !== lastInitializedKey) {
-                const lastBpm = getLastMetronomeBPM(measure.events);
-                if (lastBpm !== null) {
-                    // Use a microtask to defer state update and avoid cascading renders
-                    queueMicrotask(() => {
-                        setCurrentBPM(lastBpm);
-                    });
-                    hasInitializedFromMeasureRef.current = measureKey;
-                }
-            }
+        if (isFreeMode) {
+            return;
         }
-    }, [measure, isFreeMode, currentPulse]);
+
+        const scopeKey = practiceScopeKey ?? "song";
+        if (scopeKey === hasInitializedFromMeasureRef.current) {
+            return;
+        }
+
+        const seedBPM = getPracticeStartBPM(selectedMeasures, measure, targetTempo);
+        queueMicrotask(() => {
+            setCurrentBPM(seedBPM);
+        });
+        hasInitializedFromMeasureRef.current = scopeKey;
+    }, [isFreeMode, measure, practiceScopeKey, selectedMeasures, targetTempo]);
 
     useEffect(() => {
         beatDurationRef.current = 60 / currentBPM;
@@ -472,7 +496,7 @@ export default function Metronome({
         if (!practiceMode) {
             setCurrentBPM((b) => Math.max(20, b - 1));
         }
-    }, [practiceMode, currentPulse, targetTempo]);
+    }, [practiceMode, currentPulse]);
 
     const applyIncreaseStep = useCallback(() => {
         if (practiceMode && currentPulse < 16) {
@@ -485,7 +509,7 @@ export default function Metronome({
         if (!practiceMode) {
             setCurrentBPM((b) => Math.min(300, b + 1));
         }
-    }, [practiceMode, currentPulse, targetTempo]);
+    }, [practiceMode, currentPulse]);
 
     const applyDecreaseBPM = useCallback(() => {
         setCurrentBPM((b) => Math.max(20, b - 1));

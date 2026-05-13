@@ -1,7 +1,14 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 import type { Song, Measure } from '../../../lib/songs';
-import { calculateMeasureProgress, calculateMeasureProgressBefore24h, deleteMeasure, clearMeasureProgress } from '../../../lib/songs';
+import {
+	calculateMeasureProgress,
+	calculateMeasureProgressBefore24h,
+	calculateSongAverageAccuracy,
+	calculateSongAverageTempo,
+	deleteMeasure,
+	clearMeasureProgress,
+} from '../../../lib/songs';
 import { ProgressBar } from '../ProgressBar/ProgressBar';
 import Button from '../Button/Button';
 import MeasureEdit from '../../layout/MeasureEdit/MeasureEdit';
@@ -24,6 +31,32 @@ const MeasuresOverview: React.FC<MeasuresOverviewProps> = ({ song }) => {
 
 	const measures = song?.measures ?? [];
 	const hasSelectedMeasures = selectedMeasures.length > 0;
+
+	const selectedMeasureObjects = useMemo(() => {
+		if (!song || selectedMeasures.length === 0) {
+			return [] as Measure[];
+		}
+
+		return selectedMeasures
+			.map((number) => measures.find((measure) => measure.number === number))
+			.filter((measure): measure is Measure => Boolean(measure));
+	}, [song, measures, selectedMeasures]);
+
+	const selectedStats = useMemo(() => {
+		if (!song || selectedMeasureObjects.length === 0) {
+			return { tempo: 0, accuracy: 0 };
+		}
+
+		const scopedSong: Song = {
+			...song,
+			measures: selectedMeasureObjects,
+		};
+
+		return {
+			tempo: calculateSongAverageTempo(scopedSong),
+			accuracy: calculateSongAverageAccuracy(scopedSong),
+		};
+	}, [song, selectedMeasureObjects]);
 
 	useEffect(() => {
 		setActiveSong(song?.id ?? null);
@@ -229,9 +262,14 @@ const MeasuresOverview: React.FC<MeasuresOverviewProps> = ({ song }) => {
 			{hasSelectedMeasures && (
 				<div className="measures-selection-bar" role="region" aria-label="Selected measures actions">
 					<div className="measures-selection-bar__content">
-						<span className="measures-selection-bar__count">
-							{selectedMeasures.length} selected
-						</span>
+						<div className="measures-selection-bar__meta">
+							<span className="measures-selection-bar__count">
+								{selectedMeasures.length} selected
+							</span>
+							<span className="measures-selection-bar__stats">
+								{selectedStats.tempo} BPM • {selectedStats.accuracy}% accuracy
+							</span>
+						</div>
 						<div className="measures-selection-bar__actions">
 							<Button
 								label="Edit"

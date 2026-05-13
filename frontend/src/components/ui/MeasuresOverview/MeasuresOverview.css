@@ -85,9 +85,21 @@
     gap: 1rem;
 }
 
+.measures-selection-bar__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
 .measures-selection-bar__count {
     color: var(--text-secondary);
     font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.measures-selection-bar__stats {
+    color: var(--text-primary);
+    font-size: 0.9rem;
     font-weight: 600;
 }
 
@@ -105,6 +117,10 @@
     .measures-selection-bar__content {
         flex-direction: column;
         align-items: stretch;
+    }
+
+    .measures-selection-bar__meta {
+        align-items: flex-start;
     }
 
     .measures-selection-bar__actions {

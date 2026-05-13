@@ -23,6 +23,7 @@ const MeasuresOverview: React.FC<MeasuresOverviewProps> = ({ song }) => {
 	const [isSaving, setIsSaving] = useState(false);
 
 	const measures = song?.measures ?? [];
+	const hasSelectedMeasures = selectedMeasures.length > 0;
 
 	useEffect(() => {
 		setActiveSong(song?.id ?? null);
@@ -42,6 +43,47 @@ const MeasuresOverview: React.FC<MeasuresOverviewProps> = ({ song }) => {
 	const handleEditMeasure = (measure: Measure) => {
 		setEditingMeasure(measure);
 		setIsEditDialogOpen(true);
+	};
+
+	const handleEditSelectedMeasures = () => {
+		if (!hasSelectedMeasures) {
+			return;
+		}
+
+		const firstSelectedMeasureNumber = selectedMeasures[0];
+		const firstSelectedMeasure = measures.find(
+			(measure) => measure.number === firstSelectedMeasureNumber,
+		);
+
+		if (firstSelectedMeasure) {
+			handleEditMeasure(firstSelectedMeasure);
+		}
+	};
+
+	const handlePracticeSelection = (measureNumber?: number) => {
+		if (!song) {
+			return;
+		}
+
+		if (!hasSelectedMeasures) {
+			if (measureNumber === undefined) {
+				return;
+			}
+
+			setSelectedMeasures(measureNumber, measureNumber);
+			setFirstSelectedNumber(measureNumber);
+			setHasRangeSelection(false);
+		} else if (
+			measureNumber !== undefined &&
+			!selectedMeasures.includes(measureNumber)
+		) {
+			// Clicked outside the active range: reset to this measure.
+			setSelectedMeasures(measureNumber, measureNumber);
+			setFirstSelectedNumber(measureNumber);
+			setHasRangeSelection(false);
+		}
+
+		navigate(`/songs/${encodeURIComponent((song.id ?? "").trim())}/practice`);
 	};
 
 	const handleSaveMeasure = async (updatedMeasure: Measure) => {
@@ -121,7 +163,7 @@ const MeasuresOverview: React.FC<MeasuresOverviewProps> = ({ song }) => {
 
 	return (
 		<>
-			<div className="measures-overview">
+			<div className={`measures-overview ${hasSelectedMeasures ? 'measures-overview--with-selection' : ''}`}>
 				{measures.map((measure, index: number) => {
 					const measureNumber = measure?.number ?? index + 1;
 				const progress = calculateMeasureProgress(measure);
@@ -141,7 +183,7 @@ const MeasuresOverview: React.FC<MeasuresOverviewProps> = ({ song }) => {
 									<ProgressBar new_value={progress} old_value={calculateMeasureProgressBefore24h(measure)} />
 								</div>
 							</div>
-							<div className="measure-actions">
+							{/* <div className="measure-actions">
 								<Button
 									label="Edit"
 									onClick={(e: React.MouseEvent) => { e.stopPropagation(); handleEditMeasure(measure); }}
@@ -153,26 +195,10 @@ const MeasuresOverview: React.FC<MeasuresOverviewProps> = ({ song }) => {
 									label="Practice"
 									onClick={(e: React.MouseEvent) => {
 										e.stopPropagation();
-										if (!song) {
-											return;
-										}
-
-										// If nothing is selected, make the clicked measure the active selection
-										if (!selectedMeasures || selectedMeasures.length === 0) {
-											setSelectedMeasures(measureNumber, measureNumber);
-											setFirstSelectedNumber(measureNumber);
-											setHasRangeSelection(false);
-										} else if (!selectedMeasures.includes(measureNumber)) {
-											// Clicked outside the active range: reset to this measure.
-											setSelectedMeasures(measureNumber, measureNumber);
-											setFirstSelectedNumber(measureNumber);
-											setHasRangeSelection(false);
-										}
-
-										navigate(`/songs/${encodeURIComponent((song.id ?? "").trim())}/practice`);
+										handlePracticeSelection(measureNumber);
 									}}
 								/>
-								{/* <Button
+								<Button
 									label="Record Success"
 									onClick={(e: React.MouseEvent) => {
 										e.stopPropagation();
@@ -193,12 +219,36 @@ const MeasuresOverview: React.FC<MeasuresOverviewProps> = ({ song }) => {
 									className="secondary"
 									variant="secondary"
 									size="sm"
-								/> */}
-							</div>
+								/>
+							</div> */}
 						</div>
 					);
 				})}
 			</div>
+
+			{hasSelectedMeasures && (
+				<div className="measures-selection-bar" role="region" aria-label="Selected measures actions">
+					<div className="measures-selection-bar__content">
+						<span className="measures-selection-bar__count">
+							{selectedMeasures.length} selected
+						</span>
+						<div className="measures-selection-bar__actions">
+							<Button
+								label="Edit"
+								onClick={handleEditSelectedMeasures}
+								className="secondary"
+								variant="secondary"
+								size="sm"
+							/>
+							<Button
+								label="Practice"
+								onClick={() => handlePracticeSelection()}
+								size="sm"
+							/>
+						</div>
+					</div>
+				</div>
+			)}
 
 			<MeasureEdit
 				isOpen={isEditDialogOpen}

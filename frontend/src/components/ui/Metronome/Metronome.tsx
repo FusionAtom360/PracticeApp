@@ -819,6 +819,44 @@ export default function Metronome({
 
     const { setMeasureMode } = useSongs();
 
+    const applyPracticeMode = useCallback(
+        async (nextMode: PracticeMode) => {
+            setPracticeMode(nextMode);
+            setStreak(0);
+            setErrorStreak(0);
+
+            if (isFreeMode || !songId || !setMeasureMode) {
+                return;
+            }
+
+            const selectedMeasureNumbers = Array.isArray(selectedMeasures)
+                ? selectedMeasures
+                      .map((m) => Number(m?.number))
+                      .filter((n) => Number.isInteger(n) && n > 0)
+                : [];
+
+            const fallbackMeasureNumber = Number(measure?.number);
+            const measureNumbersToUpdate =
+                selectedMeasureNumbers.length > 0
+                    ? Array.from(new Set(selectedMeasureNumbers))
+                    : Number.isInteger(fallbackMeasureNumber) &&
+                        fallbackMeasureNumber > 0
+                      ? [fallbackMeasureNumber]
+                      : [];
+
+            if (measureNumbersToUpdate.length === 0) {
+                return;
+            }
+
+            await Promise.all(
+                measureNumbersToUpdate.map((measureNumber) =>
+                    setMeasureMode(songId, measureNumber, nextMode),
+                ),
+            );
+        },
+        [isFreeMode, measure, selectedMeasures, setMeasureMode, songId],
+    );
+
     return (
         <div className="metronome-shell">
             <div className="main-controls-row">
@@ -1057,6 +1095,12 @@ export default function Metronome({
                         // Tap tempo handled in onPointerUp instead to avoid double-firing
                     }}
                 >
+                    {!showBPM && (
+                        <div className="tempo-symbol-large" aria-hidden="true">
+                            {getTempoMarking(currentPulse)}
+                        </div>
+                    )}
+
                     {showBPM && (
                         <div className="bpm-display">
                             <div className="tempo-name">
@@ -1358,20 +1402,7 @@ export default function Metronome({
                                             practiceMode === "rapid"
                                                 ? null
                                                 : "rapid";
-                                        setPracticeMode(newMode);
-                                        setStreak(0);
-                                        setErrorStreak(0);
-                                        if (
-                                            !isFreeMode &&
-                                            setMeasureMode &&
-                                            songId &&
-                                            measure?.number
-                                        )
-                                            await setMeasureMode(
-                                                songId,
-                                                measure.number,
-                                                newMode,
-                                            );
+                                        await applyPracticeMode(newMode);
                                     }}
                                     disabled={isLogging}
                                 >
@@ -1384,20 +1415,7 @@ export default function Metronome({
                                             practiceMode === "speed"
                                                 ? null
                                                 : "speed";
-                                        setPracticeMode(newMode);
-                                        setStreak(0);
-                                        setErrorStreak(0);
-                                        if (
-                                            !isFreeMode &&
-                                            setMeasureMode &&
-                                            songId &&
-                                            measure?.number
-                                        )
-                                            await setMeasureMode(
-                                                songId,
-                                                measure.number,
-                                                newMode,
-                                            );
+                                        await applyPracticeMode(newMode);
                                     }}
                                     disabled={isLogging}
                                 >
@@ -1410,20 +1428,7 @@ export default function Metronome({
                                             practiceMode === "stability"
                                                 ? null
                                                 : "stability";
-                                        setPracticeMode(newMode);
-                                        setStreak(0);
-                                        setErrorStreak(0);
-                                        if (
-                                            !isFreeMode &&
-                                            setMeasureMode &&
-                                            songId &&
-                                            measure?.number
-                                        )
-                                            await setMeasureMode(
-                                                songId,
-                                                measure.number,
-                                                newMode,
-                                            );
+                                        await applyPracticeMode(newMode);
                                     }}
                                     disabled={isLogging}
                                 >

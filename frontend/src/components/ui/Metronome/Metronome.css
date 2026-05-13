@@ -356,6 +356,14 @@
     padding-right: 0.5rem;
 }
 
+.tempo-symbol-large {
+    font-family: 'Leland', serif;
+    font-size: 6rem;
+    line-height: 0.9rem;
+    transform: translateY(2rem) translateX(0.25rem);
+    padding-right: 0.5rem;
+}
+
 .bpm-label {
     font-size: 0.8rem;
     font-weight: 600;

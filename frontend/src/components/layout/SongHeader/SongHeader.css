@@ -106,12 +106,6 @@
     opacity: 0.9;
 }
 
-.header-action-edit .icon-button {
-    background: var(--surface);
-    border-color: var(--border-strong);
-    color: var(--text-primary);
-}
-
 .header-guided-practice-btn {
     background-color: var(--text-primary);
     color: var(--bg);

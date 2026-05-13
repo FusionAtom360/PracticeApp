@@ -5,6 +5,10 @@
     margin-top: 2rem;
 }
 
+.measures-overview--with-selection {
+    padding-bottom: 6rem;
+}
+
 .measure-card {
     background: var(--surface);
     border: 0.5px solid var(--border);
@@ -58,4 +62,53 @@
     display: flex;
     align-items: center;
     gap: 0.75rem;
+}
+
+.measures-selection-bar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 120;
+    padding: 0.75rem 1rem max(0.75rem, env(safe-area-inset-bottom));
+    background: color-mix(in srgb, var(--surface) 92%, transparent);
+    border-top: 1px solid var(--border);
+    backdrop-filter: blur(8px);
+}
+
+.measures-selection-bar__content {
+    max-width: 72rem;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.measures-selection-bar__count {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.measures-selection-bar__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+@media (max-width: 640px) {
+    .measures-overview--with-selection {
+        padding-bottom: 7rem;
+    }
+
+    .measures-selection-bar__content {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .measures-selection-bar__actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
 }

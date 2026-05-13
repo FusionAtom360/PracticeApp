@@ -40,6 +40,20 @@ export default function PracticeSession() {
         setActiveSong(decodedSongId);
     }, [decodedSongId, setActiveSong]);
 
+    useEffect(() => {
+        // Prevent scrolling on the practice session page
+        const originalOverflow = document.body.style.overflow;
+        const originalHeight = document.documentElement.style.height;
+        document.body.style.overflow = 'hidden';
+        document.documentElement.style.height = '100vh';
+
+        return () => {
+            // Restore original styles when component unmounts
+            document.body.style.overflow = originalOverflow;
+            document.documentElement.style.height = originalHeight;
+        };
+    }, []);
+
     const activeMeasuresText = useMemo(() => {
         if (!selectedMeasures || selectedMeasures.length === 0)
             return "None selected";

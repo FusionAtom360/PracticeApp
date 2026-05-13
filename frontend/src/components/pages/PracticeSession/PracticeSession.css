@@ -2,7 +2,6 @@
     padding: clamp(1.5rem, 4vw, 3rem);
     background: var(--bg);
     overflow: hidden;
-    height: 100vh;
     display: flex;
     flex-direction: column;
 }

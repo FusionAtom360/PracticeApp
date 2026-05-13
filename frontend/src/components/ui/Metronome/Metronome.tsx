@@ -235,6 +235,7 @@ export default function Metronome({
     const suppressIncClickRef = useRef(false);
     const beatDurationRef = useRef<number>(60 / initialTempo);
     const hasInitializedFromMeasureRef = useRef<string | null>(null);
+    const hasPlayedOnceRef = useRef(false);
     const practiceClockSecondsRef = useRef(0);
 
     const tempoName = getTempoName(currentBPM);
@@ -674,7 +675,15 @@ export default function Metronome({
 
                 // Seed the scheduler just inside the lookahead window so the
                 // first beat is actually enqueued before the interval ticks.
-                nextBeatTimeRef.current = audioContext.currentTime + 0.05;
+                if (!hasPlayedOnceRef.current) {
+                    // Play an immediate beat on the very first play press.
+                    const immediateTime = audioContext.currentTime + 0.001;
+                    scheduleBeat(audioContext, immediateTime);
+                    hasPlayedOnceRef.current = true;
+                    nextBeatTimeRef.current = immediateTime + beatDurationRef.current;
+                } else {
+                    nextBeatTimeRef.current = audioContext.currentTime + 0.05;
+                }
 
                 const scheduleWindow = () => {
                     while (

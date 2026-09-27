@@ -12,6 +12,10 @@ export interface Measure {
     }>;
     ignoreTempo?: boolean;
     mode?: 'rapid' | 'speed' | 'stability';
+    progress?: number;
+    averageTempo?: number;
+    accuracy?: number;
+    lastPractice?: number;
 }
 
 export interface Song {
@@ -76,6 +80,7 @@ export function calculateMeasureProgress(measure: Measure): number {
 
     const target = measure.target;
     const events = Array.isArray(measure.events) ? measure.events : [];
+    if (events.length === 0 && typeof measure.progress === 'number') return measure.progress;
 
     // Calculate currentTempo
     let currentTempo = 0;
@@ -185,6 +190,14 @@ export function calculateSongAverageTempo(song: Song): number {
     for (const measure of measures) {
         if (!measure) continue;
 
+        if (Array.isArray(measure.events) === false && typeof measure.averageTempo === 'number') {
+            if (measure.averageTempo > 0) {
+                totalTempo += measure.averageTempo;
+                measureCount++;
+            }
+            continue;
+        }
+
         let currentTempo = 0;
         if (measure.ignoreTempo) {
             currentTempo = measure.target || 0;
@@ -212,6 +225,12 @@ export function calculateSongAverageAccuracy(song: Song): number {
     for (const measure of measures) {
         if (!measure) continue;
 
+        if (Array.isArray(measure.events) === false && typeof measure.accuracy === 'number') {
+            totalSuccesses += measure.accuracy;
+            totalAttempts += 100;
+            continue;
+        }
+
         const events = Array.isArray(measure.events) ? measure.events : [];
         const lastFiftyEvents = events.slice(-50);
         
@@ -233,6 +252,11 @@ export function calculateSongLastPracticeTime(song: Song): number | null {
 
     for (const measure of measures) {
         if (!measure) continue;
+
+        if (Array.isArray(measure.events) === false && typeof measure.lastPractice === 'number') {
+            latestTimestamp = latestTimestamp === null ? measure.lastPractice : Math.max(latestTimestamp, measure.lastPractice);
+            continue;
+        }
 
         const events = Array.isArray(measure.events) ? measure.events : [];
         if (events.length > 0) {
@@ -289,6 +313,13 @@ export interface SongUpdateInput {
     audioFile?: File | null;
 }
 
+export interface MeasureUpdateInput {
+    initial?: number;
+    target?: number;
+    ignore_tempo?: boolean;
+    mode?: 'rapid' | 'speed' | 'stability';
+}
+
 export interface CreateSongInput {
     title: string;
     subtitle?: string;
@@ -336,20 +367,21 @@ export async function fetchSongs(signal?: AbortSignal) {
     return Array.isArray(data.songs) ? data.songs : [];
 }
 
-export async function saveSongs(songs: Song[]) {
-    const apiUrl = createApiUrl('/songs');
+export async function updateMeasure(songId: string, measureNumber: number, input: MeasureUpdateInput) {
+    const apiUrl = createApiUrl(`/songs/${encodeURIComponent(songId)}/measures/${measureNumber}`);
     const response = await fetch(apiUrl, {
-        method: 'POST',
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ songs }),
+        body: JSON.stringify(input),
     });
 
     if (!response.ok) {
-        throw new Error(`Failed to save songs: ${response.status}`);
+        throw new Error(`Failed to update measure: ${response.status}`);
     }
 
-    const data = await response.json();
-    return Array.isArray(data.songs) ? data.songs : [];
+    const data: { song?: Song } = await response.json();
+    if (!data.song) throw new Error('Failed to update measure');
+    return data.song;
 }
 
 export async function createSong(input: CreateSongInput) {

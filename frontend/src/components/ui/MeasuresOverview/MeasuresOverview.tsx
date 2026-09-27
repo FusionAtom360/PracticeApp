@@ -21,7 +21,7 @@ interface MeasuresOverviewProps {
 }
 
 const MeasuresOverview: React.FC<MeasuresOverviewProps> = ({ song }) => {
-	const { saveSongsToServer, songs, selectedMeasures, setSelectedMeasures, clearSelectedMeasures, setActiveSong, reloadSongs } = useSongs();
+	const { updateMeasureOnServer, selectedMeasures, setSelectedMeasures, clearSelectedMeasures, setActiveSong, reloadSongs } = useSongs();
 	const navigate = useNavigate();
 	const [editingMeasure, setEditingMeasure] = useState<Measure | null>(null);
 	const [firstSelectedNumber, setFirstSelectedNumber] = useState<number | null>(null);
@@ -124,29 +124,20 @@ const MeasuresOverview: React.FC<MeasuresOverviewProps> = ({ song }) => {
 
 		setIsSaving(true);
 		try {
-			const updatedMeasures = [...measures];
-
 			if (selectedMeasures.length > 0) {
-				for (const measureNumber of selectedMeasures) {
-					const measureIndex = updatedMeasures.findIndex(m => m.number === measureNumber);
-					if (measureIndex !== -1) {
-						updatedMeasures[measureIndex] = { ...updatedMeasures[measureIndex], ...updatedMeasure, number: measureNumber };
-					}
-				}
 				clearSelectedMeasures();
 				setFirstSelectedNumber(null);
 				setHasRangeSelection(false);
-			} else {
-				// Single measure edit
-				const measureIndex = measures.findIndex(m => m.number === updatedMeasure.number);
-				if (measureIndex === -1) return;
-				updatedMeasures[measureIndex] = updatedMeasure;
 			}
 
-			const updatedSong: Song = { ...song, measures: updatedMeasures };
-			const updatedSongs = songs.map(s => s.id === updatedSong.id ? updatedSong : s);
-
-			await saveSongsToServer(updatedSongs);
+			const measureNumbers = selectedMeasures.length > 0 ? selectedMeasures : (updatedMeasure.number ? [updatedMeasure.number] : []);
+			if (measureNumbers.length === 0) return;
+			await Promise.all(measureNumbers.map((measureNumber) => updateMeasureOnServer(song.id, measureNumber, {
+				initial: updatedMeasure.current,
+				target: updatedMeasure.target,
+				ignore_tempo: updatedMeasure.ignoreTempo,
+				mode: updatedMeasure.mode,
+			})));
 			setIsEditDialogOpen(false);
 		} finally {
 			setIsSaving(false);

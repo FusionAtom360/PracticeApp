@@ -1,712 +1,276 @@
+import 'dotenv/config';
 import express from 'express';
-import { readFile, writeFile, mkdir, unlink, readdir } from 'node:fs/promises';
+import { mkdir, unlink, writeFile } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createClient } from '@supabase/supabase-js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __dirname = dirname(fileURLToPath(import.meta.url));
 const dataDir = join(__dirname, 'data');
 const imagesDir = join(dataDir, 'images');
 const audioDir = join(dataDir, 'audio');
-const backupsDir = join(dataDir, 'backups');
-const dataFile = join(dataDir, 'songs.json');
 const port = process.env.PORT || 3000;
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-let hasChanges = false;
-const MAX_BACKUPS = 24;
+if (!supabaseUrl || !supabaseKey) throw new Error('SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set in backend/.env');
+const supabase = createClient(supabaseUrl, supabaseKey, { auth: { persistSession: false } });
 
-async function ensureDataDirs() {
-    await mkdir(dataDir, { recursive: true });
+async function ensureMediaDirs() {
     await mkdir(imagesDir, { recursive: true });
     await mkdir(audioDir, { recursive: true });
-    await mkdir(backupsDir, { recursive: true });
 }
 
-async function ensureDataFile() {
-    await ensureDataDirs();
-
-    try {
-        await readFile(dataFile, 'utf8');
-    } catch (err) {
-        if (err.code === 'ENOENT') {
-            await writeFile(dataFile, JSON.stringify({ songs: [] }, null, 2));
-        } else {
-            throw err;
-        }
-    }
-}
-
-function normalizeMeasure(measure) {
-    const elapsedTime = typeof measure?.elapsedTime === 'number'
-        ? measure.elapsedTime
-        : typeof measure?.timeElapsed === 'number'
-            ? measure.timeElapsed
-            : 0;
-
-    return {
-        ...measure,
-        elapsedTime,
-        timeElapsed: elapsedTime,
-    };
-}
-
-function normalizeSong(song) {
-    const elapsedTime = typeof song?.elapsedTime === 'number'
-        ? song.elapsedTime
-        : typeof song?.timeElapsed === 'number'
-            ? song.timeElapsed
-            : 0;
-
-    return {
-        ...song,
-        elapsedTime,
-        timeElapsed: elapsedTime,
-        measures: Array.isArray(song?.measures)
-            ? song.measures.map(normalizeMeasure)
-            : song?.measures,
-    };
-}
-
-async function createBackup() {
-    try {
-        const data = await readFile(dataFile, 'utf8');
-        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-        const backupFile = join(backupsDir, `songs-${timestamp}.json`);
-
-        await writeFile(backupFile, data, 'utf8');
-        console.log(`✓ Backup created: songs-${timestamp}.json`);
-
-        // Clean up old backups
-        await cleanupOldBackups();
-    } catch (err) {
-        console.error('✗ Failed to create backup:', err.message);
-    }
-}
-
-async function cleanupOldBackups() {
-    try {
-        const files = await readdir(backupsDir);
-        const backupFiles = files.filter((f) => f.startsWith('songs-') && f.endsWith('.json')).sort().reverse();
-
-        if (backupFiles.length > MAX_BACKUPS) {
-            const filesToDelete = backupFiles.slice(MAX_BACKUPS);
-            for (const file of filesToDelete) {
-                await unlink(join(backupsDir, file));
-                console.log(`  └─ Deleted old backup: ${file}`);
-            }
-            console.log(`✓ Cleaned up ${filesToDelete.length} old backup(s)`);
-        }
-    } catch (err) {
-        console.error('✗ Failed to cleanup backups:', err.message);
-    }
-}
-
-async function startBackupScheduler() {
-    // Run backup check every hour
-    setInterval(async () => {
-        if (hasChanges) {
-            await createBackup();
-            hasChanges = false;
-        }
-    }, 60 * 60 * 1000); // 1 hour in milliseconds
-
-    console.log(`✓ Backup scheduler started (runs every 1 hour, keeps ${MAX_BACKUPS} backups)`);
-}
-
-function parseJsonFilePayload(file) {
-    if (!file || typeof file !== 'object') {
-        return null;
-    }
-
-    const name = typeof file.name === 'string' ? file.name : '';
-    const data = typeof file.data === 'string' ? file.data : '';
-
-    if (!name || !data) {
-        return null;
-    }
-
-    return { name, data };
-}
-
-function getFileExtension(filename, fallbackExtension) {
+function getFileExtension(filename, fallback) {
     const match = typeof filename === 'string' ? filename.match(/\.([a-zA-Z0-9]+)$/) : null;
-
-    if (match?.[1]) {
-        return `.${match[1].toLowerCase()}`;
-    }
-
-    return fallbackExtension;
+    return match?.[1] ? `.${match[1].toLowerCase()}` : fallback;
 }
 
-function serializeSong(req, song) {
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
+function parseFile(file) {
+    return file && typeof file.name === 'string' && typeof file.data === 'string' && file.name && file.data ? file : null;
+}
 
+function publicSong(req, song, detail = false) {
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
     return {
-        ...song,
-        imageUrl: typeof song.image === 'string' && song.image ? `${baseUrl}/images/${song.image}` : null,
-        audioUrl: typeof song.audio === 'string' && song.audio ? `${baseUrl}/audio/${song.audio}` : null,
+        id: song.id,
+        archived: song.archived,
+        title: song.title,
+        subtitle: song.subtitle,
+        composer: song.composer,
+        measureCount: song.measure_count,
+        elapsedTime: song.elapsed_time,
+        timeElapsed: song.elapsed_time,
+        measures: (song.measures ?? []).map((measure) => ({
+            number: measure.number,
+            initial: Number(measure.initial),
+            current: Number(measure.initial),
+            target: Number(measure.target),
+            ignoreTempo: measure.ignore_tempo,
+            mode: measure.mode,
+            elapsedTime: measure.elapsed_time,
+            timeElapsed: measure.elapsed_time,
+            ...(detail ? { events: (measure.practice_events ?? []).map((event) => ({
+                timestamp: Number(event.timestamp), type: event.type,
+                ...(event.value === null ? {} : { value: Number(event.value) }), outcome: event.outcome,
+            })) } : {
+                progress: measure.event_count ? (measure.last_metronome_bpm && measure.target
+                    ? (Number(measure.last_metronome_bpm) / Number(measure.target))
+                    : measure.ignore_tempo ? 1 : 0)
+                    * (Number(measure.success_count) / 50)
+                    * Math.pow(0.98, measure.last_event_at ? Math.max(0, Math.floor((Date.now() / 1000 - Number(measure.last_event_at)) / 86400)) : 0) : 0,
+                averageTempo: measure.last_metronome_bpm,
+                accuracy: measure.event_count ? (Number(measure.success_count) / 50) * 100 : 0,
+                lastPractice: measure.last_event_at,
+            }),
+        })),
+        imageUrl: song.image ? `${baseUrl}/images/${song.image}` : null,
+        audioUrl: song.audio ? `${baseUrl}/audio/${song.audio}` : null,
     };
 }
 
-async function safelyRemoveFile(directory, filename) {
-    if (!filename) {
-        return;
-    }
+const measureColumns = 'id,number,initial,target,ignore_tempo,mode,elapsed_time,last_event_at,last_metronome_bpm,success_count,event_count';
+const detailMeasureColumns = `${measureColumns},practice_events(timestamp,type,value,outcome)`;
 
-    try {
-        await unlink(join(directory, filename));
-    } catch (err) {
-        if (err?.code !== 'ENOENT') {
-            throw err;
-        }
+async function getSongs(detail = false, id = null) {
+    let query = supabase.from('songs')
+        .select(`id,archived,title,subtitle,composer,image,audio,measure_count,elapsed_time,measures(${detail ? detailMeasureColumns : measureColumns})`)
+        .order('created_at');
+    if (id) query = query.eq('id', id).single();
+    const { data, error } = await query;
+    if (error) {
+        if (id && error.code === 'PGRST116') return null;
+        throw error;
     }
+    return data;
 }
 
-async function readSongs() {
-    await ensureDataFile();
-    const raw = await readFile(dataFile, 'utf8');
-    const parsed = JSON.parse(raw);
-
-    return Array.isArray(parsed.songs) ? parsed.songs.map(normalizeSong) : [];
+async function getSongOr404(id, res) {
+    const song = await getSongs(true, id);
+    if (!song) res.status(404).json({ error: 'Song not found' });
+    return song;
 }
 
-async function writeSongs(songs) {
-    const normalizedSongs = Array.isArray(songs) ? songs.map(normalizeSong) : [];
-    await writeFile(dataFile, JSON.stringify({ songs: normalizedSongs }, null, 2), 'utf8');
-    hasChanges = true;
+async function saveMedia(file, directory, fallback) {
+    if (!file) return '';
+    const filename = `${randomUUID()}${getFileExtension(file.name, fallback)}`;
+    await writeFile(join(directory, filename), Buffer.from(file.data, 'base64'));
+    return filename;
+}
+
+async function removeMedia(directory, filename) {
+    if (!filename) return;
+    try { await unlink(join(directory, filename)); } catch (error) { if (error.code !== 'ENOENT') throw error; }
+}
+
+async function updateMeasureStats(measureId) {
+    const { data, error } = await supabase.from('practice_events').select('timestamp,type,value,outcome').eq('measure_id', measureId).order('timestamp', { ascending: false });
+    if (error) throw error;
+    const events = data ?? [];
+    const latest = events[0];
+    const metronome = events.find((event) => event.type === 'metronome');
+    const { error: updateError } = await supabase.from('measures').update({
+        last_event_at: latest?.timestamp ?? null,
+        last_metronome_bpm: metronome?.value ?? null,
+        success_count: events.slice(0, 50).filter((event) => event.outcome === 'success').length,
+        event_count: events.length,
+    }).eq('id', measureId);
+    if (updateError) throw updateError;
 }
 
 const app = express();
-
-// Request logging middleware - logs all incoming requests
-app.use((req, res, next) => {
-    const timestamp = new Date().toISOString();
-    console.log(`[${timestamp}] ${req.method} ${req.path}`);
-    next();
-});
-
-// CORS middleware - set first so headers apply to all responses
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
-    // res.setHeader('Access-Control-Allow-Origin', 'https://practiceapp-f1d1b.web.app');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PATCH,DELETE,OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-Requested-With');
-    res.setHeader('Access-Control-Max-Age', '86400');
-
-    if (req.method === 'OPTIONS') {
-        res.sendStatus(204);
-        return;
-    }
-
+    if (req.method === 'OPTIONS') return res.sendStatus(204);
     next();
 });
-
 app.use(express.json({ limit: '100mb' }));
 app.use('/images', express.static(imagesDir));
 app.use('/audio', express.static(audioDir));
 
 app.get('/songs', async (req, res) => {
-    try {
-        const songs = await readSongs();
-        console.log(`✓ Retrieved ${songs.length} songs from database`);
-        res.json({ songs: songs.map((song) => serializeSong(req, song)) });
-    } catch (err) {
-        console.error('✗ Error retrieving songs:', err.message);
-        res.status(500).json({ error: 'Failed to retrieve songs' });
-    }
+    try { res.json({ songs: (await getSongs()).map((song) => publicSong(req, song)) }); }
+    catch (error) { console.error(error); res.status(500).json({ error: 'Failed to retrieve songs' }); }
 });
 
-app.post('/songs', async (req, res) => {
+app.get('/songs/:id', async (req, res) => {
     try {
-        await ensureDataFile();
-
-        const body = req.body;
-
-        if (!body || !Array.isArray(body.songs)) {
-            console.warn('✗ Invalid POST /songs request body');
-            res.status(400).json({ error: 'Request body must be { songs: [] }' });
-            return;
-        }
-
-        try {
-            const normalizedSongs = body.songs.map(normalizeSong);
-            await writeSongs(normalizedSongs);
-            console.log(`✓ Updated songs database with ${normalizedSongs.length} songs`);
-            res.json({ songs: normalizedSongs });
-        } catch (err) {
-            console.error('✗ Failed to write songs file:', err.message);
-            res.status(500).json({ error: 'Failed to write songs' });
-        }
-    } catch (err) {
-        console.error('✗ Error processing POST /songs:', err.message);
-        res.status(500).json({ error: 'Internal server error' });
-    }
+        const song = await getSongOr404(req.params.id, res);
+        if (song) res.json({ song: publicSong(req, song, true) });
+    } catch (error) { console.error(error); res.status(500).json({ error: 'Failed to retrieve song' }); }
 });
 
 app.post('/songs/create', async (req, res) => {
     try {
         const body = req.body ?? {};
-        const title = typeof body.title === 'string' ? body.title.trim() : '';
-        const subtitle = typeof body.subtitle === 'string' ? body.subtitle.trim() : '';
-        const composer = typeof body.composer === 'string' ? body.composer.trim() : '';
         const measureCount = Number(body.measureCount);
-        const initialTempo = Number(body.initialTempo);
-        const targetTempo = Number(body.targetTempo);
-        const imageFile = parseJsonFilePayload(body.imageFile);
-        const audioFile = parseJsonFilePayload(body.audioFile);
-
-        if (!title || !composer) {
-            console.warn('✗ Song creation failed: missing title or composer');
-            res.status(400).json({ error: 'Title and composer are required' });
-            return;
-        }
-
-        if (!Number.isInteger(measureCount) || measureCount < 1) {
-            console.warn('✗ Song creation failed: invalid measure count');
-            res.status(400).json({ error: 'Number of measures must be a positive integer' });
-            return;
-        }
-
-        if (!Number.isFinite(initialTempo) || !Number.isFinite(targetTempo)) {
-            console.warn('✗ Song creation failed: invalid tempo values');
-            res.status(400).json({ error: 'Initial tempo and target tempo must be numbers' });
-            return;
-        }
-
-        await ensureDataDirs();
-
-        const songs = await readSongs();
+        const initial = Number(body.initialTempo);
+        const target = Number(body.targetTempo);
+        if (!body.title?.trim() || !body.composer?.trim()) return res.status(400).json({ error: 'Title and composer are required' });
+        if (!Number.isInteger(measureCount) || measureCount < 1 || !Number.isFinite(initial) || !Number.isFinite(target)) return res.status(400).json({ error: 'Invalid measure or tempo values' });
+        await ensureMediaDirs();
+        const image = await saveMedia(parseFile(body.imageFile), imagesDir, '.jpg');
+        const audio = await saveMedia(parseFile(body.audioFile), audioDir, '.mp3');
         const id = randomUUID();
-        const imageId = randomUUID();
-        const audioId = randomUUID();
-        const imageFilename = imageFile ? `${imageId}${getFileExtension(imageFile.name, '.jpg')}` : '';
-        const audioFilename = audioFile ? `${audioId}${getFileExtension(audioFile.name, '.mp3')}` : '';
-
-        if (imageFile) {
-            await writeFile(join(imagesDir, imageFilename), Buffer.from(imageFile.data, 'base64'));
-            console.log(`  └─ Saved image: ${imageFilename}`);
-        }
-
-        if (audioFile) {
-            await writeFile(join(audioDir, audioFilename), Buffer.from(audioFile.data, 'base64'));
-            console.log(`  └─ Saved audio: ${audioFilename}`);
-        }
-
-        const song = {
-            id,
-            archived: false,
-            title,
-            subtitle,
-            composer,
-            image: imageFilename,
-            audio: audioFilename,
-            measureCount,
-            elapsedTime: 0,
-            timeElapsed: 0,
-            measures: Array.from({ length: measureCount }, (_, index) => ({
-                number: index + 1,
-                initial: initialTempo,
-                target: targetTempo,
-                ignoreTempo: false,
-                mode: 'stability',
-                elapsedTime: 0,
-                timeElapsed: 0,
-                events: []
-            })),
-        };
-
-        const updatedSongs = [...songs, song];
-        await writeSongs(updatedSongs);
-
-        console.log(`✓ Created song: "${title}" by ${composer} (${measureCount} measures, ID: ${id})`);
-
-        res.status(201).json({
-            song: serializeSong(req, song),
-            songs: updatedSongs.map((entry) => serializeSong(req, entry)),
-        });
-    } catch (err) {
-        console.error('✗ Failed to create song:', err.message);
-        res.status(500).json({ error: 'Failed to create song' });
-    }
+        const { error: songError } = await supabase.from('songs').insert({ id, title: body.title.trim(), subtitle: body.subtitle?.trim() ?? '', composer: body.composer.trim(), image, audio, measure_count: measureCount });
+        if (songError) throw songError;
+        const measures = Array.from({ length: measureCount }, (_, index) => ({ song_id: id, number: index + 1, initial, target }));
+        const { error: measureError } = await supabase.from('measures').insert(measures);
+        if (measureError) throw measureError;
+        const song = await getSongs(true, id);
+        res.status(201).json({ song: publicSong(req, song, true) });
+    } catch (error) { console.error(error); res.status(500).json({ error: 'Failed to create song' }); }
 });
 
 app.post('/songs/:id/update', async (req, res) => {
     try {
-        const songId = typeof req.params.id === 'string' ? req.params.id : '';
+        const existing = await getSongOr404(req.params.id, res);
+        if (!existing) return;
         const body = req.body ?? {};
-        const songs = await readSongs();
-        const songIndex = songs.findIndex((song) => song.id === songId);
+        const patch = {};
+        for (const field of ['title', 'subtitle', 'composer', 'archived']) if (body[field] !== undefined) patch[field] = typeof body[field] === 'string' ? body[field].trim() : body[field];
+        await ensureMediaDirs();
+        if (parseFile(body.imageFile)) { patch.image = await saveMedia(parseFile(body.imageFile), imagesDir, '.jpg'); await removeMedia(imagesDir, existing.image); }
+        if (parseFile(body.audioFile)) { patch.audio = await saveMedia(parseFile(body.audioFile), audioDir, '.mp3'); await removeMedia(audioDir, existing.audio); }
+        const { error } = await supabase.from('songs').update(patch).eq('id', req.params.id);
+        if (error) throw error;
+        const song = await getSongs(true, req.params.id);
+        res.json({ song: publicSong(req, song, true) });
+    } catch (error) { console.error(error); res.status(500).json({ error: 'Failed to update song' }); }
+});
 
-        if (songIndex === -1) {
-            console.warn(`✗ Update failed: Song not found (ID: ${songId})`);
-            res.status(404).json({ error: 'Song not found' });
-            return;
-        }
-
-        const existingSong = songs[songIndex];
-        const title = typeof body.title === 'string' && body.title.trim() ? body.title.trim() : existingSong.title;
-        const subtitle = typeof body.subtitle === 'string' ? body.subtitle.trim() : existingSong.subtitle ?? '';
-        const composer = typeof body.composer === 'string' && body.composer.trim() ? body.composer.trim() : existingSong.composer;
-        const archived = typeof body.archived === 'boolean' ? body.archived : existingSong.archived ?? false;
-        const imageFile = parseJsonFilePayload(body.imageFile);
-        const audioFile = parseJsonFilePayload(body.audioFile);
-
-        let nextImage = existingSong.image ?? '';
-        let nextAudio = existingSong.audio ?? '';
-
-        if (imageFile) {
-            const imageId = randomUUID();
-            nextImage = `${imageId}${getFileExtension(imageFile.name, '.jpg')}`;
-            await writeFile(join(imagesDir, nextImage), Buffer.from(imageFile.data, 'base64'));
-            await safelyRemoveFile(imagesDir, existingSong.image);
-            console.log(`  └─ Updated image: ${nextImage}`);
-        }
-
-        if (audioFile) {
-            const audioId = randomUUID();
-            nextAudio = `${audioId}${getFileExtension(audioFile.name, '.mp3')}`;
-            await writeFile(join(audioDir, nextAudio), Buffer.from(audioFile.data, 'base64'));
-            await safelyRemoveFile(audioDir, existingSong.audio);
-            console.log(`  └─ Updated audio: ${nextAudio}`);
-        }
-
-        const updatedSong = {
-            ...existingSong,
-            title,
-            subtitle,
-            composer,
-            archived,
-            image: nextImage,
-            audio: nextAudio,
-        };
-
-        const updatedSongs = songs.slice();
-        updatedSongs[songIndex] = updatedSong;
-        await writeSongs(updatedSongs);
-
-        console.log(`✓ Updated song: "${title}" by ${composer} (ID: ${songId})`);
-
-        res.json({
-            song: serializeSong(req, updatedSong),
-            songs: updatedSongs.map((entry) => serializeSong(req, entry)),
-        });
-    } catch (err) {
-        console.error('✗ Failed to update song:', err.message);
-        res.status(500).json({ error: 'Failed to update song' });
-    }
+app.patch('/songs/:id/measures/:measureNumber', async (req, res) => {
+    try {
+        const { data: measure, error } = await supabase.from('measures').select('id').eq('song_id', req.params.id).eq('number', Number(req.params.measureNumber)).single();
+        if (error || !measure) return res.status(404).json({ error: 'Measure not found' });
+        const patch = {};
+        for (const field of ['initial', 'target', 'ignore_tempo', 'mode']) if (req.body[field] !== undefined) patch[field] = req.body[field];
+        const { error: updateError } = await supabase.from('measures').update(patch).eq('id', measure.id);
+        if (updateError) throw updateError;
+        const song = await getSongs(true, req.params.id);
+        res.json({ song: publicSong(req, song, true) });
+    } catch (error) { console.error(error); res.status(500).json({ error: 'Failed to update measure' }); }
 });
 
 app.post('/songs/:id/measures/:measureNumber/events', async (req, res) => {
     try {
-        const songId = typeof req.params.id === 'string' ? req.params.id : '';
         const body = req.body ?? {};
-        const measureNumber = Number(req.params.measureNumber);
-        const measureNumbersSource = Array.isArray(body.measureNumbers)
-            ? body.measureNumbers
-            : [measureNumber];
-        const measureNumbers = Array.from(new Set(
-            measureNumbersSource
-                .map((value) => Number(value))
-                .filter((value) => Number.isInteger(value) && value > 0),
-        ));
-        const elapsedSeconds = Number.isFinite(Number(body.elapsedSeconds))
-            ? Math.max(0, Math.ceil(Number(body.elapsedSeconds)))
-            : 0;
-
-        if (measureNumbers.length === 0) {
-            console.warn('✗ Invalid measure number');
-            res.status(400).json({ error: 'Measure number must be a positive integer' });
-            return;
-        }
-
-        const outcome = body.outcome === 'success' || body.outcome === 'failure' ? body.outcome : null;
-        const bpm = Number(body.bpm);
-        const eventType = typeof body.type === 'string' ? body.type : 'metronome';
-
-        if (!outcome) {
-            console.warn('✗ Invalid event outcome');
-            res.status(400).json({ error: 'Event must include outcome (success or failure)' });
-            return;
-        }
-
-        // Only require BPM for metronome events
-        if (eventType === 'metronome' && (!Number.isFinite(bpm) || bpm < 1)) {
-            console.warn('✗ Invalid BPM for metronome event');
-            res.status(400).json({ error: 'Metronome events must include a valid bpm (number >= 1)' });
-            return;
-        }
-
-        if (!Number.isFinite(elapsedSeconds)) {
-            console.warn('✗ Invalid elapsed time');
-            res.status(400).json({ error: 'Elapsed time must be a number' });
-            return;
-        }
-
-        const songs = await readSongs();
-        const songIndex = songs.findIndex((song) => song.id === songId);
-
-        if (songIndex === -1) {
-            console.warn(`✗ Song not found (ID: ${songId})`);
-            res.status(404).json({ error: 'Song not found' });
-            return;
-        }
-
-        const song = songs[songIndex];
-        if (!Array.isArray(song.measures)) {
-            console.warn(`✗ Song ${songId} has no measures`);
-            res.status(404).json({ error: 'Song has no measures' });
-            return;
-        }
-
-        const targetMeasures = [];
-        for (const currentMeasureNumber of measureNumbers) {
-            const measure = song.measures.find((m) => m.number === currentMeasureNumber);
-            if (!measure) {
-                console.warn(`✗ Measure ${currentMeasureNumber} not found in song ${songId}`);
-                res.status(404).json({ error: `Measure ${currentMeasureNumber} not found` });
-                return;
-            }
-            if (!Array.isArray(measure.events)) {
-                measure.events = [];
-            }
-            targetMeasures.push(measure);
-        }
-
+        const numbers = Array.from(new Set((body.measureNumbers ?? [req.params.measureNumber]).map(Number).filter((number) => Number.isInteger(number) && number > 0)));
+        if (!numbers.length || !['success', 'failure'].includes(body.outcome)) return res.status(400).json({ error: 'Invalid event' });
+        if (body.type === 'metronome' && (!Number.isFinite(Number(body.bpm)) || Number(body.bpm) < 1)) return res.status(400).json({ error: 'Invalid BPM' });
         const timestamp = Math.floor(Date.now() / 1000);
-        const event = {
-            timestamp,
-            type: eventType,
-            value: eventType === 'metronome' ? bpm : undefined,
-            outcome,
-        };
-
-        for (const measure of targetMeasures) {
-            measure.events.push(event);
-            const currentElapsed = Number.isFinite(Number(measure.elapsedTime))
-                ? Number(measure.elapsedTime)
-                : Number.isFinite(Number(measure.timeElapsed))
-                    ? Number(measure.timeElapsed)
-                    : 0;
-            measure.elapsedTime = currentElapsed + elapsedSeconds;
-            measure.timeElapsed = measure.elapsedTime;
+        const elapsedSeconds = Math.max(0, Math.ceil(Number(body.elapsedSeconds) || 0));
+        for (const number of numbers) {
+            const { data: measure, error } = await supabase.from('measures').select('id,elapsed_time').eq('song_id', req.params.id).eq('number', number).single();
+            if (error || !measure) return res.status(404).json({ error: `Measure ${number} not found` });
+            const { error: eventError } = await supabase.from('practice_events').insert({ measure_id: measure.id, timestamp, type: body.type ?? 'metronome', value: body.type === 'metronome' ? Number(body.bpm) : null, outcome: body.outcome });
+            if (eventError) throw eventError;
+            const { error: elapsedError } = await supabase.from('measures').update({ elapsed_time: Number(measure.elapsed_time) + elapsedSeconds }).eq('id', measure.id);
+            if (elapsedError) throw elapsedError;
+            await updateMeasureStats(measure.id);
         }
-
-        const currentSongElapsed = Number.isFinite(Number(song.elapsedTime))
-            ? Number(song.elapsedTime)
-            : Number.isFinite(Number(song.timeElapsed))
-                ? Number(song.timeElapsed)
-                : 0;
-        song.elapsedTime = currentSongElapsed + elapsedSeconds;
-        song.timeElapsed = song.elapsedTime;
-
-        const updatedSongs = songs.slice();
-        updatedSongs[songIndex] = song;
-        await writeSongs(updatedSongs);
-
-        console.log(`✓ Added ${outcome} event to measures ${measureNumbers.join(', ')} in song ${songId}${eventType === 'metronome' ? ` at ${bpm} BPM` : ''} (+${elapsedSeconds}s)`);
-
-        res.json({
-            event,
-            measureNumbers,
-            song: serializeSong(req, song),
-        });
-    } catch (err) {
-        console.error('✗ Failed to add event:', err.message);
-        res.status(500).json({ error: 'Failed to add event' });
-    }
+        if (elapsedSeconds) {
+            const song = await getSongs(true, req.params.id);
+            const { error } = await supabase.from('songs').update({ elapsed_time: Number(song.elapsed_time) + elapsedSeconds }).eq('id', req.params.id);
+            if (error) throw error;
+        }
+        const song = await getSongs(true, req.params.id);
+        res.json({ measureNumbers: numbers, song: publicSong(req, song, true) });
+    } catch (error) { console.error(error); res.status(500).json({ error: 'Failed to add event' }); }
 });
 
 app.delete('/songs/:id', async (req, res) => {
     try {
-        const songId = typeof req.params.id === 'string' ? req.params.id : '';
-        const songs = await readSongs();
-        const songIndex = songs.findIndex((song) => song.id === songId);
-
-        if (songIndex === -1) {
-            console.warn(`✗ Delete failed: Song not found (ID: ${songId})`);
-            res.status(404).json({ error: 'Song not found' });
-            return;
-        }
-
-        const deletedSong = songs[songIndex];
-
-        // Remove associated image and audio files
-        if (deletedSong.image) {
-            await safelyRemoveFile(imagesDir, deletedSong.image);
-        }
-        if (deletedSong.audio) {
-            await safelyRemoveFile(audioDir, deletedSong.audio);
-        }
-
-        const updatedSongs = songs.filter((_, index) => index !== songIndex);
-        await writeSongs(updatedSongs);
-
-        console.log(`✓ Deleted song: "${deletedSong.title}" by ${deletedSong.composer} (ID: ${songId})`);
-
-        res.json({
-            songs: updatedSongs.map((entry) => serializeSong(req, entry)),
-        });
-    } catch (err) {
-        console.error('✗ Failed to delete song:', err.message);
-        res.status(500).json({ error: 'Failed to delete song' });
-    }
+        const song = await getSongOr404(req.params.id, res);
+        if (!song) return;
+        const { error } = await supabase.from('songs').delete().eq('id', req.params.id);
+        if (error) throw error;
+        await removeMedia(imagesDir, song.image); await removeMedia(audioDir, song.audio);
+        res.json({ songs: (await getSongs()).map((entry) => publicSong(req, entry)) });
+    } catch (error) { console.error(error); res.status(500).json({ error: 'Failed to delete song' }); }
 });
 
-app.post('/songs/:id/clear-progress', async (req, res) => {
-    try {
-        const songId = typeof req.params.id === 'string' ? req.params.id : '';
-        const songs = await readSongs();
-        const songIndex = songs.findIndex((song) => song.id === songId);
-
-        if (songIndex === -1) {
-            console.warn(`✗ Clear progress failed: Song not found (ID: ${songId})`);
-            res.status(404).json({ error: 'Song not found' });
-            return;
-        }
-
-        const song = songs[songIndex];
-        if (Array.isArray(song.measures)) {
-            for (const measure of song.measures) {
-                measure.events = [];
-            }
-            song.elapsedTime = 0;
-            song.timeElapsed = 0;
-        }
-
-        const updatedSongs = songs.slice();
-        updatedSongs[songIndex] = song;
-        await writeSongs(updatedSongs);
-
-        console.log(`✓ Cleared progress for song: "${song.title}" by ${song.composer} (ID: ${songId})`);
-
-        res.json({
-            song: serializeSong(req, song),
-            songs: updatedSongs.map((entry) => serializeSong(req, entry)),
-        });
-    } catch (err) {
-        console.error('✗ Failed to clear song progress:', err.message);
-        res.status(500).json({ error: 'Failed to clear song progress' });
+async function clearProgress(req, res, measureNumber = null) {
+    const song = await getSongOr404(req.params.id, res);
+    if (!song) return;
+    const measures = measureNumber === null ? song.measures : song.measures.filter((measure) => measure.number === measureNumber);
+    if (!measures.length) return res.status(404).json({ error: 'Measure not found' });
+    for (const measure of measures) {
+        const { data: row, error } = await supabase.from('measures').select('id').eq('song_id', req.params.id).eq('number', measure.number).single();
+        if (error) throw error;
+        const { error: eventError } = await supabase.from('practice_events').delete().eq('measure_id', row.id);
+        if (eventError) throw eventError;
+        const { error: measureError } = await supabase.from('measures').update({ elapsed_time: 0, last_event_at: null, last_metronome_bpm: null, success_count: 0, event_count: 0 }).eq('id', row.id);
+        if (measureError) throw measureError;
     }
-});
+    if (measureNumber === null) { const { error } = await supabase.from('songs').update({ elapsed_time: 0 }).eq('id', req.params.id); if (error) throw error; }
+    const updated = await getSongs(true, req.params.id);
+    res.json({ song: publicSong(req, updated, true) });
+}
+
+app.post('/songs/:id/clear-progress', (req, res) => clearProgress(req, res));
+app.post('/songs/:id/measures/:measureNumber/clear-progress', (req, res) => clearProgress(req, res, Number(req.params.measureNumber)));
 
 app.delete('/songs/:id/measures/:measureNumber', async (req, res) => {
     try {
-        const songId = typeof req.params.id === 'string' ? req.params.id : '';
-        const measureNumber = Number(req.params.measureNumber);
-        const songs = await readSongs();
-        const songIndex = songs.findIndex((song) => song.id === songId);
-
-        if (songIndex === -1) {
-            console.warn(`✗ Delete measure failed: Song not found (ID: ${songId})`);
-            res.status(404).json({ error: 'Song not found' });
-            return;
-        }
-
-        const song = songs[songIndex];
-        if (!Array.isArray(song.measures)) {
-            console.warn(`✗ Song ${songId} has no measures`);
-            res.status(404).json({ error: 'Song has no measures' });
-            return;
-        }
-
-        const measureIndex = song.measures.findIndex((m) => m.number === measureNumber);
-        if (measureIndex === -1) {
-            console.warn(`✗ Measure ${measureNumber} not found in song ${songId}`);
-            res.status(404).json({ error: `Measure ${measureNumber} not found` });
-            return;
-        }
-
-        // Delete the measure and renumber remaining measures
-        song.measures.splice(measureIndex, 1);
-        song.measureCount = song.measures.length;
-
-        const updatedSongs = songs.slice();
-        updatedSongs[songIndex] = song;
-        await writeSongs(updatedSongs);
-
-        console.log(`✓ Deleted measure ${measureNumber} from song "${song.title}" (ID: ${songId})`);
-
-        res.json({
-            song: serializeSong(req, song),
-            songs: updatedSongs.map((entry) => serializeSong(req, entry)),
-        });
-    } catch (err) {
-        console.error('✗ Failed to delete measure:', err.message);
-        res.status(500).json({ error: 'Failed to delete measure' });
-    }
+        const { error } = await supabase.from('measures').delete().eq('song_id', req.params.id).eq('number', Number(req.params.measureNumber));
+        if (error) throw error;
+        const { data: measures, error: listError } = await supabase.from('measures').select('number').eq('song_id', req.params.id).order('number');
+        if (listError) throw listError;
+        const { error: songError } = await supabase.from('songs').update({ measure_count: measures.length }).eq('id', req.params.id);
+        if (songError) throw songError;
+        const song = await getSongs(true, req.params.id);
+        res.json({ song: publicSong(req, song, true) });
+    } catch (error) { console.error(error); res.status(500).json({ error: 'Failed to delete measure' }); }
 });
 
-app.post('/songs/:id/measures/:measureNumber/clear-progress', async (req, res) => {
-    try {
-        const songId = typeof req.params.id === 'string' ? req.params.id : '';
-        const measureNumber = Number(req.params.measureNumber);
-        const songs = await readSongs();
-        const songIndex = songs.findIndex((song) => song.id === songId);
-
-        if (songIndex === -1) {
-            console.warn(`✗ Clear measure progress failed: Song not found (ID: ${songId})`);
-            res.status(404).json({ error: 'Song not found' });
-            return;
-        }
-
-        const song = songs[songIndex];
-        if (!Array.isArray(song.measures)) {
-            console.warn(`✗ Song ${songId} has no measures`);
-            res.status(404).json({ error: 'Song has no measures' });
-            return;
-        }
-
-        const measure = song.measures.find((m) => m.number === measureNumber);
-        if (!measure) {
-            console.warn(`✗ Measure ${measureNumber} not found in song ${songId}`);
-            res.status(404).json({ error: `Measure ${measureNumber} not found` });
-            return;
-        }
-
-        measure.events = [];
-        measure.elapsedTime = 0;
-        measure.timeElapsed = 0;
-
-        const updatedSongs = songs.slice();
-        updatedSongs[songIndex] = song;
-        await writeSongs(updatedSongs);
-
-        console.log(`✓ Cleared progress for measure ${measureNumber} in song "${song.title}" (ID: ${songId})`);
-
-        res.json({
-            song: serializeSong(req, song),
-            songs: updatedSongs.map((entry) => serializeSong(req, entry)),
-        });
-    } catch (err) {
-        console.error('✗ Failed to clear measure progress:', err.message);
-        res.status(500).json({ error: 'Failed to clear measure progress' });
-    }
+app.use((error, req, res, next) => {
+    if (error?.type === 'entity.too.large') return res.status(413).json({ error: 'Uploaded payload is too large' });
+    next(error);
 });
 
-// Error handler for payload too large
-app.use((err, req, res, next) => {
-    if (err?.type === 'entity.too.large') {
-        res.setHeader('Access-Control-Allow-Origin', '*');
-        //res.setHeader('Access-Control-Allow-Origin', 'https://practiceapp-f1d1b.web.app');
-        res.status(413).json({ error: 'Uploaded song payload is too large' });
-        return;
-    }
-
-    next(err);
-});
-
-
-await ensureDataFile();
-startBackupScheduler();
-
-app.listen(port, '0.0.0.0', () => {
-    console.log('');
-    console.log('═'.repeat(50));
-    console.log('🎵 Backend API Server Started');
-    console.log('═'.repeat(50));
-    console.log(`📡 Server running on http://0.0.0.0:${port}`);
-    console.log(`📂 Data directory: ${dataDir}`);
-    console.log('═'.repeat(50));
-    console.log('');
-});
+await ensureMediaDirs();
+app.listen(port, '0.0.0.0', () => console.log(`PracticeApp backend listening on port ${port}`));

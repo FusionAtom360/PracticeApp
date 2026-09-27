@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
-import { createApiUrl, fetchSongs, saveSongs, updateSong, type Measure, type Song, type SongUpdateInput } from "../lib/songs";
+import { createApiUrl, fetchSongs, updateMeasure, updateSong, type Song, type SongUpdateInput } from "../lib/songs";
 
 const SELECTED_BY_SONG_STORAGE_KEY = "practiceapp.selectedMeasuresBySong";
 const GLOBAL_KEY = "__global__";
@@ -33,8 +33,8 @@ interface SongContextType {
     addRandomEvent: (id: string, measureNumber?: number) => Promise<void>;
     addPracticeEvent: (id: string, outcome: 'success' | 'failure', measureNumber?: number) => Promise<void>;
     addMetronomeEvent: (id: string, outcome: 'success' | 'failure', bpm: number, measureNumbers: number[], elapsedSeconds: number) => Promise<void>;
-    saveSongsToServer: (songs: Song[]) => Promise<void>;
     updateSongOnServer: (songId: string, input: SongUpdateInput) => Promise<void>;
+    updateMeasureOnServer: (songId: string, measureNumber: number, input: Parameters<typeof updateMeasure>[2]) => Promise<void>;
     reloadSongs: () => Promise<void>;
     selectedMeasures: number[];
     setSelectedMeasures: (start: number, end: number) => void;
@@ -271,26 +271,12 @@ export function SongProvider({ children }: { children: ReactNode }) {
         };
     }, [playerSongId]);
 
-    async function saveSongsToServerFn(songsToSave: Song[]) {
-        try {
-            setLoading(true);
-            setError(null);
-            const savedSongs = await saveSongs(songsToSave);
-            setSongs(savedSongs);
-        } catch (err) {
-            setError(err instanceof Error ? err : new Error('Failed to save songs'));
-            throw err;
-        } finally {
-            setLoading(false);
-        }
-    }
-
     async function updateSongOnServerFn(songId: string, input: SongUpdateInput) {
         try {
             setLoading(true);
             setError(null);
             const updated = await updateSong(songId, input);
-            setSongs(updated.songs);
+            setSongs((current) => current.map((song) => song.id === updated.song.id ? updated.song : song));
         } catch (err) {
             setError(err instanceof Error ? err : new Error('Failed to update song'));
             throw err;
@@ -343,8 +329,16 @@ export function SongProvider({ children }: { children: ReactNode }) {
 
             setSongs(updatedSongs);
 
-            // persist
-            await saveSongs(updatedSongs);
+            const response = await fetch(createApiUrl(`/songs/${encodeURIComponent(id)}/measures/${existing.number}/events`), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    type: newEvent.type,
+                    outcome: newEvent.outcome,
+                    bpm: newEvent.value,
+                }),
+            });
+            if (!response.ok) throw new Error(`Failed to add event: ${response.status}`);
         } catch (err) {
             setError(err instanceof Error ? err : new Error('Failed to add event'));
             throw err;
@@ -431,26 +425,8 @@ export function SongProvider({ children }: { children: ReactNode }) {
         setLoading(true);
 
         try {
-            const prev = songs;
-            const idx = prev.findIndex((s) => s.id === id);
-            if (idx === -1) throw new Error('Song not found');
-
-            const song = prev[idx];
-            const measures = Array.isArray(song.measures) ? song.measures.slice() : [];
-            const mi = measures.findIndex(m => m.number === measureNumber);
-            if (mi === -1) throw new Error('Measure not found');
-
-            const existing = measures[mi];
-            const { mode: _existingMode, ...measureWithoutMode } = existing;
-            const updatedMeasure: Measure = mode === null ? measureWithoutMode : { ...existing, mode };
-            measures[mi] = updatedMeasure;
-
-            const updatedSong: Song = { ...song, measures };
-            const updatedSongs = prev.slice();
-            updatedSongs[idx] = updatedSong;
-
-            setSongs(updatedSongs);
-            await saveSongs(updatedSongs);
+            const updatedSong = await updateMeasure(id, measureNumber, mode === null ? { mode: 'stability' } : { mode });
+            setSongs((current) => current.map((song) => song.id === id ? { ...song, ...updatedSong } : song));
         } catch (err) {
             setError(err instanceof Error ? err : new Error('Failed to set measure mode'));
             throw err;
@@ -468,8 +444,11 @@ export function SongProvider({ children }: { children: ReactNode }) {
             addPracticeEvent,
             addMetronomeEvent,
             setMeasureMode,
-            saveSongsToServer: saveSongsToServerFn,
             updateSongOnServer: updateSongOnServerFn,
+            updateMeasureOnServer: async (songId, measureNumber, input) => {
+                const updatedSong = await updateMeasure(songId, measureNumber, input);
+                setSongs((current) => current.map((song) => song.id === songId ? { ...song, ...updatedSong } : song));
+            },
             reloadSongs,
             selectedMeasures: selectedMeasuresState,
             setSelectedMeasures,

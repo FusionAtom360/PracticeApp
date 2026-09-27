@@ -240,6 +240,7 @@ export default function Metronome({
         "success" | "failure" | null
     >(null);
     const [isLogging, setIsLogging] = useState(false);
+    const isLoggingRef = useRef(false);
     const [beatFlash, setBeatFlash] = useState(false);
     const [tapMode, setTapMode] = useState(false);
     const [practiceClockSeconds, setPracticeClockSeconds] = useState(0);
@@ -762,11 +763,12 @@ export default function Metronome({
 
     const commitPracticeEvent = useCallback(
         async (outcome: "success" | "failure") => {
-            if (!practiceMode || !onPracticeEvent || isLogging) return;
+            if (!practiceMode || !onPracticeEvent || isLogging || isLoggingRef.current) return;
 
             const elapsedSeconds = getElapsedPracticeSeconds();
             const now = Date.now();
 
+            isLoggingRef.current = true;
             setIsLogging(true);
             try {
                 // Persist practice events as quarter-note BPM values
@@ -774,6 +776,7 @@ export default function Metronome({
                 await onPracticeEvent(outcome, storedQuarter, elapsedSeconds);
                 lastPracticeLogRef.current = now;
             } finally {
+                isLoggingRef.current = false;
                 setIsLogging(false);
             }
         },

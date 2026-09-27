@@ -42,7 +42,9 @@ function publicSong(req, song, detail = false) {
         measureCount: song.measure_count,
         elapsedTime: song.elapsed_time,
         timeElapsed: song.elapsed_time,
-        measures: (song.measures ?? []).map((measure) => ({
+        measures: [...(song.measures ?? [])]
+            .sort((first, second) => Number(first.number) - Number(second.number))
+            .map((measure) => ({
             number: measure.number,
             initial: Number(measure.initial),
             current: Number(measure.initial),
@@ -64,7 +66,7 @@ function publicSong(req, song, detail = false) {
                 accuracy: measure.event_count ? (Number(measure.success_count) / 50) * 100 : 0,
                 lastPractice: measure.last_event_at,
             }),
-        })),
+            })),
         imageUrl: song.image ? `${baseUrl}/images/${song.image}` : null,
         audioUrl: song.audio ? `${baseUrl}/audio/${song.audio}` : null,
     };

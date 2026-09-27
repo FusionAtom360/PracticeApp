@@ -382,7 +382,11 @@ export function SongProvider({ children }: { children: ReactNode }) {
         setError(null);
 
         try {
-            if (!Array.isArray(measureNumbers) || measureNumbers.length === 0) {
+            const uniqueMeasureNumbers = Array.isArray(measureNumbers)
+                ? Array.from(new Set(measureNumbers.filter((number) => Number.isInteger(number) && number > 0)))
+                : [];
+
+            if (uniqueMeasureNumbers.length === 0) {
                 throw new Error('At least one measure number is required');
             }
 
@@ -394,7 +398,7 @@ export function SongProvider({ children }: { children: ReactNode }) {
                 throw new Error('Valid elapsed time required');
             }
 
-            const measureNumber = measureNumbers[0];
+            const measureNumber = uniqueMeasureNumbers[0];
             const apiUrl = createApiUrl(`/songs/${encodeURIComponent(id)}/measures/${measureNumber}/events`);
             const response = await fetch(apiUrl, {
                 method: 'POST',
@@ -403,7 +407,7 @@ export function SongProvider({ children }: { children: ReactNode }) {
                     outcome,
                     bpm,
                     type: 'metronome',
-                    measureNumbers,
+                    measureNumbers: uniqueMeasureNumbers,
                     elapsedSeconds,
                 }),
             });

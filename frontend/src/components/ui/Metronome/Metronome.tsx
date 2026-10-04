@@ -3,7 +3,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import PauseIcon from "@mui/icons-material/Pause";
-import StopIcon from "@mui/icons-material/Stop";
+// import StopIcon from "@mui/icons-material/Stop";
 import SettingsIcon from "@mui/icons-material/Settings";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
@@ -131,14 +131,14 @@ const BPMMarks = [
     232, 240, 250, 260, 270, 280, 290, 300,
 ];
 
-const droneWhiteKeys = ["C", "D", "E", "F", "G", "A", "B"];
-const droneBlackKeys = [
-    { note: "Db", position: 1 },
-    { note: "Eb", position: 2 },
-    { note: "Gb", position: 4 },
-    { note: "Ab", position: 5 },
-    { note: "Bb", position: 6 },
-];
+// const droneWhiteKeys = ["C", "D", "E", "F", "G", "A", "B"];
+// const droneBlackKeys = [
+//     { note: "Db", position: 1 },
+//     { note: "Eb", position: 2 },
+//     { note: "Gb", position: 4 },
+//     { note: "Ab", position: 5 },
+//     { note: "Bb", position: 6 },
+// ];
 
 function getNextBPMMark(currentBPM: number, maxBPM: number): number {
     for (const mark of BPMMarks) {
@@ -268,11 +268,11 @@ export default function Metronome({
     const [beatFlash, setBeatFlash] = useState(false);
     const [tapMode, setTapMode] = useState(false);
     const [practiceClockSeconds, setPracticeClockSeconds] = useState(0);
-    const [selectedDrone, setSelectedDrone] = useState(() => {
-        if (typeof window === "undefined") return "A";
-        return window.localStorage.getItem("practice-selected-drone") ?? "A";
-    });
-    const [isDronePlaying, setIsDronePlaying] = useState(false);
+    // const [selectedDrone, setSelectedDrone] = useState(() => {
+    //     if (typeof window === "undefined") return "A";
+    //     return window.localStorage.getItem("practice-selected-drone") ?? "A";
+    // });
+    // const [isDronePlaying, setIsDronePlaying] = useState(false);
     // currentPulse state initialized above to read persisted value
     const audioContextRef = useRef<AudioContext | null>(null);
     const schedulerIntervalRef = useRef<number | null>(null);
@@ -302,7 +302,7 @@ export default function Metronome({
     const droneFirstAudioRef = useRef<HTMLAudioElement | null>(null);
     const droneSecondAudioRef = useRef<HTMLAudioElement | null>(null);
     const droneTimerRefs = useRef<number[]>([]);
-    const droneTransitionRef = useRef(0);
+    // const droneTransitionRef = useRef(0);
 
     const tempoName = getTempoName(currentBPM);
 
@@ -322,63 +322,63 @@ export default function Metronome({
             audio.currentTime = 0;
             audio.volume = 0;
         }
-        setIsDronePlaying(false);
+        // setIsDronePlaying(false);
     }, [clearDroneTimers]);
 
-    const startDrone = useCallback((note: string) => {
-        clearDroneTimers();
-        const first = droneFirstAudioRef.current ?? new Audio();
-        const second = droneSecondAudioRef.current ?? new Audio();
-        droneFirstAudioRef.current = first;
-        droneSecondAudioRef.current = second;
+    // const startDrone = useCallback((note: string) => {
+    //     clearDroneTimers();
+    //     const first = droneFirstAudioRef.current ?? new Audio();
+    //     const second = droneSecondAudioRef.current ?? new Audio();
+    //     droneFirstAudioRef.current = first;
+    //     droneSecondAudioRef.current = second;
 
-        first.src = `/drones/${encodeURIComponent(note)}.mp3`;
-        first.loop = true;
-        first.volume = 1;
-        second.pause();
-        second.currentTime = 0;
-        second.volume = 0;
-        second.src = first.src;
-        droneTransitionRef.current = 0;
+    //     first.src = `/drones/${encodeURIComponent(note)}.mp3`;
+    //     first.loop = true;
+    //     first.volume = 1;
+    //     second.pause();
+    //     second.currentTime = 0;
+    //     second.volume = 0;
+    //     second.src = first.src;
+    //     droneTransitionRef.current = 0;
 
-        const scheduleTransition = (activeIndex: number) => {
-            const transitionTimer = window.setTimeout(() => {
-                const active = activeIndex === 0 ? droneFirstAudioRef.current : droneSecondAudioRef.current;
-                const incoming = activeIndex === 0 ? droneSecondAudioRef.current : droneFirstAudioRef.current;
-                if (!active || !incoming) return;
+    //     const scheduleTransition = (activeIndex: number) => {
+    //         const transitionTimer = window.setTimeout(() => {
+    //             const active = activeIndex === 0 ? droneFirstAudioRef.current : droneSecondAudioRef.current;
+    //             const incoming = activeIndex === 0 ? droneSecondAudioRef.current : droneFirstAudioRef.current;
+    //             if (!active || !incoming) return;
 
-                incoming.currentTime = 0;
-                incoming.volume = 0;
-                void incoming.play().catch(() => stopDrone());
-                const startedAt = performance.now();
-                const fadeTimer = window.setInterval(() => {
-                    const progress = Math.min(1, (performance.now() - startedAt) / 10000);
-                    active.volume = 1 - progress;
-                    incoming.volume = progress;
-                    if (progress >= 1) {
-                        window.clearInterval(fadeTimer);
-                        active.pause();
-                        active.currentTime = 0;
-                        droneTransitionRef.current = activeIndex === 0 ? 1 : 0;
-                        scheduleTransition(droneTransitionRef.current);
-                    }
-                }, 50);
-                droneTimerRefs.current.push(fadeTimer);
-            }, 20000);
-            droneTimerRefs.current.push(transitionTimer);
-        };
+    //             incoming.currentTime = 0;
+    //             incoming.volume = 0;
+    //             void incoming.play().catch(() => stopDrone());
+    //             const startedAt = performance.now();
+    //             const fadeTimer = window.setInterval(() => {
+    //                 const progress = Math.min(1, (performance.now() - startedAt) / 10000);
+    //                 active.volume = 1 - progress;
+    //                 incoming.volume = progress;
+    //                 if (progress >= 1) {
+    //                     window.clearInterval(fadeTimer);
+    //                     active.pause();
+    //                     active.currentTime = 0;
+    //                     droneTransitionRef.current = activeIndex === 0 ? 1 : 0;
+    //                     scheduleTransition(droneTransitionRef.current);
+    //                 }
+    //             }, 50);
+    //             droneTimerRefs.current.push(fadeTimer);
+    //         }, 20000);
+    //         droneTimerRefs.current.push(transitionTimer);
+    //     };
 
-        void first.play().then(() => {
-            setIsDronePlaying(true);
-            scheduleTransition(0);
-        }).catch(() => {
-            stopDrone();
-        });
-    }, [clearDroneTimers, stopDrone]);
+    //     void first.play().then(() => {
+    //         setIsDronePlaying(true);
+    //         scheduleTransition(0);
+    //     }).catch(() => {
+    //         stopDrone();
+    //     });
+    // }, [clearDroneTimers, stopDrone]);
 
-    useEffect(() => {
-        window.localStorage.setItem("practice-selected-drone", selectedDrone);
-    }, [selectedDrone]);
+    // useEffect(() => {
+    //     window.localStorage.setItem("practice-selected-drone", selectedDrone);
+    // }, [selectedDrone]);
 
     useEffect(() => () => stopDrone(), [stopDrone]);
 

@@ -3,6 +3,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import PauseIcon from "@mui/icons-material/Pause";
+import StopIcon from "@mui/icons-material/Stop";
 import SettingsIcon from "@mui/icons-material/Settings";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
@@ -44,14 +45,28 @@ function getTempoMarking(pulse: number): string {
 }
 
 function getHighestMetronomeBPM(
-    events?: Array<{ type?: string; value?: number }>,
+    events?: Array<{ timestamp?: number | string; type?: string; value?: number | string }>,
 ): number | null {
     if (!Array.isArray(events)) return null;
+
+    const recentEvents = [...events]
+        .filter((event) => event && event.type === "metronome")
+        .sort((first, second) => {
+            const firstTimestamp = Number(first.timestamp);
+            const secondTimestamp = Number(second.timestamp);
+            if (Number.isFinite(firstTimestamp) && Number.isFinite(secondTimestamp)) {
+                return secondTimestamp - firstTimestamp;
+            }
+            return 0;
+        })
+        .slice(0, 20);
+
     let highest: number | null = null;
 
-    for (const ev of events.slice(-20)) {
-        if (ev && ev.type === "metronome" && typeof ev.value === "number") {
-            highest = highest === null ? ev.value : Math.max(highest, ev.value);
+    for (const ev of recentEvents) {
+        const bpm = Number(ev.value);
+        if (Number.isFinite(bpm) && bpm > 0) {
+            highest = highest === null ? bpm : Math.max(highest, bpm);
         }
     }
 
@@ -114,6 +129,15 @@ const BPMMarks = [
     58, 60, 63, 66, 69, 72, 76, 80, 84, 88, 92, 96, 100, 104, 108, 112, 116,
     120, 126, 132, 138, 144, 152, 160, 168, 176, 184, 192, 200, 208, 216, 224,
     232, 240, 250, 260, 270, 280, 290, 300,
+];
+
+const droneWhiteKeys = ["C", "D", "E", "F", "G", "A", "B"];
+const droneBlackKeys = [
+    { note: "Db", position: 1 },
+    { note: "Eb", position: 2 },
+    { note: "Gb", position: 4 },
+    { note: "Ab", position: 5 },
+    { note: "Bb", position: 6 },
 ];
 
 function getNextBPMMark(currentBPM: number, maxBPM: number): number {
@@ -244,6 +268,11 @@ export default function Metronome({
     const [beatFlash, setBeatFlash] = useState(false);
     const [tapMode, setTapMode] = useState(false);
     const [practiceClockSeconds, setPracticeClockSeconds] = useState(0);
+    const [selectedDrone, setSelectedDrone] = useState(() => {
+        if (typeof window === "undefined") return "A";
+        return window.localStorage.getItem("practice-selected-drone") ?? "A";
+    });
+    const [isDronePlaying, setIsDronePlaying] = useState(false);
     // currentPulse state initialized above to read persisted value
     const audioContextRef = useRef<AudioContext | null>(null);
     const schedulerIntervalRef = useRef<number | null>(null);
@@ -270,8 +299,88 @@ export default function Metronome({
     const hasInitializedFromMeasureRef = useRef<string | null>(null);
     const hasPlayedOnceRef = useRef(false);
     const practiceClockSecondsRef = useRef(0);
+    const droneFirstAudioRef = useRef<HTMLAudioElement | null>(null);
+    const droneSecondAudioRef = useRef<HTMLAudioElement | null>(null);
+    const droneTimerRefs = useRef<number[]>([]);
+    const droneTransitionRef = useRef(0);
 
     const tempoName = getTempoName(currentBPM);
+
+    const clearDroneTimers = useCallback(() => {
+        for (const timer of droneTimerRefs.current) {
+            window.clearTimeout(timer);
+            window.clearInterval(timer);
+        }
+        droneTimerRefs.current = [];
+    }, []);
+
+    const stopDrone = useCallback(() => {
+        clearDroneTimers();
+        for (const audio of [droneFirstAudioRef.current, droneSecondAudioRef.current]) {
+            if (!audio) continue;
+            audio.pause();
+            audio.currentTime = 0;
+            audio.volume = 0;
+        }
+        setIsDronePlaying(false);
+    }, [clearDroneTimers]);
+
+    const startDrone = useCallback((note: string) => {
+        clearDroneTimers();
+        const first = droneFirstAudioRef.current ?? new Audio();
+        const second = droneSecondAudioRef.current ?? new Audio();
+        droneFirstAudioRef.current = first;
+        droneSecondAudioRef.current = second;
+
+        first.src = `/drones/${encodeURIComponent(note)}.mp3`;
+        first.loop = true;
+        first.volume = 1;
+        second.pause();
+        second.currentTime = 0;
+        second.volume = 0;
+        second.src = first.src;
+        droneTransitionRef.current = 0;
+
+        const scheduleTransition = (activeIndex: number) => {
+            const transitionTimer = window.setTimeout(() => {
+                const active = activeIndex === 0 ? droneFirstAudioRef.current : droneSecondAudioRef.current;
+                const incoming = activeIndex === 0 ? droneSecondAudioRef.current : droneFirstAudioRef.current;
+                if (!active || !incoming) return;
+
+                incoming.currentTime = 0;
+                incoming.volume = 0;
+                void incoming.play().catch(() => stopDrone());
+                const startedAt = performance.now();
+                const fadeTimer = window.setInterval(() => {
+                    const progress = Math.min(1, (performance.now() - startedAt) / 10000);
+                    active.volume = 1 - progress;
+                    incoming.volume = progress;
+                    if (progress >= 1) {
+                        window.clearInterval(fadeTimer);
+                        active.pause();
+                        active.currentTime = 0;
+                        droneTransitionRef.current = activeIndex === 0 ? 1 : 0;
+                        scheduleTransition(droneTransitionRef.current);
+                    }
+                }, 50);
+                droneTimerRefs.current.push(fadeTimer);
+            }, 20000);
+            droneTimerRefs.current.push(transitionTimer);
+        };
+
+        void first.play().then(() => {
+            setIsDronePlaying(true);
+            scheduleTransition(0);
+        }).catch(() => {
+            stopDrone();
+        });
+    }, [clearDroneTimers, stopDrone]);
+
+    useEffect(() => {
+        window.localStorage.setItem("practice-selected-drone", selectedDrone);
+    }, [selectedDrone]);
+
+    useEffect(() => () => stopDrone(), [stopDrone]);
 
     const thresholds = useMemo(
         () => ({
@@ -372,6 +481,15 @@ export default function Metronome({
 
         const scopeKey = practiceScopeKey ?? "song";
         if (scopeKey === hasInitializedFromMeasureRef.current) {
+            return;
+        }
+
+        const measuresToInspect =
+            selectedMeasures.length > 0 ? selectedMeasures : measure ? [measure] : [];
+        const hasLoadedEvents =
+            measuresToInspect.length > 0 &&
+            measuresToInspect.every((item) => Array.isArray(item.events));
+        if (!hasLoadedEvents) {
             return;
         }
 
@@ -762,7 +880,7 @@ export default function Metronome({
     }, [stopScheduler, clearVisualTimeouts, clearTapTimers, clearHoldTimers]);
 
     const commitPracticeEvent = useCallback(
-        async (outcome: "success" | "failure") => {
+        (outcome: "success" | "failure") => {
             if (!practiceMode || !onPracticeEvent || isLogging || isLoggingRef.current) return;
 
             const elapsedSeconds = getElapsedPracticeSeconds();
@@ -770,22 +888,24 @@ export default function Metronome({
 
             isLoggingRef.current = true;
             setIsLogging(true);
-            try {
-                // Persist practice events as quarter-note BPM values
-                const storedQuarter = Math.round(currentBPM * (4 / currentPulse));
-                await onPracticeEvent(outcome, storedQuarter, elapsedSeconds);
-                lastPracticeLogRef.current = now;
-            } finally {
-                isLoggingRef.current = false;
-                setIsLogging(false);
-            }
+            // Persist practice events as quarter-note BPM values without blocking UI feedback.
+            const storedQuarter = Math.round(currentBPM * (4 / currentPulse));
+            void onPracticeEvent(outcome, storedQuarter, elapsedSeconds)
+                .then(() => {
+                    lastPracticeLogRef.current = now;
+                })
+                .catch((error: unknown) => {
+                    console.error("Failed to persist practice event", error);
+                });
+            isLoggingRef.current = false;
+            setIsLogging(false);
         },
         [practiceMode, onPracticeEvent, isLogging, getElapsedPracticeSeconds, currentBPM, currentPulse],
     );
 
-    const handleSuccess = useCallback(async () => {
+    const handleSuccess = useCallback(() => {
         if (!practiceMode || !onPracticeEvent || isLogging) return;
-        await commitPracticeEvent("success");
+        commitPracticeEvent("success");
         const nextStreak = streak + 1;
         setErrorStreak(0);
         if (nextStreak >= thresholds[practiceMode].success) {
@@ -815,9 +935,9 @@ export default function Metronome({
         currentPulse,
     ]);
 
-    const handleFailure = useCallback(async () => {
+    const handleFailure = useCallback(() => {
         if (!practiceMode || !onPracticeEvent || isLogging) return;
-        await commitPracticeEvent("failure");
+        commitPracticeEvent("failure");
         setStreak(0);
         setErrorStreak((prevErrorStreak) => {
             const nextErrorStreak = prevErrorStreak + 1;
@@ -1501,6 +1621,71 @@ export default function Metronome({
                             </div>
                         </div>
                     )}
+                    {/* <div className="settings-section drone-settings-section">
+                        <div>
+                            <label className="settings-label" id="drone-key-label">
+                                Tuning drone
+                            </label>
+                            <div className="drone-keyboard" role="group" aria-labelledby="drone-key-label">
+                                {droneWhiteKeys.map((note) => (
+                                    <button
+                                        key={note}
+                                        type="button"
+                                        className={`drone-key drone-key-white ${selectedDrone === note ? "active" : ""}`}
+                                        aria-label={`Play ${note} drone`}
+                                        aria-pressed={selectedDrone === note}
+                                        onClick={() => {
+                                            setSelectedDrone(note);
+                                            if (isDronePlaying) startDrone(note);
+                                        }}
+                                    >
+                                        {note}
+                                    </button>
+                                ))}
+                                {droneBlackKeys.map(({ note, position }) => (
+                                    <button
+                                        key={note}
+                                        type="button"
+                                        className={`drone-key drone-key-black ${selectedDrone === note ? "active" : ""}`}
+                                        style={{ left: `${(position - 0.5) * (100 / 7)}%` }}
+                                        aria-label={`Play ${note} drone`}
+                                        aria-pressed={selectedDrone === note}
+                                        onClick={() => {
+                                            setSelectedDrone(note);
+                                            if (isDronePlaying) startDrone(note);
+                                        }}
+                                    >
+                                        {note}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                        <div className="drone-transport">
+                            <Button
+                                variant="primary"
+                                size="md"
+                                className="drone-transport-btn"
+                                onClick={() => startDrone(selectedDrone)}
+                                disabled={isDronePlaying}
+                            >
+                                <PlayArrowIcon fontSize="small" aria-hidden="true" />
+                                Start
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                size="md"
+                                className="drone-transport-btn"
+                                onClick={stopDrone}
+                                disabled={!isDronePlaying}
+                            >
+                                <StopIcon fontSize="small" aria-hidden="true" />
+                                Stop
+                            </Button>
+                        </div>
+                        <span className="drone-status" aria-live="polite">
+                            {isDronePlaying ? `${selectedDrone} drone playing` : "Drone stopped"}
+                        </span>
+                    </div> */}
                 </div>
             </DialogBox>
         </div>

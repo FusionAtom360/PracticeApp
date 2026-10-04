@@ -370,8 +370,6 @@ export function SongProvider({ children }: { children: ReactNode }) {
                 throw new Error(`Failed to add practice event: ${response.status}`);
             }
 
-            // Reload songs to get the updated data
-            await reloadSongs();
         } catch (err) {
             setError(err instanceof Error ? err : new Error('Failed to add practice event'));
             throw err;
@@ -415,9 +413,6 @@ export function SongProvider({ children }: { children: ReactNode }) {
             if (!response.ok) {
                 throw new Error(`Failed to add metronome event: ${response.status}`);
             }
-
-            // Reload songs to get the updated data
-            await reloadSongs();
         } catch (err) {
             setError(err instanceof Error ? err : new Error('Failed to add metronome event'));
             throw err;

@@ -175,6 +175,85 @@
     gap: 0.75rem;
 }
 
+.drone-settings-section {
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border);
+}
+
+.drone-keyboard {
+    position: relative;
+    display: flex;
+    height: 7rem;
+    padding: 0 0.35rem 0.35rem;
+    border-radius: 0.6rem;
+    background: var(--text-primary);
+    overflow: hidden;
+}
+
+.drone-key {
+    font: inherit;
+    cursor: pointer;
+    transition: background 140ms ease, color 140ms ease, transform 140ms ease;
+}
+
+.drone-key-white {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    min-width: 0;
+    margin: 0 0.12rem;
+    padding-top: 4.7rem;
+    border: 1px solid var(--border-strong);
+    border-radius: 0 0 0.4rem 0.4rem;
+    background: var(--surface);
+    color: var(--text-muted);
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+
+.drone-key-white:hover,
+.drone-key-white.active {
+    background: var(--accent-warm);
+    color: #fff;
+}
+
+.drone-key-black {
+    position: absolute;
+    z-index: 2;
+    top: 0;
+    width: 9%;
+    height: 4.25rem;
+    transform: translateX(-50%);
+    border: 1px solid #080706;
+    border-radius: 0 0 0.3rem 0.3rem;
+    background: #191613;
+    color: #fff;
+    font-size: 0.62rem;
+    font-weight: 700;
+    box-shadow: 0 0.2rem 0.25rem rgba(0, 0, 0, 0.25);
+}
+
+.drone-key-black:hover,
+.drone-key-black.active {
+    background: var(--accent-warm);
+}
+
+.drone-transport {
+    display: flex;
+    gap: 0.65rem;
+}
+
+.drone-transport-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.drone-status {
+    color: var(--text-muted);
+    font-size: 0.78rem;
+}
+
 .mode-btn {
     padding: 0.75rem 1rem;
     background: var(--surface-2);

@@ -331,7 +331,7 @@ export function SongProvider({ children }: { children: ReactNode }) {
 
             const response = await fetch(createApiUrl(`/songs/${encodeURIComponent(id)}/measures/${existing.number}/events`), {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'X-Idempotency-Key': crypto.randomUUID() },
                 body: JSON.stringify({
                     type: newEvent.type,
                     outcome: newEvent.outcome,
@@ -358,7 +358,7 @@ export function SongProvider({ children }: { children: ReactNode }) {
             const apiUrl = createApiUrl(`/songs/${encodeURIComponent(id)}/measures/${measureNumber}/events`);
             const response = await fetch(apiUrl, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'X-Idempotency-Key': crypto.randomUUID() },
                 body: JSON.stringify({
                     outcome,
                     bpm: 0, // practice events don't have a BPM
@@ -400,7 +400,7 @@ export function SongProvider({ children }: { children: ReactNode }) {
             const apiUrl = createApiUrl(`/songs/${encodeURIComponent(id)}/measures/${measureNumber}/events`);
             const response = await fetch(apiUrl, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'X-Idempotency-Key': crypto.randomUUID() },
                 body: JSON.stringify({
                     outcome,
                     bpm,

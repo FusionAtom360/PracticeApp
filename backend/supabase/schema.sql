@@ -36,9 +36,130 @@ create table if not exists public.practice_events (
     outcome text not null check (outcome in ('success', 'failure'))
 );
 
+alter table public.practice_events
+    add column if not exists idempotency_key text;
+
+create unique index if not exists practice_events_measure_idempotency_key_idx
+    on public.practice_events (measure_id, idempotency_key)
+    where idempotency_key is not null;
+
 create index if not exists practice_events_measure_id_timestamp_idx
     on public.practice_events (measure_id, timestamp desc);
 
 alter table public.songs enable row level security;
 alter table public.measures enable row level security;
 alter table public.practice_events enable row level security;
+
+create or replace function public.create_song_with_measures(
+    p_id uuid,
+    p_title text,
+    p_subtitle text,
+    p_composer text,
+    p_image text,
+    p_audio text,
+    p_measure_count integer,
+    p_initial numeric,
+    p_target numeric
+) returns uuid
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+    insert into public.songs (id, title, subtitle, composer, image, audio, measure_count)
+    values (p_id, p_title, p_subtitle, p_composer, p_image, p_audio, p_measure_count);
+
+    insert into public.measures (song_id, number, initial, target)
+    select p_id, series.number, p_initial, p_target
+    from generate_series(1, p_measure_count) as series(number);
+
+    return p_id;
+end;
+$$;
+
+create or replace function public.record_practice_events(
+    p_song_id uuid,
+    p_measure_numbers integer[],
+    p_timestamp bigint,
+    p_type text,
+    p_value numeric,
+    p_outcome text,
+    p_elapsed_seconds integer,
+    p_idempotency_key text
+) returns boolean
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+    measure_ids uuid[];
+    inserted_count integer;
+begin
+    if p_measure_numbers is null
+        or cardinality(p_measure_numbers) = 0
+        or p_type is null
+        or p_outcome not in ('success', 'failure')
+        or p_elapsed_seconds < 0
+        or p_idempotency_key is null
+        or length(trim(p_idempotency_key)) = 0 then
+        raise exception 'Invalid practice event';
+    end if;
+
+    select array_agg(m.id order by m.number)
+    into measure_ids
+    from public.measures m
+    where m.song_id = p_song_id
+      and m.number = any(p_measure_numbers);
+
+    if measure_ids is null or cardinality(measure_ids) <> cardinality(p_measure_numbers) then
+        raise exception 'One or more measures were not found';
+    end if;
+
+    if exists (
+        select 1
+        from public.practice_events e
+        where e.measure_id = any(measure_ids)
+          and e.idempotency_key = p_idempotency_key
+    ) then
+        return false;
+    end if;
+
+    insert into public.practice_events (measure_id, timestamp, type, value, outcome, idempotency_key)
+    select unnest(measure_ids), p_timestamp, p_type, p_value, p_outcome, p_idempotency_key;
+    get diagnostics inserted_count = row_count;
+
+    update public.measures m
+    set elapsed_time = m.elapsed_time + p_elapsed_seconds,
+        last_event_at = stats.last_event_at,
+        last_metronome_bpm = stats.last_metronome_bpm,
+        success_count = stats.success_count,
+        event_count = stats.event_count
+    from (
+        select m2.id,
+               (select max(e.timestamp) from public.practice_events e where e.measure_id = m2.id) as last_event_at,
+               (select e.value from public.practice_events e where e.measure_id = m2.id and e.type = 'metronome' order by e.timestamp desc, e.id desc limit 1) as last_metronome_bpm,
+               (select count(*) from (
+                   select e.outcome
+                   from public.practice_events e
+                   where e.measure_id = m2.id
+                   order by e.timestamp desc, e.id desc
+                   limit 50
+               ) recent where recent.outcome = 'success')::integer as success_count,
+               (select count(*) from public.practice_events e where e.measure_id = m2.id)::integer as event_count
+        from public.measures m2
+        where m2.id = any(measure_ids)
+    ) stats
+    where m.id = stats.id;
+
+    update public.songs
+    set elapsed_time = elapsed_time + p_elapsed_seconds
+    where id = p_song_id;
+
+    return inserted_count = cardinality(measure_ids);
+end;
+$$;
+
+revoke execute on function public.create_song_with_measures(uuid, text, text, text, text, text, integer, numeric, numeric) from public;
+revoke execute on function public.record_practice_events(uuid, integer[], bigint, text, numeric, text, integer, text) from public;
+grant execute on function public.create_song_with_measures(uuid, text, text, text, text, text, integer, numeric, numeric) to service_role;
+grant execute on function public.record_practice_events(uuid, integer[], bigint, text, numeric, text, integer, text) to service_role;

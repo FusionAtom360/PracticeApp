@@ -106,21 +106,6 @@ async function removeMedia(directory, filename) {
     try { await unlink(join(directory, filename)); } catch (error) { if (error.code !== 'ENOENT') throw error; }
 }
 
-async function updateMeasureStats(measureId) {
-    const { data, error } = await supabase.from('practice_events').select('timestamp,type,value,outcome').eq('measure_id', measureId).order('timestamp', { ascending: false });
-    if (error) throw error;
-    const events = data ?? [];
-    const latest = events[0];
-    const metronome = events.find((event) => event.type === 'metronome');
-    const { error: updateError } = await supabase.from('measures').update({
-        last_event_at: latest?.timestamp ?? null,
-        last_metronome_bpm: metronome?.value ?? null,
-        success_count: events.slice(0, 50).filter((event) => event.outcome === 'success').length,
-        event_count: events.length,
-    }).eq('id', measureId);
-    if (updateError) throw updateError;
-}
-
 const app = express();
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -146,6 +131,9 @@ app.get('/songs/:id', async (req, res) => {
 });
 
 app.post('/songs/create', async (req, res) => {
+    let image = '';
+    let audio = '';
+    let committed = false;
     try {
         const body = req.body ?? {};
         const measureCount = Number(body.measureCount);
@@ -154,34 +142,71 @@ app.post('/songs/create', async (req, res) => {
         if (!body.title?.trim() || !body.composer?.trim()) return res.status(400).json({ error: 'Title and composer are required' });
         if (!Number.isInteger(measureCount) || measureCount < 1 || !Number.isFinite(initial) || !Number.isFinite(target)) return res.status(400).json({ error: 'Invalid measure or tempo values' });
         await ensureMediaDirs();
-        const image = await saveMedia(parseFile(body.imageFile), imagesDir, '.jpg');
-        const audio = await saveMedia(parseFile(body.audioFile), audioDir, '.mp3');
+        image = await saveMedia(parseFile(body.imageFile), imagesDir, '.jpg');
+        audio = await saveMedia(parseFile(body.audioFile), audioDir, '.mp3');
         const id = randomUUID();
-        const { error: songError } = await supabase.from('songs').insert({ id, title: body.title.trim(), subtitle: body.subtitle?.trim() ?? '', composer: body.composer.trim(), image, audio, measure_count: measureCount });
-        if (songError) throw songError;
-        const measures = Array.from({ length: measureCount }, (_, index) => ({ song_id: id, number: index + 1, initial, target }));
-        const { error: measureError } = await supabase.from('measures').insert(measures);
-        if (measureError) throw measureError;
+        const { error } = await supabase.rpc('create_song_with_measures', {
+            p_id: id,
+            p_title: body.title.trim(),
+            p_subtitle: body.subtitle?.trim() ?? '',
+            p_composer: body.composer.trim(),
+            p_image: image,
+            p_audio: audio,
+            p_measure_count: measureCount,
+            p_initial: initial,
+            p_target: target,
+        });
+        if (error) throw error;
+        committed = true;
         const song = await getSongs(true, id);
         res.status(201).json({ song: publicSong(req, song, true) });
-    } catch (error) { console.error(error); res.status(500).json({ error: 'Failed to create song' }); }
+    } catch (error) {
+        if (!committed) {
+            await Promise.all([
+                removeMedia(imagesDir, image),
+                removeMedia(audioDir, audio),
+            ]);
+        }
+        console.error(error); res.status(500).json({ error: 'Failed to create song' });
+    }
 });
 
 app.post('/songs/:id/update', async (req, res) => {
+    const newMedia = { image: '', audio: '' };
+    const oldMedia = { image: '', audio: '' };
+    let committed = false;
     try {
         const existing = await getSongOr404(req.params.id, res);
         if (!existing) return;
+        oldMedia.image = existing.image;
+        oldMedia.audio = existing.audio;
         const body = req.body ?? {};
         const patch = {};
         for (const field of ['title', 'subtitle', 'composer', 'archived']) if (body[field] !== undefined) patch[field] = typeof body[field] === 'string' ? body[field].trim() : body[field];
         await ensureMediaDirs();
-        if (parseFile(body.imageFile)) { patch.image = await saveMedia(parseFile(body.imageFile), imagesDir, '.jpg'); await removeMedia(imagesDir, existing.image); }
-        if (parseFile(body.audioFile)) { patch.audio = await saveMedia(parseFile(body.audioFile), audioDir, '.mp3'); await removeMedia(audioDir, existing.audio); }
+        if (parseFile(body.imageFile)) { newMedia.image = await saveMedia(parseFile(body.imageFile), imagesDir, '.jpg'); patch.image = newMedia.image; }
+        if (parseFile(body.audioFile)) { newMedia.audio = await saveMedia(parseFile(body.audioFile), audioDir, '.mp3'); patch.audio = newMedia.audio; }
         const { error } = await supabase.from('songs').update(patch).eq('id', req.params.id);
         if (error) throw error;
+        committed = true;
+        const cleanupResults = await Promise.allSettled([
+            newMedia.image ? removeMedia(imagesDir, oldMedia.image) : Promise.resolve(),
+            newMedia.audio ? removeMedia(audioDir, oldMedia.audio) : Promise.resolve(),
+        ]);
+        for (const result of cleanupResults) {
+            if (result.status === 'rejected') console.error('Failed to remove replaced media', result.reason);
+        }
         const song = await getSongs(true, req.params.id);
         res.json({ song: publicSong(req, song, true) });
-    } catch (error) { console.error(error); res.status(500).json({ error: 'Failed to update song' }); }
+    } catch (error) {
+        if (!committed) {
+            await Promise.all([
+                removeMedia(imagesDir, newMedia.image),
+                removeMedia(audioDir, newMedia.audio),
+            ]);
+        }
+        console.error(error); res.status(500).json({ error: 'Failed to update song' });
+    }
 });
 
 app.patch('/songs/:id/measures/:measureNumber', async (req, res) => {
@@ -203,24 +228,23 @@ app.post('/songs/:id/measures/:measureNumber/events', async (req, res) => {
         const numbers = Array.from(new Set((body.measureNumbers ?? [req.params.measureNumber]).map(Number).filter((number) => Number.isInteger(number) && number > 0)));
         if (!numbers.length || !['success', 'failure'].includes(body.outcome)) return res.status(400).json({ error: 'Invalid event' });
         if (body.type === 'metronome' && (!Number.isFinite(Number(body.bpm)) || Number(body.bpm) < 1)) return res.status(400).json({ error: 'Invalid BPM' });
+        if (typeof req.get('X-Idempotency-Key') !== 'string' || !req.get('X-Idempotency-Key').trim()) return res.status(400).json({ error: 'Idempotency key is required' });
+        const idempotencyKey = req.get('X-Idempotency-Key').trim();
         const timestamp = Math.floor(Date.now() / 1000);
         const elapsedSeconds = Math.max(0, Math.ceil(Number(body.elapsedSeconds) || 0));
-        for (const number of numbers) {
-            const { data: measure, error } = await supabase.from('measures').select('id,elapsed_time').eq('song_id', req.params.id).eq('number', number).single();
-            if (error || !measure) return res.status(404).json({ error: `Measure ${number} not found` });
-            const { error: eventError } = await supabase.from('practice_events').insert({ measure_id: measure.id, timestamp, type: body.type ?? 'metronome', value: body.type === 'metronome' ? Number(body.bpm) : null, outcome: body.outcome });
-            if (eventError) throw eventError;
-            const { error: elapsedError } = await supabase.from('measures').update({ elapsed_time: Number(measure.elapsed_time) + elapsedSeconds }).eq('id', measure.id);
-            if (elapsedError) throw elapsedError;
-            await updateMeasureStats(measure.id);
-        }
-        if (elapsedSeconds) {
-            const song = await getSongs(true, req.params.id);
-            const { error } = await supabase.from('songs').update({ elapsed_time: Number(song.elapsed_time) + elapsedSeconds }).eq('id', req.params.id);
-            if (error) throw error;
-        }
+        const { data: inserted, error } = await supabase.rpc('record_practice_events', {
+            p_song_id: req.params.id,
+            p_measure_numbers: numbers,
+            p_timestamp: timestamp,
+            p_type: body.type ?? 'metronome',
+            p_value: body.type === 'metronome' ? Number(body.bpm) : null,
+            p_outcome: body.outcome,
+            p_elapsed_seconds: elapsedSeconds,
+            p_idempotency_key: idempotencyKey,
+        });
+        if (error) throw error;
         const song = await getSongs(true, req.params.id);
-        res.json({ measureNumbers: numbers, song: publicSong(req, song, true) });
+        res.json({ measureNumbers: numbers, inserted: inserted !== false, song: publicSong(req, song, true) });
     } catch (error) { console.error(error); res.status(500).json({ error: 'Failed to add event' }); }
 });
 

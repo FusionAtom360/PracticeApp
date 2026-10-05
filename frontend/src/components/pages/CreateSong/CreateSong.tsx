@@ -44,6 +44,18 @@ export default function CreateSong() {
 			setError("Tempo values must be numbers.");
 			return;
 		}
+		if (initialTempoValue < 1 || initialTempoValue > 400 || targetTempoValue < 1 || targetTempoValue > 400) {
+			setError("Tempo values must be between 1 and 400 BPM.");
+			return;
+		}
+		if (imageFile && imageFile.size > 10 * 1024 * 1024) {
+			setError("Images must be 10MB or smaller.");
+			return;
+		}
+		if (audioFile && audioFile.size > 25 * 1024 * 1024) {
+			setError("Audio files must be 25MB or smaller.");
+			return;
+		}
 
 		setIsSaving(true);
 		setError(null);
@@ -82,6 +94,7 @@ export default function CreateSong() {
 							<span>Title</span>
 							<input
 								type="text"
+							maxLength={200}
 								value={title}
 								onChange={(event) => setTitle(event.target.value)}
 								placeholder="Moonlight Sonata"
@@ -93,6 +106,7 @@ export default function CreateSong() {
 							<span>Subtitle</span>
 							<input
 								type="text"
+							maxLength={300}
 								value={subtitle}
 								onChange={(event) => setSubtitle(event.target.value)}
 								placeholder="I. Adagio sostenuto"
@@ -103,6 +117,7 @@ export default function CreateSong() {
 							<span>Composer</span>
 							<input
 								type="text"
+							maxLength={200}
 								value={composer}
 								onChange={(event) => setComposer(event.target.value)}
 								placeholder="Ludwig van Beethoven"
@@ -115,6 +130,7 @@ export default function CreateSong() {
 							<input
 								type="number"
 								min="1"
+								max="1000"
 								step="1"
 								value={measureCount}
 								onChange={(event) => setMeasureCount(event.target.value)}
@@ -127,6 +143,7 @@ export default function CreateSong() {
 							<input
 								type="number"
 								min="1"
+								max="400"
 								step="1"
 								value={initialTempo}
 								onChange={(event) => setInitialTempo(event.target.value)}
@@ -138,6 +155,7 @@ export default function CreateSong() {
 							<input
 								type="number"
 								min="1"
+								max="400"
 								step="1"
 								value={targetTempo}
 								onChange={(event) => setTargetTempo(event.target.value)}

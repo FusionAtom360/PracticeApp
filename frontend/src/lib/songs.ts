@@ -331,6 +331,23 @@ export interface CreateSongInput {
     audioFile?: File | null;
 }
 
+export const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
+export const MAX_AUDIO_BYTES = 25 * 1024 * 1024;
+export const MAX_MEASURES = 1000;
+export const MAX_TEMPO = 400;
+
+function validateUpload(file: File | null | undefined, kind: "image" | "audio") {
+    if (!file) return;
+    const maxBytes = kind === "image" ? MAX_IMAGE_BYTES : MAX_AUDIO_BYTES;
+    if (file.size === 0 || file.size > maxBytes) {
+        throw new Error(`${kind === "image" ? "Image" : "Audio"} files must be between 1 byte and ${maxBytes / 1024 / 1024}MB.`);
+    }
+    const allowedPrefix = kind === "image" ? "image/" : "audio/";
+    if (!file.type.startsWith(allowedPrefix)) {
+        throw new Error(`Please choose a valid ${kind} file.`);
+    }
+}
+
 function readFileAsBase64(file: File): Promise<EncodedFile> {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -385,6 +402,15 @@ export async function updateMeasure(songId: string, measureNumber: number, input
 }
 
 export async function createSong(input: CreateSongInput) {
+    if (input.measureCount < 1 || input.measureCount > MAX_MEASURES || !Number.isInteger(input.measureCount)) {
+        throw new Error(`Number of measures must be between 1 and ${MAX_MEASURES}.`);
+    }
+    if (!Number.isFinite(input.initialTempo) || input.initialTempo < 1 || input.initialTempo > MAX_TEMPO ||
+        !Number.isFinite(input.targetTempo) || input.targetTempo < 1 || input.targetTempo > MAX_TEMPO) {
+        throw new Error(`Tempo values must be between 1 and ${MAX_TEMPO} BPM.`);
+    }
+    validateUpload(input.imageFile, "image");
+    validateUpload(input.audioFile, "audio");
     const apiUrl = createApiUrl('/songs/create');
     const [imageFile, audioFile] = await Promise.all([
         encodeFile(input.imageFile),
@@ -423,6 +449,8 @@ export async function createSong(input: CreateSongInput) {
 }
 
 export async function updateSong(songId: string, input: SongUpdateInput) {
+    validateUpload(input.imageFile, "image");
+    validateUpload(input.audioFile, "audio");
     const apiUrl = createApiUrl(`/songs/${encodeURIComponent(songId)}/update`);
     const [imageFile, audioFile] = await Promise.all([
         encodeFile(input.imageFile),

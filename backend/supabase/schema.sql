@@ -66,6 +66,12 @@ security definer
 set search_path = public
 as $$
 begin
+    if p_measure_count < 1 or p_measure_count > 1000
+        or p_initial < 1 or p_initial > 400
+        or p_target < 1 or p_target > 400 then
+        raise exception 'Invalid song limits';
+    end if;
+
     insert into public.songs (id, title, subtitle, composer, image, audio, measure_count)
     values (p_id, p_title, p_subtitle, p_composer, p_image, p_audio, p_measure_count);
 
@@ -97,11 +103,16 @@ declare
 begin
     if p_measure_numbers is null
         or cardinality(p_measure_numbers) = 0
+        or cardinality(p_measure_numbers) > 100
         or p_type is null
+        or p_type not in ('metronome', 'practice')
         or p_outcome not in ('success', 'failure')
         or p_elapsed_seconds < 0
+        or p_elapsed_seconds > 86400
+        or (p_type = 'metronome' and (p_value is null or p_value < 1 or p_value > 400))
         or p_idempotency_key is null
-        or length(trim(p_idempotency_key)) = 0 then
+        or length(trim(p_idempotency_key)) = 0
+        or length(p_idempotency_key) > 200 then
         raise exception 'Invalid practice event';
     end if;
 

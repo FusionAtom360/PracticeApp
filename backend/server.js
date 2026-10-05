@@ -11,6 +11,17 @@ const dataDir = join(__dirname, 'data');
 const imagesDir = join(dataDir, 'images');
 const audioDir = join(dataDir, 'audio');
 const port = process.env.PORT || 3000;
+const MAX_JSON_BODY = 48 * 1024 * 1024;
+const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
+const MAX_AUDIO_BYTES = 25 * 1024 * 1024;
+const MAX_MEASURES = 1000;
+const MAX_TEMPO = 400;
+const MAX_EVENT_BATCH = 100;
+const MAX_TITLE_LENGTH = 200;
+const MAX_SUBTITLE_LENGTH = 300;
+const MAX_COMPOSER_LENGTH = 200;
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX_REQUESTS = 120;
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
@@ -22,13 +33,46 @@ async function ensureMediaDirs() {
     await mkdir(audioDir, { recursive: true });
 }
 
-function getFileExtension(filename, fallback) {
-    const match = typeof filename === 'string' ? filename.match(/\.([a-zA-Z0-9]+)$/) : null;
-    return match?.[1] ? `.${match[1].toLowerCase()}` : fallback;
+function parseFile(file) {
+    return file && typeof file.name === 'string' && typeof file.data === 'string' && typeof file.type === 'string' && file.name && file.data ? file : null;
 }
 
-function parseFile(file) {
-    return file && typeof file.name === 'string' && typeof file.data === 'string' && file.name && file.data ? file : null;
+function validateMedia(file, kind) {
+    if (!file) return null;
+    const encoded = file.data.replace(/\s/g, '');
+    if (!/^[A-Za-z0-9+/]*={0,2}$/.test(encoded) || encoded.length % 4 === 1) {
+        throw new Error(`Invalid ${kind} file encoding`);
+    }
+    const data = Buffer.from(encoded, 'base64');
+    const maxBytes = kind === 'image' ? MAX_IMAGE_BYTES : MAX_AUDIO_BYTES;
+    if (data.length === 0 || data.length > maxBytes) {
+        throw new Error(`${kind} file exceeds the ${Math.floor(maxBytes / 1024 / 1024)}MB limit`);
+    }
+
+    const isJpeg = data.length >= 3 && data[0] === 0xff && data[1] === 0xd8 && data[2] === 0xff;
+    const isPng = data.length >= 8 && data.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]));
+    const isGif = data.length >= 6 && ['GIF87a', 'GIF89a'].includes(data.subarray(0, 6).toString('ascii'));
+    const isWebp = data.length >= 12 && data.subarray(0, 4).toString('ascii') === 'RIFF' && data.subarray(8, 12).toString('ascii') === 'WEBP';
+    const isId3Audio = data.length >= 3 && data.subarray(0, 3).toString('ascii') === 'ID3';
+    const isOgg = data.length >= 4 && data.subarray(0, 4).toString('ascii') === 'OggS';
+    const isFlac = data.length >= 4 && data.subarray(0, 4).toString('ascii') === 'fLaC';
+    const isWav = data.length >= 12 && data.subarray(0, 4).toString('ascii') === 'RIFF' && data.subarray(8, 12).toString('ascii') === 'WAVE';
+    const isMp4 = data.length >= 12 && data.subarray(4, 8).toString('ascii') === 'ftyp';
+
+    if (kind === 'image') {
+        if (isJpeg) return { data, extension: '.jpg' };
+        if (isPng) return { data, extension: '.png' };
+        if (isGif) return { data, extension: '.gif' };
+        if (isWebp) return { data, extension: '.webp' };
+    } else {
+        if (isId3Audio) return { data, extension: '.mp3' };
+        if (isOgg) return { data, extension: '.ogg' };
+        if (isFlac) return { data, extension: '.flac' };
+        if (isWav) return { data, extension: '.wav' };
+        if (isMp4) return { data, extension: '.m4a' };
+    }
+
+    throw new Error(`Unsupported ${kind} file type`);
 }
 
 function publicSong(req, song, detail = false) {
@@ -94,10 +138,11 @@ async function getSongOr404(id, res) {
     return song;
 }
 
-async function saveMedia(file, directory, fallback) {
+async function saveMedia(file, directory, kind) {
     if (!file) return '';
-    const filename = `${randomUUID()}${getFileExtension(file.name, fallback)}`;
-    await writeFile(join(directory, filename), Buffer.from(file.data, 'base64'));
+    const validated = validateMedia(file, kind);
+    const filename = `${randomUUID()}${validated.extension}`;
+    await writeFile(join(directory, filename), validated.data, { flag: 'wx' });
     return filename;
 }
 
@@ -107,6 +152,34 @@ async function removeMedia(directory, filename) {
 }
 
 const app = express();
+const requestCounts = new Map();
+const rateLimitCleanup = setInterval(() => {
+    const cutoff = Date.now() - RATE_LIMIT_WINDOW_MS;
+    for (const [key, entry] of requestCounts) {
+        if (entry.startedAt < cutoff) requestCounts.delete(key);
+    }
+}, RATE_LIMIT_WINDOW_MS);
+rateLimitCleanup.unref();
+app.use((req, res, next) => {
+    const requestId = randomUUID();
+    req.requestId = requestId;
+    res.setHeader('X-Request-Id', requestId);
+    if (req.method === 'OPTIONS') return next();
+
+    const now = Date.now();
+    const key = req.ip || 'unknown';
+    const entry = requestCounts.get(key);
+    if (!entry || now - entry.startedAt >= RATE_LIMIT_WINDOW_MS) {
+        requestCounts.set(key, { startedAt: now, count: 1 });
+        return next();
+    }
+    entry.count += 1;
+    if (entry.count > RATE_LIMIT_MAX_REQUESTS) {
+        res.setHeader('Retry-After', String(Math.ceil((RATE_LIMIT_WINDOW_MS - (now - entry.startedAt)) / 1000)));
+        return res.status(429).json({ error: 'Too many requests', requestId });
+    }
+    next();
+});
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PATCH,DELETE,OPTIONS');
@@ -114,7 +187,7 @@ app.use((req, res, next) => {
     if (req.method === 'OPTIONS') return res.sendStatus(204);
     next();
 });
-app.use(express.json({ limit: '100mb' }));
+app.use(express.json({ limit: `${MAX_JSON_BODY}b` }));
 app.use('/images', express.static(imagesDir));
 app.use('/audio', express.static(audioDir));
 
@@ -139,17 +212,23 @@ app.post('/songs/create', async (req, res) => {
         const measureCount = Number(body.measureCount);
         const initial = Number(body.initialTempo);
         const target = Number(body.targetTempo);
-        if (!body.title?.trim() || !body.composer?.trim()) return res.status(400).json({ error: 'Title and composer are required' });
-        if (!Number.isInteger(measureCount) || measureCount < 1 || !Number.isFinite(initial) || !Number.isFinite(target)) return res.status(400).json({ error: 'Invalid measure or tempo values' });
+        const title = typeof body.title === 'string' ? body.title.trim() : '';
+        const subtitle = typeof body.subtitle === 'string' ? body.subtitle.trim() : '';
+        const composer = typeof body.composer === 'string' ? body.composer.trim() : '';
+        if (!title || !composer) return res.status(400).json({ error: 'Title and composer are required', requestId: req.requestId });
+        if (title.length > MAX_TITLE_LENGTH || subtitle.length > MAX_SUBTITLE_LENGTH || composer.length > MAX_COMPOSER_LENGTH) return res.status(400).json({ error: 'Text fields exceed their length limits', requestId: req.requestId });
+        if (!Number.isInteger(measureCount) || measureCount < 1 || measureCount > MAX_MEASURES || !Number.isFinite(initial) || !Number.isFinite(target) || initial < 1 || initial > MAX_TEMPO || target < 1 || target > MAX_TEMPO) return res.status(400).json({ error: 'Invalid measure or tempo values', requestId: req.requestId });
+        if (body.imageFile !== undefined && !parseFile(body.imageFile)) return res.status(400).json({ error: 'Invalid image payload', requestId: req.requestId });
+        if (body.audioFile !== undefined && !parseFile(body.audioFile)) return res.status(400).json({ error: 'Invalid audio payload', requestId: req.requestId });
         await ensureMediaDirs();
-        image = await saveMedia(parseFile(body.imageFile), imagesDir, '.jpg');
-        audio = await saveMedia(parseFile(body.audioFile), audioDir, '.mp3');
+        image = await saveMedia(parseFile(body.imageFile), imagesDir, 'image');
+        audio = await saveMedia(parseFile(body.audioFile), audioDir, 'audio');
         const id = randomUUID();
         const { error } = await supabase.rpc('create_song_with_measures', {
             p_id: id,
-            p_title: body.title.trim(),
-            p_subtitle: body.subtitle?.trim() ?? '',
-            p_composer: body.composer.trim(),
+            p_title: title,
+            p_subtitle: subtitle,
+            p_composer: composer,
             p_image: image,
             p_audio: audio,
             p_measure_count: measureCount,
@@ -167,7 +246,8 @@ app.post('/songs/create', async (req, res) => {
                 removeMedia(audioDir, audio),
             ]);
         }
-        console.error(error); res.status(500).json({ error: 'Failed to create song' });
+        const clientError = error?.message?.startsWith('Invalid ') || error?.message?.includes('limit') || error?.message?.includes('Unsupported');
+        console.error(error); res.status(clientError ? 400 : 500).json({ error: clientError ? error.message : 'Failed to create song', requestId: req.requestId });
     }
 });
 
@@ -183,9 +263,14 @@ app.post('/songs/:id/update', async (req, res) => {
         const body = req.body ?? {};
         const patch = {};
         for (const field of ['title', 'subtitle', 'composer', 'archived']) if (body[field] !== undefined) patch[field] = typeof body[field] === 'string' ? body[field].trim() : body[field];
+        if (typeof patch.title === 'string' && (!patch.title || patch.title.length > MAX_TITLE_LENGTH)) return res.status(400).json({ error: 'Invalid title', requestId: req.requestId });
+        if (typeof patch.subtitle === 'string' && patch.subtitle.length > MAX_SUBTITLE_LENGTH) return res.status(400).json({ error: 'Subtitle is too long', requestId: req.requestId });
+        if (typeof patch.composer === 'string' && (!patch.composer || patch.composer.length > MAX_COMPOSER_LENGTH)) return res.status(400).json({ error: 'Invalid composer', requestId: req.requestId });
+        if (body.imageFile !== undefined && !parseFile(body.imageFile)) return res.status(400).json({ error: 'Invalid image payload', requestId: req.requestId });
+        if (body.audioFile !== undefined && !parseFile(body.audioFile)) return res.status(400).json({ error: 'Invalid audio payload', requestId: req.requestId });
         await ensureMediaDirs();
-        if (parseFile(body.imageFile)) { newMedia.image = await saveMedia(parseFile(body.imageFile), imagesDir, '.jpg'); patch.image = newMedia.image; }
-        if (parseFile(body.audioFile)) { newMedia.audio = await saveMedia(parseFile(body.audioFile), audioDir, '.mp3'); patch.audio = newMedia.audio; }
+        if (parseFile(body.imageFile)) { newMedia.image = await saveMedia(parseFile(body.imageFile), imagesDir, 'image'); patch.image = newMedia.image; }
+        if (parseFile(body.audioFile)) { newMedia.audio = await saveMedia(parseFile(body.audioFile), audioDir, 'audio'); patch.audio = newMedia.audio; }
         const { error } = await supabase.from('songs').update(patch).eq('id', req.params.id);
         if (error) throw error;
         committed = true;
@@ -205,7 +290,7 @@ app.post('/songs/:id/update', async (req, res) => {
                 removeMedia(audioDir, newMedia.audio),
             ]);
         }
-        console.error(error); res.status(500).json({ error: 'Failed to update song' });
+        console.error(error); res.status(error?.message?.includes('limit') || error?.message?.includes('Unsupported') ? 400 : 500).json({ error: error?.message?.includes('limit') || error?.message?.includes('Unsupported') ? error.message : 'Failed to update song', requestId: req.requestId });
     }
 });
 
@@ -225,13 +310,17 @@ app.patch('/songs/:id/measures/:measureNumber', async (req, res) => {
 app.post('/songs/:id/measures/:measureNumber/events', async (req, res) => {
     try {
         const body = req.body ?? {};
-        const numbers = Array.from(new Set((body.measureNumbers ?? [req.params.measureNumber]).map(Number).filter((number) => Number.isInteger(number) && number > 0)));
-        if (!numbers.length || !['success', 'failure'].includes(body.outcome)) return res.status(400).json({ error: 'Invalid event' });
-        if (body.type === 'metronome' && (!Number.isFinite(Number(body.bpm)) || Number(body.bpm) < 1)) return res.status(400).json({ error: 'Invalid BPM' });
-        if (typeof req.get('X-Idempotency-Key') !== 'string' || !req.get('X-Idempotency-Key').trim()) return res.status(400).json({ error: 'Idempotency key is required' });
+        const requestedNumbers = body.measureNumbers === undefined ? [req.params.measureNumber] : body.measureNumbers;
+        if (!Array.isArray(requestedNumbers)) return res.status(400).json({ error: 'measureNumbers must be an array', requestId: req.requestId });
+        const numbers = Array.from(new Set(requestedNumbers.map(Number).filter((number) => Number.isInteger(number) && number > 0)));
+        if (!numbers.length || numbers.length > MAX_EVENT_BATCH || !['success', 'failure'].includes(body.outcome)) return res.status(400).json({ error: 'Invalid event batch', requestId: req.requestId });
+        if (body.type && !['metronome', 'practice'].includes(body.type)) return res.status(400).json({ error: 'Invalid event type', requestId: req.requestId });
+        if (body.type === 'metronome' && (!Number.isFinite(Number(body.bpm)) || Number(body.bpm) < 1 || Number(body.bpm) > MAX_TEMPO)) return res.status(400).json({ error: 'Invalid BPM', requestId: req.requestId });
+        if (typeof req.get('X-Idempotency-Key') !== 'string' || !req.get('X-Idempotency-Key').trim() || req.get('X-Idempotency-Key').trim().length > 200) return res.status(400).json({ error: 'Idempotency key is required and must be 200 characters or fewer', requestId: req.requestId });
         const idempotencyKey = req.get('X-Idempotency-Key').trim();
         const timestamp = Math.floor(Date.now() / 1000);
-        const elapsedSeconds = Math.max(0, Math.ceil(Number(body.elapsedSeconds) || 0));
+        const elapsedSeconds = Math.ceil(Number(body.elapsedSeconds));
+        if (!Number.isFinite(elapsedSeconds) || elapsedSeconds < 0 || elapsedSeconds > 24 * 60 * 60) return res.status(400).json({ error: 'Invalid elapsed time', requestId: req.requestId });
         const { data: inserted, error } = await supabase.rpc('record_practice_events', {
             p_song_id: req.params.id,
             p_measure_numbers: numbers,
@@ -294,7 +383,7 @@ app.delete('/songs/:id/measures/:measureNumber', async (req, res) => {
 });
 
 app.use((error, req, res, next) => {
-    if (error?.type === 'entity.too.large') return res.status(413).json({ error: 'Uploaded payload is too large' });
+    if (error?.type === 'entity.too.large') return res.status(413).json({ error: 'Uploaded payload is too large', requestId: req.requestId });
     next(error);
 });
 

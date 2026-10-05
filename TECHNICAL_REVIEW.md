@@ -97,7 +97,7 @@ The recommended sequence is to establish the security/data-consistency boundary 
 - The current service-role server masks this design failure until the application is exposed to multiple users or the key strategy changes.
 
 **Recommendation:** Treat the schema as an executable security contract. Add an ownership model, indexes for ownership queries, explicit `select/insert/update/delete` policies, and a migration process. Include policy tests in CI or a repeatable local Supabase test environment.
-
+<!-- 
 ### 3. Non-transactional multi-step mutations
 
 **Evidence:** Song creation inserts a song and then inserts measures in separate requests. Practice-event recording inserts an event, updates elapsed time, recomputes stats, and later updates song elapsed time. Media files are written/deleted independently of database updates.
@@ -111,11 +111,11 @@ The recommended sequence is to establish the security/data-consistency boundary 
 - Concurrent event requests can lose elapsed-time increments because the code reads a value, adds to it in JavaScript, and writes it back.
 - Multi-measure event requests can update some measures before a later measure fails.
 
-**Recommendation:** Move domain mutations into database functions/RPCs or a backend transaction boundary. Use atomic increments, idempotency keys for event writes, and an explicit media lifecycle (temporary upload, commit, cleanup job). Return a mutation result only after all required state is consistent.
+**Recommendation:** Move domain mutations into database functions/RPCs or a backend transaction boundary. Use atomic increments, idempotency keys for event writes, and an explicit media lifecycle (temporary upload, commit, cleanup job). Return a mutation result only after all required state is consistent. -->
 
 ### 4. Input, upload, and resource controls are too broad
 
-**Evidence:** The API accepts JSON bodies up to `100mb`; file payloads are base64 strings; uploaded filenames influence the extension; there are no visible MIME, signature, dimension, duration, or quota checks.
+**Evidence:** The original API accepted JSON bodies up to `100mb`; file payloads were base64 strings; uploaded filenames influenced the extension; and there were no visible MIME, signature, dimension, duration, or quota checks. The implementation now reduces these risks with a 48MB JSON limit, server-side content-signature checks, safe generated extensions, media size limits, field/range limits, event batch limits, request IDs, and an in-process per-IP rate limit. The base64 transport remains a known scalability limitation.
 
 **Impact:**
 
@@ -126,6 +126,8 @@ The recommended sequence is to establish the security/data-consistency boundary 
 - Measure counts, tempo ranges, title lengths, event batch sizes, and elapsed time values have weak or incomplete bounds.
 
 **Recommendation:** Use multipart streaming or object storage with signed uploads. Enforce byte, count, duration, and dimension limits; validate content signatures; normalize filenames; define numeric ranges; cap event batches; add rate limiting and request IDs; and return structured validation errors.
+
+**Implementation status:** The bounded-input and validation portions are implemented in `backend/server.js`, `backend/supabase/schema.sql`, `frontend/src/lib/songs.ts`, and the create-song form. Multipart streaming/object storage, media dimension/duration validation, distributed rate limiting, and quota accounting remain follow-up work.
 
 ### 5. PWA mutation queue can create false success
 

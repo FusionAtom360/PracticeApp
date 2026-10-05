@@ -1,7 +1,7 @@
 import express from 'express';
 import { config } from './config.js';
 import { ensureMediaDirs } from './media/media-store.js';
-import { cors, errorHandler, requestControls } from './middleware/request.js';
+import { cors, errorHandler, requestControls, requireAuth } from './middleware/request.js';
 import { createPracticeRouter, deleteMeasure } from './routes/practice.js';
 import { clearProgress, createSongRouter } from './routes/songs.js';
 
@@ -13,6 +13,7 @@ export async function createApp() {
     app.use(express.json({ limit: `${config.maxJsonBody}b` }));
     app.use('/images', express.static(config.imagesDir));
     app.use('/audio', express.static(config.audioDir));
+    app.use(requireAuth);
     app.use('/songs', createSongRouter());
     app.use('/songs', createPracticeRouter());
     app.post('/songs/:id/clear-progress', clearProgress);

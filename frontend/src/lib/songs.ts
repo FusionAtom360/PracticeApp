@@ -307,10 +307,18 @@ export async function readMutationResponse<T>(response: Response, operation: str
     return data as T;
 }
 
-function mutationHeaders(): Record<string, string> {
-    return {
+async function mutationHeaders(): Promise<Record<string, string>> {
+    return authHeaders({
         "Content-Type": "application/json",
         "X-Idempotency-Key": crypto.randomUUID(),
+    });
+}
+
+export async function authHeaders(extra: Record<string, string> = {}) {
+    const { data } = await supabase.auth.getSession();
+    return {
+        ...extra,
+        ...(data.session?.access_token ? { Authorization: `Bearer ${data.session.access_token}` } : {}),
     };
 }
 
@@ -352,7 +360,7 @@ async function encodeFile(file: File | null | undefined) {
 
 export async function fetchSongs(signal?: AbortSignal) {
     const apiUrl = createApiUrl('/songs');
-    const response = await fetch(apiUrl, { signal });
+    const response = await fetch(apiUrl, { signal, headers: await authHeaders() });
 
     if (!response.ok) {
         throw new Error(`Failed to load songs: ${response.status}`);
@@ -364,7 +372,7 @@ export async function fetchSongs(signal?: AbortSignal) {
 
 export async function fetchSong(songId: string, signal?: AbortSignal) {
     const apiUrl = createApiUrl(`/songs/${encodeURIComponent(songId)}`);
-    const response = await fetch(apiUrl, { signal });
+    const response = await fetch(apiUrl, { signal, headers: await authHeaders() });
 
     if (!response.ok) {
         throw new Error(`Failed to load song: ${response.status}`);
@@ -381,7 +389,7 @@ export async function updateMeasure(songId: string, measureNumber: number, input
     const apiUrl = createApiUrl(`/songs/${encodeURIComponent(songId)}/measures/${measureNumber}`);
     const response = await fetch(apiUrl, {
         method: 'PATCH',
-        headers: mutationHeaders(),
+        headers: await mutationHeaders(),
         body: JSON.stringify(input),
     });
 
@@ -408,7 +416,7 @@ export async function createSong(input: CreateSongInput) {
 
     const response = await fetch(apiUrl, {
         method: "POST",
-        headers: mutationHeaders(),
+        headers: await mutationHeaders(),
         body: JSON.stringify({
             title: input.title,
             subtitle: input.subtitle,
@@ -444,7 +452,7 @@ export async function updateSong(songId: string, input: SongUpdateInput) {
 
     const response = await fetch(apiUrl, {
         method: "POST",
-        headers: mutationHeaders(),
+        headers: await mutationHeaders(),
         body: JSON.stringify({
             title: input.title,
             subtitle: input.subtitle,
@@ -472,7 +480,7 @@ export async function deleteSong(songId: string) {
 
     const response = await fetch(apiUrl, {
         method: "DELETE",
-        headers: mutationHeaders(),
+        headers: await mutationHeaders(),
     });
 
     const data = await readMutationResponse<{ songs?: Song[] }>(response, "Failed to delete song");
@@ -487,7 +495,7 @@ export async function clearSongProgress(songId: string) {
 
     const response = await fetch(apiUrl, {
         method: "POST",
-        headers: mutationHeaders(),
+        headers: await mutationHeaders(),
     });
 
     const data = await readMutationResponse<{ song?: Song; songs?: Song[] }>(response, "Failed to clear song progress");
@@ -507,7 +515,7 @@ export async function deleteMeasure(songId: string, measureNumber: number) {
 
     const response = await fetch(apiUrl, {
         method: "DELETE",
-        headers: mutationHeaders(),
+        headers: await mutationHeaders(),
     });
 
     const data = await readMutationResponse<{ song?: Song; songs?: Song[] }>(response, "Failed to delete measure");
@@ -527,7 +535,7 @@ export async function clearMeasureProgress(songId: string, measureNumber: number
 
     const response = await fetch(apiUrl, {
         method: "POST",
-        headers: mutationHeaders(),
+        headers: await mutationHeaders(),
     });
 
     const data = await readMutationResponse<{ song?: Song; songs?: Song[] }>(response, "Failed to clear measure progress");
@@ -541,3 +549,4 @@ export async function clearMeasureProgress(songId: string, measureNumber: number
         songs: Array.isArray(data.songs) ? data.songs : [data.song],
     };
 }
+import { supabase } from "./supabase";

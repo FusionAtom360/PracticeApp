@@ -1,5 +1,6 @@
 create table if not exists public.songs (
     id uuid primary key,
+    owner_id uuid not null references auth.users(id) on delete cascade,
     archived boolean not null default false,
     title text not null,
     subtitle text not null default '',
@@ -46,12 +47,37 @@ create unique index if not exists practice_events_measure_idempotency_key_idx
 create index if not exists practice_events_measure_id_timestamp_idx
     on public.practice_events (measure_id, timestamp desc);
 
+create index if not exists songs_owner_id_created_at_idx
+    on public.songs (owner_id, created_at);
+
 alter table public.songs enable row level security;
 alter table public.measures enable row level security;
 alter table public.practice_events enable row level security;
 
+drop policy if exists songs_owner_policy on public.songs;
+create policy songs_owner_policy on public.songs
+    for all using (owner_id = auth.uid()) with check (owner_id = auth.uid());
+
+drop policy if exists measures_owner_policy on public.measures;
+create policy measures_owner_policy on public.measures
+    for all using (exists (select 1 from public.songs s where s.id = song_id and s.owner_id = auth.uid()))
+    with check (exists (select 1 from public.songs s where s.id = song_id and s.owner_id = auth.uid()));
+
+drop policy if exists practice_events_owner_policy on public.practice_events;
+create policy practice_events_owner_policy on public.practice_events
+    for all using (exists (
+        select 1 from public.measures m
+        join public.songs s on s.id = m.song_id
+        where m.id = measure_id and s.owner_id = auth.uid()
+    )) with check (exists (
+        select 1 from public.measures m
+        join public.songs s on s.id = m.song_id
+        where m.id = measure_id and s.owner_id = auth.uid()
+    ));
+
 create or replace function public.create_song_with_measures(
     p_id uuid,
+    p_owner_id uuid,
     p_title text,
     p_subtitle text,
     p_composer text,
@@ -72,8 +98,8 @@ begin
         raise exception 'Invalid song limits';
     end if;
 
-    insert into public.songs (id, title, subtitle, composer, image, audio, measure_count)
-    values (p_id, p_title, p_subtitle, p_composer, p_image, p_audio, p_measure_count);
+    insert into public.songs (id, owner_id, title, subtitle, composer, image, audio, measure_count)
+    values (p_id, p_owner_id, p_title, p_subtitle, p_composer, p_image, p_audio, p_measure_count);
 
     insert into public.measures (song_id, number, initial, target)
     select p_id, series.number, p_initial, p_target
@@ -85,6 +111,7 @@ $$;
 
 create or replace function public.record_practice_events(
     p_song_id uuid,
+    p_owner_id uuid,
     p_measure_numbers integer[],
     p_timestamp bigint,
     p_type text,
@@ -120,6 +147,7 @@ begin
     into measure_ids
     from public.measures m
     where m.song_id = p_song_id
+      and exists (select 1 from public.songs s where s.id = m.song_id and s.owner_id = p_owner_id)
       and m.number = any(p_measure_numbers);
 
     if measure_ids is null or cardinality(measure_ids) <> cardinality(p_measure_numbers) then
@@ -170,7 +198,7 @@ begin
 end;
 $$;
 
-revoke execute on function public.create_song_with_measures(uuid, text, text, text, text, text, integer, numeric, numeric) from public;
-revoke execute on function public.record_practice_events(uuid, integer[], bigint, text, numeric, text, integer, text) from public;
-grant execute on function public.create_song_with_measures(uuid, text, text, text, text, text, integer, numeric, numeric) to service_role;
-grant execute on function public.record_practice_events(uuid, integer[], bigint, text, numeric, text, integer, text) to service_role;
+revoke execute on function public.create_song_with_measures(uuid, uuid, text, text, text, text, text, integer, numeric, numeric) from public;
+revoke execute on function public.record_practice_events(uuid, uuid, integer[], bigint, text, numeric, text, integer, text) from public;
+grant execute on function public.create_song_with_measures(uuid, uuid, text, text, text, text, text, integer, numeric, numeric) to service_role;
+grant execute on function public.record_practice_events(uuid, uuid, integer[], bigint, text, numeric, text, integer, text) to service_role;

@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { config } from '../config.js';
+import { config, supabase } from '../config.js';
 
 export function requestControls() {
     const requestCounts = new Map();
@@ -33,10 +33,29 @@ export function requestControls() {
 }
 
 export function cors(req, res, next) {
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    const origin = req.get('Origin');
+    if (origin && config.allowedOrigins.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Vary', 'Origin');
+    }
     res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PATCH,DELETE,OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-Requested-With,X-Idempotency-Key');
     if (req.method === 'OPTIONS') return res.sendStatus(204);
+    next();
+}
+
+export async function requireAuth(req, res, next) {
+    if (req.method === 'OPTIONS') return next();
+    const header = req.get('Authorization') ?? '';
+    const token = header.startsWith('Bearer ') ? header.slice(7).trim() : '';
+    if (!token) return res.status(401).json({ error: 'Authentication required', requestId: req.requestId });
+
+    const { data, error } = await supabase.auth.getUser(token);
+    if (error || !data.user) {
+        return res.status(401).json({ error: 'Invalid or expired access token', requestId: req.requestId });
+    }
+
+    req.user = data.user;
     next();
 }
 

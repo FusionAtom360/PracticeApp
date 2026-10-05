@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
-import { createApiUrl, fetchSongs, readMutationResponse, updateMeasure, updateSong, type Song, type SongUpdateInput } from "../lib/songs";
+import { authHeaders, createApiUrl, fetchSongs, readMutationResponse, updateMeasure, updateSong, type Song, type SongUpdateInput } from "../lib/songs";
 
 const SELECTED_BY_SONG_STORAGE_KEY = "practiceapp.selectedMeasuresBySong";
 const GLOBAL_KEY = "__global__";
@@ -344,7 +344,7 @@ export function SongProvider({ children }: { children: ReactNode }) {
 
             const response = await fetch(createApiUrl(`/songs/${encodeURIComponent(id)}/measures/${existing.number}/events`), {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-Idempotency-Key': crypto.randomUUID() },
+                headers: await authHeaders({ 'Content-Type': 'application/json', 'X-Idempotency-Key': crypto.randomUUID() }),
                 body: JSON.stringify({
                     type: newEvent.type,
                     outcome: newEvent.outcome,
@@ -371,7 +371,7 @@ export function SongProvider({ children }: { children: ReactNode }) {
             const apiUrl = createApiUrl(`/songs/${encodeURIComponent(id)}/measures/${measureNumber}/events`);
             const response = await fetch(apiUrl, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-Idempotency-Key': crypto.randomUUID() },
+                headers: await authHeaders({ 'Content-Type': 'application/json', 'X-Idempotency-Key': crypto.randomUUID() }),
                 body: JSON.stringify({
                     outcome,
                     bpm: 0, // practice events don't have a BPM
@@ -411,7 +411,7 @@ export function SongProvider({ children }: { children: ReactNode }) {
             const apiUrl = createApiUrl(`/songs/${encodeURIComponent(id)}/measures/${measureNumber}/events`);
             const response = await fetch(apiUrl, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-Idempotency-Key': crypto.randomUUID() },
+                headers: await authHeaders({ 'Content-Type': 'application/json', 'X-Idempotency-Key': crypto.randomUUID() }),
                 body: JSON.stringify({
                     outcome,
                     bpm,

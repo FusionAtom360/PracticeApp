@@ -6,8 +6,13 @@ import PracticeSession from "./components/pages/PracticeSession/PracticeSession"
 import CreateSong from "./components/pages/CreateSong/CreateSong";
 import TopBar from "./components/layout/TopBar/TopBar";
 import MiniPlayer from "./components/ui/MiniPlayer/MiniPlayer";
+import Auth from "./components/pages/Auth/Auth";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 
-function App() {
+function AuthenticatedApp() {
+    const { session, loading } = useAuth();
+    if (loading) return <main>Loading...</main>;
+    if (!session) return <Auth />;
     return (
         <BrowserRouter>
             <SongProvider>
@@ -26,6 +31,10 @@ function App() {
             </SongProvider>
         </BrowserRouter>
     );
+}
+
+function App() {
+    return <AuthProvider><AuthenticatedApp /></AuthProvider>;
 }
 
 export default App;

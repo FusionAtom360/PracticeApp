@@ -19,13 +19,13 @@ export function createSongRouter() {
     const router = Router();
 
     router.get('/', async (req, res) => {
-        try { res.json({ songs: (await getSongs()).map((song) => publicSong(req, song)) }); }
+        try { res.json({ songs: (await getSongs(req.user.id)).map((song) => publicSong(req, song)) }); }
         catch (error) { console.error(error); res.status(500).json({ error: 'Failed to retrieve songs', requestId: req.requestId }); }
     });
 
     router.get('/:id', async (req, res) => {
         try {
-            const song = await getSongOrNull(req.params.id);
+            const song = await getSongOrNull(req.user.id, req.params.id);
             if (!song) return songNotFound(res);
             res.json({ song: publicSong(req, song, true) });
         } catch (error) {
@@ -54,10 +54,10 @@ export function createSongRouter() {
             image = await saveMedia(parseFile(body.imageFile), config.imagesDir, 'image');
             audio = await saveMedia(parseFile(body.audioFile), config.audioDir, 'audio');
             const id = randomUUID();
-            const { error } = await createSongWithMeasures({ p_id: id, p_title: title, p_subtitle: subtitle, p_composer: composer, p_image: image, p_audio: audio, p_measure_count: measureCount, p_initial: initial, p_target: target });
+            const { error } = await createSongWithMeasures({ p_id: id, p_owner_id: req.user.id, p_title: title, p_subtitle: subtitle, p_composer: composer, p_image: image, p_audio: audio, p_measure_count: measureCount, p_initial: initial, p_target: target });
             if (error) throw error;
             committed = true;
-            res.status(201).json({ song: publicSong(req, await getSongs(true, id), true) });
+            res.status(201).json({ song: publicSong(req, await getSongs(req.user.id, true, id), true) });
         } catch (error) {
             if (!committed) await Promise.all([removeMedia(config.imagesDir, image), removeMedia(config.audioDir, audio)]);
             const badRequest = clientError(error);
@@ -69,7 +69,7 @@ export function createSongRouter() {
         const newMedia = { image: '', audio: '' };
         let committed = false;
         try {
-            const existing = await getSongOrNull(req.params.id);
+            const existing = await getSongOrNull(req.user.id, req.params.id);
             if (!existing) return songNotFound(res);
             const body = req.body ?? {};
             const patch = {};
@@ -82,7 +82,7 @@ export function createSongRouter() {
             await ensureMediaDirs();
             if (parseFile(body.imageFile)) { newMedia.image = await saveMedia(parseFile(body.imageFile), config.imagesDir, 'image'); patch.image = newMedia.image; }
             if (parseFile(body.audioFile)) { newMedia.audio = await saveMedia(parseFile(body.audioFile), config.audioDir, 'audio'); patch.audio = newMedia.audio; }
-            const { error } = await supabase.from('songs').update(patch).eq('id', req.params.id);
+            const { error } = await supabase.from('songs').update(patch).eq('id', req.params.id).eq('owner_id', req.user.id);
             if (error) throw error;
             committed = true;
             const cleanup = await Promise.allSettled([
@@ -90,7 +90,7 @@ export function createSongRouter() {
                 newMedia.audio ? removeMedia(config.audioDir, existing.audio) : Promise.resolve(),
             ]);
             cleanup.filter((result) => result.status === 'rejected').forEach((result) => console.error('Failed to remove replaced media', result.reason));
-            res.json({ song: publicSong(req, await getSongs(true, req.params.id), true) });
+            res.json({ song: publicSong(req, await getSongs(req.user.id, true, req.params.id), true) });
         } catch (error) {
             if (!committed) await Promise.all([removeMedia(config.imagesDir, newMedia.image), removeMedia(config.audioDir, newMedia.audio)]);
             const badRequest = clientError(error);
@@ -100,24 +100,24 @@ export function createSongRouter() {
 
     router.patch('/:id/measures/:measureNumber', async (req, res) => {
         try {
-            const { data: measure, error } = await supabase.from('measures').select('id').eq('song_id', req.params.id).eq('number', Number(req.params.measureNumber)).single();
+            const { data: measure, error } = await supabase.from('measures').select('id, songs!inner(owner_id)').eq('song_id', req.params.id).eq('songs.owner_id', req.user.id).eq('number', Number(req.params.measureNumber)).single();
             if (error || !measure) return res.status(404).json({ error: 'Measure not found', requestId: req.requestId });
             const patch = {};
             for (const field of ['initial', 'target', 'ignore_tempo', 'mode']) if (req.body[field] !== undefined) patch[field] = req.body[field];
             const { error: updateError } = await supabase.from('measures').update(patch).eq('id', measure.id);
             if (updateError) throw updateError;
-            res.json({ song: publicSong(req, await getSongs(true, req.params.id), true) });
+            res.json({ song: publicSong(req, await getSongs(req.user.id, true, req.params.id), true) });
         } catch (error) { console.error(error); res.status(500).json({ error: 'Failed to update measure', requestId: req.requestId }); }
     });
 
     router.delete('/:id', async (req, res) => {
         try {
-            const song = await getSongOrNull(req.params.id);
+            const song = await getSongOrNull(req.user.id, req.params.id);
             if (!song) return songNotFound(res);
-            const { error } = await supabase.from('songs').delete().eq('id', req.params.id);
+            const { error } = await supabase.from('songs').delete().eq('id', req.params.id).eq('owner_id', req.user.id);
             if (error) throw error;
             await Promise.all([removeMedia(config.imagesDir, song.image), removeMedia(config.audioDir, song.audio)]);
-            res.json({ songs: (await getSongs()).map((entry) => publicSong(req, entry)) });
+            res.json({ songs: (await getSongs(req.user.id)).map((entry) => publicSong(req, entry)) });
         } catch (error) { console.error(error); res.status(500).json({ error: 'Failed to delete song', requestId: req.requestId }); }
     });
 
@@ -125,7 +125,7 @@ export function createSongRouter() {
 }
 
 export async function clearProgress(req, res, measureNumber = null) {
-    const song = await getSongOrNull(req.params.id);
+    const song = await getSongOrNull(req.user.id, req.params.id);
     if (!song) return songNotFound(res);
     const measures = measureNumber === null ? song.measures : song.measures.filter((measure) => measure.number === measureNumber);
     if (!measures.length) return res.status(404).json({ error: 'Measure not found', requestId: req.requestId });
@@ -138,8 +138,8 @@ export async function clearProgress(req, res, measureNumber = null) {
         if (measureError) throw measureError;
     }
     if (measureNumber === null) {
-        const { error } = await supabase.from('songs').update({ elapsed_time: 0 }).eq('id', req.params.id);
+        const { error } = await supabase.from('songs').update({ elapsed_time: 0 }).eq('id', req.params.id).eq('owner_id', req.user.id);
         if (error) throw error;
     }
-    res.json({ song: publicSong(req, await getSongs(true, req.params.id), true) });
+    res.json({ song: publicSong(req, await getSongs(req.user.id, true, req.params.id), true) });
 }

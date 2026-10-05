@@ -2,6 +2,19 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase";
 
+const MAX_SESSION_AGE_SECONDS = 30 * 24 * 60 * 60;
+
+function tokenIssuedAt(accessToken: string): number | null {
+    try {
+        const payload = accessToken.split(".")[1];
+        if (!payload) return null;
+        const decoded = JSON.parse(atob(payload.replace(/-/g, "+").replace(/_/g, "/")));
+        return typeof decoded.iat === "number" ? decoded.iat : null;
+    } catch {
+        return null;
+    }
+}
+
 interface AuthContextValue {
     session: Session | null;
     loading: boolean;
@@ -17,12 +30,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        void supabase.auth.getSession().then(({ data }) => {
-            setSession(data.session);
+        const acceptSession = async (nextSession: Session | null) => {
+            const issuedAt = nextSession ? tokenIssuedAt(nextSession.access_token) : null;
+            if (issuedAt !== null) {
+                const age = Math.floor(Date.now() / 1000) - issuedAt;
+                if (age >= MAX_SESSION_AGE_SECONDS) {
+                    await supabase.auth.signOut();
+                    setSession(null);
+                    setLoading(false);
+                    return;
+                }
+            }
+            setSession(nextSession);
             setLoading(false);
+        };
+
+        void supabase.auth.getSession().then(({ data }) => acceptSession(data.session));
+        const { data } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+            void acceptSession(nextSession);
         });
-        const { data } = supabase.auth.onAuthStateChange((_event, nextSession) => setSession(nextSession));
-        return () => data.subscription.unsubscribe();
+        const expiryCheck = window.setInterval(() => {
+            void supabase.auth.getSession().then(({ data: current }) => acceptSession(current.session));
+        }, 60 * 60 * 1000);
+        return () => {
+            data.subscription.unsubscribe();
+            window.clearInterval(expiryCheck);
+        };
     }, []);
 
     const value = {
@@ -33,7 +66,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             if (error) throw error;
         },
         signUp: async (email: string, password: string) => {
-            const { error } = await supabase.auth.signUp({ email, password });
+            const { error } = await supabase.auth.signUp({
+                email,
+                password,
+                options: {
+                    emailRedirectTo: window.location.origin,
+                },
+            });
             if (error) throw error;
         },
         signOut: async () => {

@@ -391,6 +391,10 @@ The multi-user authentication remediation adds Supabase email/password sign-in, 
 
 Firebase Hosting builds use the committed `frontend/.env` public configuration. The workflow must not set missing GitHub secrets as `VITE_*` environment variables because empty workflow values override the committed file. These frontend values are public client configuration; keep the backend service-role key out of the frontend and configure `ALLOWED_ORIGINS` explicitly on the backend.
 
+Supabase Auth must also be configured with the deployed frontend URL. Set the Supabase Auth Site URL to `https://practiceapp-f1d1b.web.app` and add both that URL and `http://localhost:5173` to the Auth redirect allow list. Signup now passes `window.location.origin` as `emailRedirectTo`, so production signup links return to Firebase Hosting rather than a stale localhost URL.
+
+The login page uses the application design tokens and the client enforces a 30-day absolute session age. Configure the Supabase Auth JWT/session maximum duration to 30 days in the dashboard as the authoritative server-side limit; the client-side check is a defense-in-depth fallback.
+
 The event RPC now also has a standalone migration at `backend/supabase/migrations/20261005_record_practice_events.sql`. If the deployed API returns `PRACTICE_EVENT_RPC_UNAVAILABLE`, apply that migration to the production Supabase project and retry the event; the request ID in the response should be used to correlate server logs.
 
 Practice-session failure reporting now asks which active measure failed. Measures before the selected failure are recorded as successes, only the selected measure is recorded as a failure, and the skip option records failure for the complete active set.

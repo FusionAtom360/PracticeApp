@@ -389,7 +389,7 @@ The SQL functions in `backend/supabase/schema.sql` must be applied to the target
 
 The multi-user authentication remediation adds Supabase email/password sign-in, server-side JWT validation, owner-scoped song queries and RPCs, RLS ownership policies, and an origin allowlist. Apply `backend/supabase/migrations/20261005_multi_user_ownership.sql` after assigning existing songs to a real `auth.users.id`, configure `ALLOWED_ORIGINS`, `VITE_SUPABASE_URL`, and `VITE_SUPABASE_ANON_KEY`, and redeploy both applications. The migration intentionally fails at `owner_id set not null` until legacy rows have an owner.
 
-Firebase Hosting builds now receive the three `VITE_*` values from GitHub Actions secrets. Configure `VITE_API_BASE_URL`, `VITE_SUPABASE_URL`, and `VITE_SUPABASE_ANON_KEY` in the repository secrets before deploying; `.env.example` files document the required local values. The backend retains safe production/local CORS defaults when `ALLOWED_ORIGINS` is omitted, while deployments should still set it explicitly.
+Firebase Hosting builds use the committed `frontend/.env` public configuration. The workflow must not set missing GitHub secrets as `VITE_*` environment variables because empty workflow values override the committed file. These frontend values are public client configuration; keep the backend service-role key out of the frontend and configure `ALLOWED_ORIGINS` explicitly on the backend.
 
 The event RPC now also has a standalone migration at `backend/supabase/migrations/20261005_record_practice_events.sql`. If the deployed API returns `PRACTICE_EVENT_RPC_UNAVAILABLE`, apply that migration to the production Supabase project and retry the event; the request ID in the response should be used to correlate server logs.
 

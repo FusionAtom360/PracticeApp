@@ -165,7 +165,7 @@ The provider can then expose composed hooks without becoming the implementation 
 
 ### Backend is a single route-and-domain module
 
-`backend/server.js` combines configuration, CORS, parsing, media persistence, Supabase queries, serialization, route handlers, statistics calculation, and process startup. This is manageable for a prototype but creates a high change-risk surface.
+The original `backend/server.js` combined configuration, CORS, parsing, media persistence, Supabase queries, serialization, route handlers, statistics calculation, and process startup. It has now been decomposed into focused modules under `backend/src`, while `backend/server.js` remains a small process entry point.
 
 A maintainable decomposition would be:
 
@@ -187,6 +187,20 @@ backend/
 ```
 
 Keep the HTTP layer responsible for status codes and request parsing; keep domain services responsible for invariants and repositories responsible for persistence.
+
+**Implementation status:** The first decomposition pass is complete:
+
+- `src/config.js` owns environment validation, limits, paths, and the Supabase client.
+- `src/middleware/request.js` owns request IDs, rate limiting, CORS, and payload errors.
+- `src/media/media-store.js` owns media directories, content-signature validation, writes, and cleanup.
+- `src/domain/progress.js` owns canonical progress calculation.
+- `src/repositories/song-repository.js` owns Supabase query/RPC access.
+- `src/serializers/song.js` owns the public API song shape.
+- `src/routes/songs.js` owns song/measure CRUD and progress clearing.
+- `src/routes/practice.js` owns practice-event recording and measure deletion.
+- `src/app.js` composes middleware and routers; `server.js` only starts the listener.
+
+The next structural step is extracting song and practice business operations from route handlers into service modules, then adding route-level integration tests against a repository boundary.
 
 ### Type safety is incomplete
 

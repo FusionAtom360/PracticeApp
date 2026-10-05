@@ -30,8 +30,7 @@ export default function Auth() {
         <main className="auth-page">
             <section className="auth-card">
                 <div className="auth-mark" aria-hidden="true">♩</div>
-                <h1>{registering ? "Begin your practice" : "Welcome back"}</h1>
-                <p className="auth-intro">{registering ? "Create a private space for your songs and progress." : "Pick up where your practice left off."}</p>
+                <h1 className="auth-title">{registering ? "Create account" : "Welcome back"}</h1>
                 <form onSubmit={submit}>
                     <label>Email<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} autoComplete="email" required /></label>
                     <label>Password<input type="password" value={password} onChange={(event) => setPassword(event.target.value)} autoComplete={registering ? "new-password" : "current-password"} minLength={6} required /></label>
@@ -40,7 +39,7 @@ export default function Auth() {
                     <button className="auth-submit" type="submit">{registering ? "Create account" : "Sign in"}</button>
                 </form>
                 <button className="auth-switch" type="button" onClick={() => setRegistering((value) => !value)}>
-                    {registering ? "Already have an account?" : "Create an account"}
+                    {registering ? "Sign in" : "Create an account"}
                 </button>
             </section>
         </main>

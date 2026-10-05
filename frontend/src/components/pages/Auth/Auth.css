@@ -25,6 +25,10 @@
     line-height: 1;
 }
 
+.auth-title {
+    margin-bottom: 1rem;
+}
+
 .auth-eyebrow {
     margin-top: 0.75rem;
     color: var(--accent-warm);

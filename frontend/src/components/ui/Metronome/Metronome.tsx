@@ -1639,7 +1639,13 @@ export default function Metronome({
                 onClose={() => setShowFailureDialog(false)}
             >
                 <div className="failure-measure-options">
-                    {/* <p>Select the first failed measure. Earlier measures will be recorded as successful.</p> */}
+                    <button
+                        type="button"
+                        className="dialog-btn dialog-btn--primary failure-skip-btn"
+                        onClick={() => applyFailure()}
+                    >
+                        Skip
+                    </button>
                     {activeMeasureNumbers.map((measureNumber) => (
                         <button
                             key={measureNumber}
@@ -1650,13 +1656,6 @@ export default function Metronome({
                             <strong>{measureNumber}</strong>
                         </button>
                     ))}
-                    <button
-                        type="button"
-                        className="dialog-btn dialog-btn--primary failure-skip-btn"
-                        onClick={() => applyFailure()}
-                    >
-                        Skip
-                    </button>
                 </div>
             </DialogBox>
 

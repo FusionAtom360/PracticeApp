@@ -1647,7 +1647,6 @@ export default function Metronome({
                             className="dialog-btn dialog-btn--secondary failure-measure-btn"
                             onClick={() => applyFailure(measureNumber)}
                         >
-                            <span className="failure-measure-label">Measure</span>
                             <strong>{measureNumber}</strong>
                         </button>
                     ))}

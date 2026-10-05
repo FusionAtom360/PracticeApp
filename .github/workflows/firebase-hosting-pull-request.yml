@@ -10,6 +10,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: npm install && npm run build
+        env:
+          VITE_API_BASE_URL: '${{ secrets.VITE_API_BASE_URL }}'
+          VITE_SUPABASE_URL: '${{ secrets.VITE_SUPABASE_URL }}'
+          VITE_SUPABASE_ANON_KEY: '${{ secrets.VITE_SUPABASE_ANON_KEY }}'
         working-directory: frontend
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:

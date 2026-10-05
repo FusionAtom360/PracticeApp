@@ -6,13 +6,13 @@ import { createClient } from '@supabase/supabase-js';
 const rootDir = dirname(dirname(fileURLToPath(import.meta.url)));
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const allowedOrigins = (process.env.ALLOWED_ORIGINS ?? '')
+const allowedOrigins = (process.env.ALLOWED_ORIGINS ?? 'https://practiceapp-f1d1b.web.app,http://localhost:5173')
     .split(',')
     .map((origin) => origin.trim())
     .filter(Boolean);
 
-if (!supabaseUrl || !supabaseKey || allowedOrigins.length === 0) {
-    throw new Error('SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, and ALLOWED_ORIGINS must be set in backend/.env');
+if (!supabaseUrl || !supabaseKey) {
+    throw new Error('SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set in backend/.env');
 }
 
 export const config = {

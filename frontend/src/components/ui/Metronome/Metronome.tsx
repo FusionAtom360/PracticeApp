@@ -181,6 +181,17 @@ function getPreviousBPMMark(currentBPM: number, minBPM: number): number {
     return Math.max(minBPM, currentBPM);
 }
 
+function readStoredPracticeBPM(storageKey: string | null): number | null {
+    if (!storageKey) return null;
+
+    try {
+        const stored = Number(localStorage.getItem(storageKey));
+        return Number.isFinite(stored) && stored >= 20 ? stored : null;
+    } catch {
+        return null;
+    }
+}
+
 interface MetronomeProps {
     isPlaying: boolean;
     setIsPlaying: (p: boolean) => void;
@@ -239,6 +250,14 @@ export default function Metronome({
         return `practice-streak:${songId}:${practiceScopeKey}`;
     }, [songId, practiceScopeKey]);
 
+    const practiceTempoStorageKey = useMemo(() => {
+        if (!songId || !practiceScopeKey) {
+            return null;
+        }
+
+        return `practice-tempo:${songId}:${practiceScopeKey}`;
+    }, [songId, practiceScopeKey]);
+
     const [currentPulse, setCurrentPulse] = useState(4); // always default to quarter on mount
 
     const initialTempo = useMemo(() => {
@@ -252,8 +271,11 @@ export default function Metronome({
             return 120;
         }
 
-        return getPracticeStartBPM(selectedMeasures, measure, targetTempo);
-    }, [isFreeMode, measure, selectedMeasures, targetTempo, currentPulse]);
+        return (
+            readStoredPracticeBPM(practiceTempoStorageKey) ??
+            getPracticeStartBPM(selectedMeasures, measure, targetTempo)
+        );
+    }, [isFreeMode, measure, practiceTempoStorageKey, selectedMeasures, targetTempo, currentPulse]);
 
     const [currentBPM, setCurrentBPM] = useState<number>(initialTempo);
     const [showBPM, setShowBPM] = useState(true);
@@ -396,16 +418,21 @@ export default function Metronome({
     );
 
     useEffect(() => {
-        if (isFreeMode) {
-            try {
-                // Persist as quarter-note BPM (rounded)
+        try {
+            if (isFreeMode) {
+                // Persist as quarter-note BPM (rounded).
                 const quarter = Math.round(currentBPM * (4 / currentPulse));
                 localStorage.setItem("practice-free-bpm", String(quarter));
-            } catch {
-                // ignore storage failures
+            } else if (
+                practiceTempoStorageKey &&
+                (selectedMeasures.length > 0 || measure)
+            ) {
+                localStorage.setItem(practiceTempoStorageKey, String(Math.round(currentBPM)));
             }
+        } catch {
+            // ignore storage failures
         }
-    }, [isFreeMode, currentBPM, currentPulse]);
+    }, [isFreeMode, currentBPM, currentPulse, measure, practiceTempoStorageKey, selectedMeasures.length]);
 
     useEffect(() => {
         let nextStreak = 0;
@@ -488,6 +515,11 @@ export default function Metronome({
             return;
         }
 
+        if (readStoredPracticeBPM(practiceTempoStorageKey) !== null) {
+            hasInitializedFromMeasureRef.current = scopeKey;
+            return;
+        }
+
         const measuresToInspect =
             selectedMeasures.length > 0 ? selectedMeasures : measure ? [measure] : [];
         const hasLoadedEvents =
@@ -502,7 +534,7 @@ export default function Metronome({
             setCurrentBPM(seedBPM);
         });
         hasInitializedFromMeasureRef.current = scopeKey;
-    }, [isFreeMode, measure, practiceScopeKey, selectedMeasures, targetTempo]);
+    }, [isFreeMode, measure, practiceScopeKey, practiceTempoStorageKey, selectedMeasures, targetTempo]);
 
     useEffect(() => {
         beatDurationRef.current = 60 / currentBPM;
@@ -1607,23 +1639,24 @@ export default function Metronome({
                 onClose={() => setShowFailureDialog(false)}
             >
                 <div className="failure-measure-options">
-                    <p>Select the first failed measure. Earlier measures will be recorded as successful.</p>
+                    {/* <p>Select the first failed measure. Earlier measures will be recorded as successful.</p> */}
                     {activeMeasureNumbers.map((measureNumber) => (
                         <button
                             key={measureNumber}
                             type="button"
-                            className="dialog-btn dialog-btn--secondary"
+                            className="dialog-btn dialog-btn--secondary failure-measure-btn"
                             onClick={() => applyFailure(measureNumber)}
                         >
-                            Measure {measureNumber}
+                            <span className="failure-measure-label">Measure</span>
+                            <strong>{measureNumber}</strong>
                         </button>
                     ))}
                     <button
                         type="button"
-                        className="dialog-btn dialog-btn--primary"
+                        className="dialog-btn dialog-btn--primary failure-skip-btn"
                         onClick={() => applyFailure()}
                     >
-                        Skip - mark all as failed
+                        Skip
                     </button>
                 </div>
             </DialogBox>

@@ -142,14 +142,34 @@
 }
 
 .failure-measure-options {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(3.75rem, 1fr));
+    gap: 0.5rem;
 }
 
-.failure-measure-options p {
-    margin: 0 0 0.25rem;
+.failure-measure-btn {
+    min-height: 3rem;
+    padding: 0.35rem 0.25rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.1rem;
+    line-height: 1.1;
+}
+
+.failure-measure-label {
+    font-size: 0.65rem;
     color: var(--text-muted);
+}
+
+.failure-measure-btn strong {
+    font-size: 1rem;
+}
+
+.failure-skip-btn {
+    grid-column: 1 / -1;
+    min-height: 2.75rem;
 }
 
 .practice-presets {

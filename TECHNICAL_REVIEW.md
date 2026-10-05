@@ -390,3 +390,5 @@ The SQL functions in `backend/supabase/schema.sql` must be applied to the target
 The event RPC now also has a standalone migration at `backend/supabase/migrations/20261005_record_practice_events.sql`. If the deployed API returns `PRACTICE_EVENT_RPC_UNAVAILABLE`, apply that migration to the production Supabase project and retry the event; the request ID in the response should be used to correlate server logs.
 
 Practice-session failure reporting now asks which active measure failed. Measures before the selected failure are recorded as successes, only the selected measure is recorded as a failure, and the skip option records failure for the complete active set.
+
+Practice BPM is persisted per song and active-measure scope, so a refresh restores the user's current tempo instead of reinitializing from the low fallback tempo. The server-derived practice seed remains the first-use fallback.

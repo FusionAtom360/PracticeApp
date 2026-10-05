@@ -100,16 +100,23 @@ export default function PracticeSession() {
     }, [song, selectedMeasureObjects, selectedMeasures]);
 
     const handlePracticeEvent = useCallback(
-        async (outcome: "success" | "failure", bpm: number, elapsedSeconds: number) => {
+        async (
+            outcome: "success" | "failure",
+            bpm: number,
+            elapsedSeconds: number,
+            measureNumbers = selectedMeasures,
+        ) => {
             // If free mode (no songId), do not persist per-measure events, but still save free practice bpm to localStorage in Metronome
             if (!song || selectedMeasures.length === 0) return;
 
+            const isPartialFailure = outcome === "failure" && measureNumbers.length === 1 && selectedMeasures.length > 1;
+            const isFirstSelectedMeasure = measureNumbers[0] === selectedMeasures[0];
             await addMetronomeEvent(
                 (song.id ?? "").trim(),
                 outcome,
                 bpm,
-                selectedMeasures,
-                elapsedSeconds,
+                measureNumbers,
+                isPartialFailure && !isFirstSelectedMeasure ? 0 : elapsedSeconds,
             );
         },
         [song, selectedMeasures, addMetronomeEvent],

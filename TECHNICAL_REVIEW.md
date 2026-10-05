@@ -386,3 +386,7 @@ The primary non-transactional mutation paths have been hardened as follows:
 - Song media replacement commits the database pointer before deleting old media and removes newly written media only when the database update did not commit.
 
 The SQL functions in `backend/supabase/schema.sql` must be applied to the target Supabase project before deploying the updated backend. A migration history should be introduced before making further schema changes.
+
+The event RPC now also has a standalone migration at `backend/supabase/migrations/20261005_record_practice_events.sql`. If the deployed API returns `PRACTICE_EVENT_RPC_UNAVAILABLE`, apply that migration to the production Supabase project and retry the event; the request ID in the response should be used to correlate server logs.
+
+Practice-session failure reporting now asks which active measure failed. Measures before the selected failure are recorded as successes, only the selected measure is recorded as a failure, and the skip option records failure for the complete active set.

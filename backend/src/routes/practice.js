@@ -30,7 +30,20 @@ export function createPracticeRouter() {
             });
             if (error) throw error;
             res.json({ measureNumbers: numbers, inserted: inserted !== false, song: publicSong(req, await getSongs(true, req.params.id), true) });
-        } catch (error) { console.error(error); res.status(500).json({ error: 'Failed to add event', requestId: req.requestId }); }
+        } catch (error) {
+            console.error('Failed to add practice event', {
+                requestId: req.requestId,
+                code: error?.code,
+                message: error?.message,
+                details: error?.details,
+                hint: error?.hint,
+            });
+            res.status(500).json({
+                error: 'Failed to add event',
+                requestId: req.requestId,
+                code: error?.code === 'PGRST202' ? 'PRACTICE_EVENT_RPC_UNAVAILABLE' : 'PRACTICE_EVENT_WRITE_FAILED',
+            });
+        }
     });
     return router;
 }

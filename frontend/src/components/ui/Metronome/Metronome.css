@@ -141,6 +141,17 @@
     text-align: center;
 }
 
+.failure-measure-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.failure-measure-options p {
+    margin: 0 0 0.25rem;
+    color: var(--text-muted);
+}
+
 .practice-presets {
     display: grid;
     grid-template-columns: repeat(3, 1fr);

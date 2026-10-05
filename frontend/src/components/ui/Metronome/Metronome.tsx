@@ -193,6 +193,7 @@ interface MetronomeProps {
         outcome: "success" | "failure",
         bpm: number,
         elapsedSeconds: number,
+        measureNumbers?: number[],
     ) => Promise<void>;
 }
 
@@ -260,6 +261,7 @@ export default function Metronome({
         getMostConservativeMode(selectedMeasures, measure),
     );
     const [showSettingsDialog, setShowSettingsDialog] = useState(false);
+    const [showFailureDialog, setShowFailureDialog] = useState(false);
     const [streak, setStreak] = useState(0);
     const [errorStreak, setErrorStreak] = useState(0);
     const [tempoFeedback, setTempoFeedback] = useState<
@@ -882,7 +884,7 @@ export default function Metronome({
     }, [stopScheduler, clearVisualTimeouts, clearTapTimers, clearHoldTimers]);
 
     const commitPracticeEvent = useCallback(
-        (outcome: "success" | "failure") => {
+        (outcome: "success" | "failure", measureNumbers?: number[]) => {
             if (!practiceMode || !onPracticeEvent || isLogging || isLoggingRef.current) return;
 
             const elapsedSeconds = getElapsedPracticeSeconds();
@@ -892,7 +894,7 @@ export default function Metronome({
             setIsLogging(true);
             // Persist practice events as quarter-note BPM values without blocking UI feedback.
             const storedQuarter = Math.round(currentBPM * (4 / currentPulse));
-            void onPracticeEvent(outcome, storedQuarter, elapsedSeconds)
+            void onPracticeEvent(outcome, storedQuarter, elapsedSeconds, measureNumbers)
                 .then(() => {
                     lastPracticeLogRef.current = now;
                 })
@@ -937,34 +939,64 @@ export default function Metronome({
         currentPulse,
     ]);
 
-    const handleFailure = useCallback(() => {
-        if (!practiceMode || !onPracticeEvent || isLogging) return;
-        commitPracticeEvent("failure");
-        setStreak(0);
-        setErrorStreak((prevErrorStreak) => {
-            const nextErrorStreak = prevErrorStreak + 1;
-            if (nextErrorStreak >= thresholds[practiceMode].failure) {
-                setCurrentBPM((b) => getPreviousBPMMark(b, 20));
-                return 0;
+    const activeMeasureNumbers = useMemo(
+        () =>
+            (selectedMeasures.length > 0
+                ? selectedMeasures
+                : measure
+                  ? [measure]
+                  : []
+            )
+                .map((item) => Number(item.number))
+                .filter((number) => Number.isInteger(number) && number > 0),
+        [measure, selectedMeasures],
+    );
+
+    const applyFailure = useCallback(
+        (failedMeasureNumber?: number) => {
+            if (failedMeasureNumber === undefined) {
+                commitPracticeEvent("failure", activeMeasureNumbers);
+            } else {
+                const failedIndex = activeMeasureNumbers.indexOf(failedMeasureNumber);
+                if (failedIndex < 0) return;
+
+                const precedingMeasures = activeMeasureNumbers.slice(0, failedIndex);
+                if (precedingMeasures.length > 0) {
+                    commitPracticeEvent("success", precedingMeasures);
+                }
+                commitPracticeEvent("failure", [failedMeasureNumber]);
             }
 
-            return nextErrorStreak;
-        });
-        // flash red ring on tempo circle
-        try {
-            setTempoFeedback("failure");
-            const t = window.setTimeout(() => setTempoFeedback(null), 700);
-            visualTimeoutIdsRef.current.push(t as unknown as number);
-        } catch {
-            /* ignore */
+            setShowFailureDialog(false);
+            setStreak(0);
+            setErrorStreak((prevErrorStreak) => {
+                const nextErrorStreak = prevErrorStreak + 1;
+                if (nextErrorStreak >= thresholds[practiceMode!].failure) {
+                    setCurrentBPM((b) => getPreviousBPMMark(b, 20));
+                    return 0;
+                }
+
+                return nextErrorStreak;
+            });
+            try {
+                setTempoFeedback("failure");
+                const t = window.setTimeout(() => setTempoFeedback(null), 700);
+                visualTimeoutIdsRef.current.push(t as unknown as number);
+            } catch {
+                /* ignore */
+            }
+        },
+        [activeMeasureNumbers, commitPracticeEvent, practiceMode, thresholds],
+    );
+
+    const handleFailure = useCallback(() => {
+        if (!practiceMode || !onPracticeEvent || isLogging) return;
+        if (activeMeasureNumbers.length <= 1) {
+            applyFailure(activeMeasureNumbers[0]);
+            return;
         }
-    }, [
-        practiceMode,
-        thresholds,
-        commitPracticeEvent,
-        isLogging,
-        onPracticeEvent,
-    ]);
+        setShowFailureDialog(true);
+    }, [activeMeasureNumbers, applyFailure, isLogging, onPracticeEvent, practiceMode]);
 
     const streakDotCount = useMemo(() => {
         if (!practiceMode) return 0;
@@ -1568,6 +1600,33 @@ export default function Metronome({
             <div className="practice-clock" aria-label="Practice clock">
                 {formatClock(practiceClockSeconds)}
             </div>
+
+            <DialogBox
+                isOpen={showFailureDialog}
+                title="Where did the failure occur?"
+                onClose={() => setShowFailureDialog(false)}
+            >
+                <div className="failure-measure-options">
+                    <p>Select the first failed measure. Earlier measures will be recorded as successful.</p>
+                    {activeMeasureNumbers.map((measureNumber) => (
+                        <button
+                            key={measureNumber}
+                            type="button"
+                            className="dialog-btn dialog-btn--secondary"
+                            onClick={() => applyFailure(measureNumber)}
+                        >
+                            Measure {measureNumber}
+                        </button>
+                    ))}
+                    <button
+                        type="button"
+                        className="dialog-btn dialog-btn--primary"
+                        onClick={() => applyFailure()}
+                    >
+                        Skip - mark all as failed
+                    </button>
+                </div>
+            </DialogBox>
 
             <DialogBox
                 isOpen={showSettingsDialog}

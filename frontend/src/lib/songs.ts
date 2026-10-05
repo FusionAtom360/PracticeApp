@@ -7,8 +7,8 @@ export interface Measure {
     events?: Array<{
         timestamp?: number | string;
         type?: string;
-        value?: any;
-        outcome?: any;
+        value?: number | string | null;
+        outcome?: 'success' | 'failure';
     }>;
     ignoreTempo?: boolean;
     mode?: 'rapid' | 'speed' | 'stability';
@@ -58,112 +58,63 @@ export function createApiUrl(path: string): string {
     return `${getApiBaseUrl()}${normalizedPath}`;
 }
 
-function getAverageRecentMetronomeTempo(
-    events: Array<{ type?: string; value?: any }>,
-    recentCount = 7,
+const PROGRESS_WINDOW_SIZE = 50;
+const DECAY_RATE_PER_DAY = 0.98;
+const HISTORY_CUTOFF_SECONDS = 24 * 60 * 60;
+
+function sortEventsByTimestamp(events: NonNullable<Measure['events']>) {
+    return [...events].sort((first, second) => Number(first.timestamp ?? 0) - Number(second.timestamp ?? 0));
+}
+
+function getLatestMetronomeTempo(events: NonNullable<Measure['events']>): number {
+    const latest = sortEventsByTimestamp(events)
+        .filter((event) => event.type === 'metronome' && Number.isFinite(Number(event.value)) && Number(event.value) > 0)
+        .at(-1);
+    return latest ? Number(latest.value) : 0;
+}
+
+function calculateProgressFromEvents(
+    measure: Measure,
+    events: NonNullable<Measure['events']>,
+    referenceTimeSeconds: number,
 ): number {
-    const recentMetronomeValues = events
-        .filter((event) => event && event.type === 'metronome' && typeof event.value === 'number')
-        .slice(-recentCount)
-        .map((event) => Number(event.value));
+    if (measure.target <= 0 || events.length === 0) return 0;
 
-    if (recentMetronomeValues.length === 0) {
-        return 0;
-    }
+    const orderedEvents = sortEventsByTimestamp(events);
+    const currentTempo = measure.ignoreTempo ? measure.target : getLatestMetronomeTempo(orderedEvents);
+    const recentEvents = orderedEvents.slice(-PROGRESS_WINDOW_SIZE);
+    const successCount = recentEvents.filter((event) => event.outcome === 'success').length;
+    const lastEventTimestamp = Number(orderedEvents.at(-1)?.timestamp);
+    const daysSinceLastPractice = Number.isFinite(lastEventTimestamp)
+        ? Math.max(0, Math.floor((referenceTimeSeconds - lastEventTimestamp) / HISTORY_CUTOFF_SECONDS))
+        : 0;
+    const progress = (currentTempo / measure.target)
+        * (successCount / PROGRESS_WINDOW_SIZE)
+        * Math.pow(DECAY_RATE_PER_DAY, daysSinceLastPractice);
 
-    const total = recentMetronomeValues.reduce((sum, value) => sum + value, 0);
-    return total / recentMetronomeValues.length;
+    return Math.max(0, Math.min(1, progress));
 }
 
 export function calculateMeasureProgress(measure: Measure): number {
-    if (!measure || measure.target <= 0) return 0;
-
-    const target = measure.target;
     const events = Array.isArray(measure.events) ? measure.events : [];
     if (events.length === 0 && typeof measure.progress === 'number') return measure.progress;
-
-    // Calculate currentTempo
-    let currentTempo = 0;
-    if (measure.ignoreTempo) {
-        currentTempo = target;
-    } else {
-        // Use the average of recent metronome events for a smoother current tempo.
-        currentTempo = getAverageRecentMetronomeTempo(events, 7);
-    }
-
-    const tempoRatio = currentTempo / target;
-
-    // Count successes in last 50 attempts
-    const lastFiftyEvents = events.slice(-50);
-    const successCount = lastFiftyEvents.filter(e => e && e.outcome === 'success').length;
-    // If fewer than 50 events, count missing as failures
-    const successRatio = successCount / 50;
-
-    // Calculate days since last practiced
-    let daysSinceLastPracticed = 0;
-    if (events.length > 0) {
-        const lastEvent = events[events.length - 1];
-        if (lastEvent && typeof lastEvent.timestamp === 'number') {
-            const nowSeconds = Math.floor(Date.now() / 1000);
-            const secondsElapsed = nowSeconds - lastEvent.timestamp;
-            daysSinceLastPracticed = Math.floor(secondsElapsed / (24 * 60 * 60));
-        }
-    }
-
-    // Apply decay penalty
-    const decayPenalty = Math.pow(0.98, daysSinceLastPracticed);
-
-    // Calculate final progress
-    const progress = tempoRatio * successRatio * decayPenalty;
-    return Math.max(0, Math.min(1, progress)); // Clamp between 0 and 1
+    return calculateProgressFromEvents(measure, events, Math.floor(Date.now() / 1000));
 }
 
 export function calculateMeasureProgressBefore24h(measure: Measure): number {
     if (!measure || measure.target <= 0) return 0;
 
-    const target = measure.target;
     const nowSeconds = Math.floor(Date.now() / 1000);
-    const twentyFourHoursAgoSeconds = nowSeconds - (24 * 60 * 60);
+    const cutoff = nowSeconds - HISTORY_CUTOFF_SECONDS;
 
     // Get all events from before 24 hours ago
     const events = Array.isArray(measure.events) ? measure.events : [];
-    const eventsBefore24h = events.filter(e => e && typeof e.timestamp === 'number' && e.timestamp < twentyFourHoursAgoSeconds);
+    const eventsBefore24h = events.filter((event) => Number(event.timestamp) < cutoff);
     
     // If no events exist before 24 hours ago, return 0 (no progress data from before the period)
     if (eventsBefore24h.length === 0) return 0;
 
-    // Calculate currentTempo from events before 24h
-    let currentTempo = 0;
-    if (measure.ignoreTempo) {
-        currentTempo = target;
-    } else {
-        // Use the average of recent metronome events before the 24h cutoff.
-        currentTempo = getAverageRecentMetronomeTempo(eventsBefore24h, 7);
-    }
-
-    const tempoRatio = currentTempo / target;
-
-    // Count successes in last 50 attempts before 24h
-    const lastFiftyEventsBefore24h = eventsBefore24h.slice(-50);
-    const successCount = lastFiftyEventsBefore24h.filter(e => e && e.outcome === 'success').length;
-    const successRatio = successCount / 50;
-
-    // Calculate days since last practiced (before 24h)
-    let daysSinceLastPracticed = 0;
-    if (eventsBefore24h.length > 0) {
-        const lastEvent = eventsBefore24h[eventsBefore24h.length - 1];
-        if (lastEvent && typeof lastEvent.timestamp === 'number') {
-            const secondsElapsed = twentyFourHoursAgoSeconds - lastEvent.timestamp;
-            daysSinceLastPracticed = Math.floor(secondsElapsed / (24 * 60 * 60));
-        }
-    }
-
-    // Apply decay penalty
-    const decayPenalty = Math.pow(0.98, daysSinceLastPracticed);
-
-    // Calculate final progress
-    const progress = tempoRatio * successRatio * decayPenalty;
-    return Math.max(0, Math.min(1, progress)); // Clamp between 0 and 1
+    return calculateProgressFromEvents(measure, eventsBefore24h, cutoff); // Clamp between 0 and 1
 }
 
 export function calculateSongProgress(song: Song): number {
@@ -203,7 +154,7 @@ export function calculateSongAverageTempo(song: Song): number {
             currentTempo = measure.target || 0;
         } else {
             const events = Array.isArray(measure.events) ? measure.events : [];
-            currentTempo = getAverageRecentMetronomeTempo(events, 7);
+            currentTempo = getLatestMetronomeTempo(events);
         }
 
         if (currentTempo > 0) {
@@ -232,7 +183,7 @@ export function calculateSongAverageAccuracy(song: Song): number {
         }
 
         const events = Array.isArray(measure.events) ? measure.events : [];
-        const lastFiftyEvents = events.slice(-50);
+        const lastFiftyEvents = sortEventsByTimestamp(events).slice(-PROGRESS_WINDOW_SIZE);
         
         // Count successes in last 50 attempts
         const successCount = lastFiftyEvents.filter(e => e && e.outcome === 'success').length;
@@ -258,7 +209,7 @@ export function calculateSongLastPracticeTime(song: Song): number | null {
             continue;
         }
 
-        const events = Array.isArray(measure.events) ? measure.events : [];
+        const events = Array.isArray(measure.events) ? sortEventsByTimestamp(measure.events) : [];
         if (events.length > 0) {
             const lastEvent = events[events.length - 1];
             if (lastEvent && typeof lastEvent.timestamp === 'number') {
@@ -336,6 +287,33 @@ export const MAX_AUDIO_BYTES = 25 * 1024 * 1024;
 export const MAX_MEASURES = 1000;
 export const MAX_TEMPO = 400;
 
+export class MutationQueuedError extends Error {
+    readonly queued = true;
+
+    constructor(message = "Changes were queued and will sync when the connection is restored.") {
+        super(message);
+        this.name = "MutationQueuedError";
+    }
+}
+
+export async function readMutationResponse<T>(response: Response, operation: string): Promise<T> {
+    const data = await response.json().catch(() => ({}));
+    if (data?.queued === true) {
+        throw new MutationQueuedError(data.message);
+    }
+    if (!response.ok) {
+        throw new Error(`${operation}: ${response.status}`);
+    }
+    return data as T;
+}
+
+function mutationHeaders(): Record<string, string> {
+    return {
+        "Content-Type": "application/json",
+        "X-Idempotency-Key": crypto.randomUUID(),
+    };
+}
+
 function validateUpload(file: File | null | undefined, kind: "image" | "audio") {
     if (!file) return;
     const maxBytes = kind === "image" ? MAX_IMAGE_BYTES : MAX_AUDIO_BYTES;
@@ -388,15 +366,11 @@ export async function updateMeasure(songId: string, measureNumber: number, input
     const apiUrl = createApiUrl(`/songs/${encodeURIComponent(songId)}/measures/${measureNumber}`);
     const response = await fetch(apiUrl, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: mutationHeaders(),
         body: JSON.stringify(input),
     });
 
-    if (!response.ok) {
-        throw new Error(`Failed to update measure: ${response.status}`);
-    }
-
-    const data: { song?: Song } = await response.json();
+    const data = await readMutationResponse<{ song?: Song }>(response, "Failed to update measure");
     if (!data.song) throw new Error('Failed to update measure');
     return data.song;
 }
@@ -419,7 +393,7 @@ export async function createSong(input: CreateSongInput) {
 
     const response = await fetch(apiUrl, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: mutationHeaders(),
         body: JSON.stringify({
             title: input.title,
             subtitle: input.subtitle,
@@ -432,11 +406,7 @@ export async function createSong(input: CreateSongInput) {
         }),
     });
 
-    if (!response.ok) {
-        throw new Error(`Failed to create song: ${response.status}`);
-    }
-
-    const data: { song?: Song; songs?: Song[] } = await response.json();
+    const data = await readMutationResponse<{ song?: Song; songs?: Song[] }>(response, "Failed to create song");
 
     if (!data.song) {
         throw new Error("Failed to create song");
@@ -459,7 +429,7 @@ export async function updateSong(songId: string, input: SongUpdateInput) {
 
     const response = await fetch(apiUrl, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: mutationHeaders(),
         body: JSON.stringify({
             title: input.title,
             subtitle: input.subtitle,
@@ -470,11 +440,7 @@ export async function updateSong(songId: string, input: SongUpdateInput) {
         }),
     });
 
-    if (!response.ok) {
-        throw new Error(`Failed to update song: ${response.status}`);
-    }
-
-    const data: { song?: Song; songs?: Song[] } = await response.json();
+    const data = await readMutationResponse<{ song?: Song; songs?: Song[] }>(response, "Failed to update song");
 
     if (!data.song) {
         throw new Error("Failed to update song");
@@ -491,14 +457,10 @@ export async function deleteSong(songId: string) {
 
     const response = await fetch(apiUrl, {
         method: "DELETE",
-        headers: { "Content-Type": "application/json" },
+        headers: mutationHeaders(),
     });
 
-    if (!response.ok) {
-        throw new Error(`Failed to delete song: ${response.status}`);
-    }
-
-    const data: { songs?: Song[] } = await response.json();
+    const data = await readMutationResponse<{ songs?: Song[] }>(response, "Failed to delete song");
 
     return {
         songs: Array.isArray(data.songs) ? data.songs : [],
@@ -510,14 +472,10 @@ export async function clearSongProgress(songId: string) {
 
     const response = await fetch(apiUrl, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: mutationHeaders(),
     });
 
-    if (!response.ok) {
-        throw new Error(`Failed to clear song progress: ${response.status}`);
-    }
-
-    const data: { song?: Song; songs?: Song[] } = await response.json();
+    const data = await readMutationResponse<{ song?: Song; songs?: Song[] }>(response, "Failed to clear song progress");
 
     if (!data.song) {
         throw new Error("Failed to clear song progress");
@@ -534,14 +492,10 @@ export async function deleteMeasure(songId: string, measureNumber: number) {
 
     const response = await fetch(apiUrl, {
         method: "DELETE",
-        headers: { "Content-Type": "application/json" },
+        headers: mutationHeaders(),
     });
 
-    if (!response.ok) {
-        throw new Error(`Failed to delete measure: ${response.status}`);
-    }
-
-    const data: { song?: Song; songs?: Song[] } = await response.json();
+    const data = await readMutationResponse<{ song?: Song; songs?: Song[] }>(response, "Failed to delete measure");
 
     if (!data.song) {
         throw new Error("Failed to delete measure");
@@ -558,14 +512,10 @@ export async function clearMeasureProgress(songId: string, measureNumber: number
 
     const response = await fetch(apiUrl, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: mutationHeaders(),
     });
 
-    if (!response.ok) {
-        throw new Error(`Failed to clear measure progress: ${response.status}`);
-    }
-
-    const data: { song?: Song; songs?: Song[] } = await response.json();
+    const data = await readMutationResponse<{ song?: Song; songs?: Song[] }>(response, "Failed to clear measure progress");
 
     if (!data.song) {
         throw new Error("Failed to clear measure progress");

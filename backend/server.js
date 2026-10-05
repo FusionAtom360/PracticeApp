@@ -20,6 +20,9 @@ const MAX_EVENT_BATCH = 100;
 const MAX_TITLE_LENGTH = 200;
 const MAX_SUBTITLE_LENGTH = 300;
 const MAX_COMPOSER_LENGTH = 200;
+const PROGRESS_WINDOW_SIZE = 50;
+const DECAY_RATE_PER_DAY = 0.98;
+const DAY_SECONDS = 24 * 60 * 60;
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX_REQUESTS = 120;
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -75,6 +78,18 @@ function validateMedia(file, kind) {
     throw new Error(`Unsupported ${kind} file type`);
 }
 
+function calculateCanonicalProgress(measure, nowSeconds = Math.floor(Date.now() / 1000)) {
+    if (Number(measure.target) <= 0 || Number(measure.event_count) === 0) return 0;
+    const tempo = measure.ignore_tempo ? Number(measure.target) : Number(measure.last_metronome_bpm || 0);
+    const daysSincePractice = measure.last_event_at
+        ? Math.max(0, Math.floor((nowSeconds - Number(measure.last_event_at)) / DAY_SECONDS))
+        : 0;
+    const progress = (tempo / Number(measure.target))
+        * (Number(measure.success_count) / PROGRESS_WINDOW_SIZE)
+        * Math.pow(DECAY_RATE_PER_DAY, daysSincePractice);
+    return Math.max(0, Math.min(1, progress));
+}
+
 function publicSong(req, song, detail = false) {
     const baseUrl = `${req.protocol}://${req.get('host')}`;
     return {
@@ -101,13 +116,9 @@ function publicSong(req, song, detail = false) {
                 timestamp: Number(event.timestamp), type: event.type,
                 ...(event.value === null ? {} : { value: Number(event.value) }), outcome: event.outcome,
             })) } : {
-                progress: measure.event_count ? (measure.last_metronome_bpm && measure.target
-                    ? (Number(measure.last_metronome_bpm) / Number(measure.target))
-                    : measure.ignore_tempo ? 1 : 0)
-                    * (Number(measure.success_count) / 50)
-                    * Math.pow(0.98, measure.last_event_at ? Math.max(0, Math.floor((Date.now() / 1000 - Number(measure.last_event_at)) / 86400)) : 0) : 0,
+                progress: calculateCanonicalProgress(measure),
                 averageTempo: measure.last_metronome_bpm,
-                accuracy: measure.event_count ? (Number(measure.success_count) / 50) * 100 : 0,
+                accuracy: measure.event_count ? (Number(measure.success_count) / PROGRESS_WINDOW_SIZE) * 100 : 0,
                 lastPractice: measure.last_event_at,
             }),
             })),

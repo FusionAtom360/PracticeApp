@@ -45,7 +45,7 @@ function getTempoMarking(pulse: number): string {
 }
 
 function getHighestMetronomeBPM(
-    events?: Array<{ timestamp?: number | string; type?: string; value?: number | string }>,
+    events?: Array<{ timestamp?: number | string; type?: string; value?: number | string | null }>,
 ): number | null {
     if (!Array.isArray(events)) return null;
 

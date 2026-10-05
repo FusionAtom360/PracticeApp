@@ -113,7 +113,7 @@ The recommended sequence is to establish the security/data-consistency boundary 
 
 **Recommendation:** Move domain mutations into database functions/RPCs or a backend transaction boundary. Use atomic increments, idempotency keys for event writes, and an explicit media lifecycle (temporary upload, commit, cleanup job). Return a mutation result only after all required state is consistent. -->
 
-### 4. Input, upload, and resource controls are too broad
+<!-- ### 4. Input, upload, and resource controls are too broad
 
 **Evidence:** The original API accepted JSON bodies up to `100mb`; file payloads were base64 strings; uploaded filenames influenced the extension; and there were no visible MIME, signature, dimension, duration, or quota checks. The implementation now reduces these risks with a 48MB JSON limit, server-side content-signature checks, safe generated extensions, media size limits, field/range limits, event batch limits, request IDs, and an in-process per-IP rate limit. The base64 transport remains a known scalability limitation.
 
@@ -127,11 +127,11 @@ The recommended sequence is to establish the security/data-consistency boundary 
 
 **Recommendation:** Use multipart streaming or object storage with signed uploads. Enforce byte, count, duration, and dimension limits; validate content signatures; normalize filenames; define numeric ranges; cap event batches; add rate limiting and request IDs; and return structured validation errors.
 
-**Implementation status:** The bounded-input and validation portions are implemented in `backend/server.js`, `backend/supabase/schema.sql`, `frontend/src/lib/songs.ts`, and the create-song form. Multipart streaming/object storage, media dimension/duration validation, distributed rate limiting, and quota accounting remain follow-up work.
+**Implementation status:** The bounded-input and validation portions are implemented in `backend/server.js`, `backend/supabase/schema.sql`, `frontend/src/lib/songs.ts`, and the create-song form. Multipart streaming/object storage, media dimension/duration validation, distributed rate limiting, and quota accounting remain follow-up work. -->
 
-### 5. PWA mutation queue can create false success
+<!-- ### 5. PWA mutation queue can create false success
 
-**Evidence:** `frontend/public/sw.js` catches failed non-GET requests, stores them, registers background sync, and returns a `202` JSON response with `{ queued: true }`. Client mutation functions generally only check `response.ok`.
+**Evidence:** `frontend/public/sw.js` catches failed non-GET requests, stores them, registers background sync, and returns a `202` JSON response with `{ queued: true }`. This path is now explicit: client mutation helpers detect queued responses and report a pending mutation instead of treating it as committed.
 
 **Impact:** A practice event or edit can appear to have succeeded even though it is only queued, and the UI may update or navigate as if the server committed it. Retried requests can also duplicate non-idempotent events. The queue does not visibly expose pending, failed, or conflict states.
 
@@ -144,6 +144,8 @@ The recommended sequence is to establish the security/data-consistency boundary 
 - surface pending/offline status to the user;
 - handle authentication refresh and expired requests;
 - define conflict behavior for edits and destructive actions.
+
+**Implementation status:** The explicit outbox portion is implemented in `frontend/public/sw.js`, `frontend/src/lib/songs.ts`, and `frontend/src/context/SongContext.tsx`. Queued requests retain their original headers/body, including idempotency keys; retry attempts and last errors are stored; 2xx replay results are removed and reported as synced; permanent 4xx failures are removed and reported to the page; and transient failures remain queued. Conflict resolution, durable user-facing queue history, and authentication refresh remain follow-up work. -->
 
 ## Code quality and structure
 
@@ -209,16 +211,16 @@ Use narrow catches with a specific policy:
 - set user-visible state for failed persistence;
 - never convert a failed write into a successful-looking UI state.
 
-### Duplicate and divergent business logic
+<!-- ### Duplicate and divergent business logic
 
-`frontend/src/lib/songs.ts` calculates progress, average tempo, accuracy, and historical progress, while `backend/server.js` calculates and serializes related progress fields. The formulas are not obviously identical:
+`frontend/src/lib/songs.ts` calculates progress, average tempo, accuracy, and historical progress, while `backend/server.js` calculates and serializes related progress fields. This has now been aligned around the canonical rules documented in `metronome_logic.md`:
 
-- client progress averages recent metronome events from event arrays;
-- server summary progress uses `last_metronome_bpm` and denormalized counters;
-- event ordering and timestamp assumptions differ;
-- accuracy uses a fixed denominator of 50, which may be intentional but is not documented.
+- both paths use the latest usable metronome BPM rather than an implicit array position or rolling average;
+- both use the latest 50 chronologically ordered outcomes;
+- both use 2% daily decay from the latest event;
+- both clamp progress to `[0, 1]` and use a fixed 50-attempt accuracy denominator.
 
-Choose one authoritative calculation strategy. Prefer a versioned domain function with fixtures shared by server and client, or have the server return canonical metrics and keep the client responsible only for presentation.
+The server is authoritative for summary/list metrics; the client applies the same rules only when detailed events are available. The complete contract and worked examples are in `metronome_logic.md`. -->
 
 ## Implementation gaps
 

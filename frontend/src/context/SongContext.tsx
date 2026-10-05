@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
-import { createApiUrl, fetchSongs, updateMeasure, updateSong, type Song, type SongUpdateInput } from "../lib/songs";
+import { createApiUrl, fetchSongs, readMutationResponse, updateMeasure, updateSong, type Song, type SongUpdateInput } from "../lib/songs";
 
 const SELECTED_BY_SONG_STORAGE_KEY = "practiceapp.selectedMeasuresBySong";
 const GLOBAL_KEY = "__global__";
@@ -129,6 +129,19 @@ export function SongProvider({ children }: { children: ReactNode }) {
             // ignore
         }
     }, [selectedBySong]);
+
+    useEffect(() => {
+        if (typeof navigator === "undefined" || !navigator.serviceWorker) return;
+        const handleMessage = (event: MessageEvent<{ type?: string; status?: number }>) => {
+            if (event.data?.type === "mutation-synced") {
+                void loadSongs();
+            } else if (event.data?.type === "mutation-failed") {
+                setError(new Error(`Queued change failed on the server (${event.data.status ?? "unknown error"}).`));
+            }
+        };
+        navigator.serviceWorker.addEventListener("message", handleMessage);
+        return () => navigator.serviceWorker.removeEventListener("message", handleMessage);
+    }, []);
 
     
 
@@ -338,7 +351,7 @@ export function SongProvider({ children }: { children: ReactNode }) {
                     bpm: newEvent.value,
                 }),
             });
-            if (!response.ok) throw new Error(`Failed to add event: ${response.status}`);
+            await readMutationResponse(response, "Failed to add event");
         } catch (err) {
             setError(err instanceof Error ? err : new Error('Failed to add event'));
             throw err;
@@ -366,9 +379,7 @@ export function SongProvider({ children }: { children: ReactNode }) {
                 }),
             });
 
-            if (!response.ok) {
-                throw new Error(`Failed to add practice event: ${response.status}`);
-            }
+            await readMutationResponse(response, "Failed to add practice event");
 
         } catch (err) {
             setError(err instanceof Error ? err : new Error('Failed to add practice event'));
@@ -410,9 +421,7 @@ export function SongProvider({ children }: { children: ReactNode }) {
                 }),
             });
 
-            if (!response.ok) {
-                throw new Error(`Failed to add metronome event: ${response.status}`);
-            }
+            await readMutationResponse(response, "Failed to add metronome event");
         } catch (err) {
             setError(err instanceof Error ? err : new Error('Failed to add metronome event'));
             throw err;

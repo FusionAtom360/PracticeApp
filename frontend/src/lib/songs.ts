@@ -362,6 +362,21 @@ export async function fetchSongs(signal?: AbortSignal) {
     return Array.isArray(data.songs) ? data.songs : [];
 }
 
+export async function fetchSong(songId: string, signal?: AbortSignal) {
+    const apiUrl = createApiUrl(`/songs/${encodeURIComponent(songId)}`);
+    const response = await fetch(apiUrl, { signal });
+
+    if (!response.ok) {
+        throw new Error(`Failed to load song: ${response.status}`);
+    }
+
+    const data: { song?: Song } = await response.json();
+    if (!data.song) {
+        throw new Error("Failed to load song");
+    }
+    return data.song;
+}
+
 export async function updateMeasure(songId: string, measureNumber: number, input: MeasureUpdateInput) {
     const apiUrl = createApiUrl(`/songs/${encodeURIComponent(songId)}/measures/${measureNumber}`);
     const response = await fetch(apiUrl, {

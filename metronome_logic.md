@@ -60,6 +60,8 @@ fullDaysSinceLatestEvent =
 
 Negative elapsed time is treated as zero. The server uses its current time; the client uses the browser's current time when it has detailed events. List responses use the server's canonical `progress` field, avoiding a client/server disagreement when event details are not loaded.
 
+The list endpoint does not include raw event arrays. Consumers that need historical comparisons, such as the song overview, must load the detailed song endpoint before deriving event-based values. Practice startup may use the summary `averageTempo` as a fallback while detailed events are unavailable; it must not treat a missing event array as evidence that the measure has never been practiced.
+
 ## Historical progress
 
 The historical value shown in the progress bar is the measure's progress immediately before the most recent 24-hour period:
@@ -130,4 +132,3 @@ progress = 0.80 * 0.80 * 0.9604 = 0.614656
 displayed progress = 61.5%
 accuracy = 80%
 ```
-

@@ -163,7 +163,7 @@ Recommended boundaries:
 
 The provider can then expose composed hooks without becoming the implementation location for every concern.
 
-### Backend is a single route-and-domain module
+<!-- ### Backend is a single route-and-domain module
 
 The original `backend/server.js` combined configuration, CORS, parsing, media persistence, Supabase queries, serialization, route handlers, statistics calculation, and process startup. It has now been decomposed into focused modules under `backend/src`, while `backend/server.js` remains a small process entry point.
 
@@ -200,7 +200,7 @@ Keep the HTTP layer responsible for status codes and request parsing; keep domai
 - `src/routes/practice.js` owns practice-event recording and measure deletion.
 - `src/app.js` composes middleware and routers; `server.js` only starts the listener.
 
-The next structural step is extracting song and practice business operations from route handlers into service modules, then adding route-level integration tests against a repository boundary.
+The next structural step is extracting song and practice business operations from route handlers into service modules, then adding route-level integration tests against a repository boundary. -->
 
 ### Type safety is incomplete
 
@@ -224,6 +224,10 @@ Use narrow catches with a specific policy:
 - log diagnostic details in development;
 - set user-visible state for failed persistence;
 - never convert a failed write into a successful-looking UI state.
+
+### Practice startup and historical progress data loading
+
+The list endpoint intentionally returns summary measures without raw events. That shape is sufficient for list rendering, but it cannot initialize a practice session from event history or calculate the pre-24-hour comparison on the song page. The song overview now loads the detailed song endpoint and merges its event-bearing measures into the summary model. Practice startup also falls back to the server's canonical `averageTempo` when a summary measure has no local event array, rather than falling back directly to one quarter of the target tempo. This preserves the latest known tempo (for example, a recent 110–112 BPM history no longer starts at 39 BPM for a 156 BPM target) while retaining the server summary as the source for initial list data.
 
 <!-- ### Duplicate and divergent business logic
 

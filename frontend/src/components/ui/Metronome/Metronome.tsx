@@ -44,7 +44,7 @@ function getTempoMarking(pulse: number): string {
     }
 }
 
-function getHighestMetronomeBPM(
+function getLatestMetronomeBPM(
     events?: Array<{ timestamp?: number | string; type?: string; value?: number | string | null }>,
 ): number | null {
     if (!Array.isArray(events)) return null;
@@ -58,19 +58,16 @@ function getHighestMetronomeBPM(
                 return secondTimestamp - firstTimestamp;
             }
             return 0;
-        })
-        .slice(0, 20);
-
-    let highest: number | null = null;
+        });
 
     for (const ev of recentEvents) {
         const bpm = Number(ev.value);
         if (Number.isFinite(bpm) && bpm > 0) {
-            highest = highest === null ? bpm : Math.max(highest, bpm);
+            return bpm;
         }
     }
 
-    return highest;
+    return null;
 }
 
 function getNearestBPMMark(value: number): number {
@@ -104,9 +101,14 @@ function getPracticeStartBPM(
 
     const measureMarks = measuresToInspect
         .map((item) => {
-            const highestLoggedBPM = getHighestMetronomeBPM(item?.events);
-            if (highestLoggedBPM !== null) {
-                return highestLoggedBPM;
+            const latestLoggedBPM = getLatestMetronomeBPM(item?.events);
+            if (latestLoggedBPM !== null) {
+                return latestLoggedBPM;
+            }
+
+            const summaryTempo = Number(item?.averageTempo);
+            if (Number.isFinite(summaryTempo) && summaryTempo > 0) {
+                return summaryTempo;
             }
 
             const measureTarget = Number(item?.target);

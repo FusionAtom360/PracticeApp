@@ -621,34 +621,30 @@ export default function Metronome({
         }
     }, []);
 
-    const ensureAudioContext = useCallback(async (): Promise<AudioContext> => {
+    const getAudioContext = useCallback((): AudioContext => {
         if (!audioContextRef.current) {
-            audioContextRef.current = new (
-                window.AudioContext ||
-                (window as unknown as Record<string, typeof AudioContext>)
-                    .webkitAudioContext
-            )();
-        }
-
-        if (audioContextRef.current.state === "suspended") {
-            await audioContextRef.current.resume();
+            const audioWindow = window as typeof window & {
+                webkitAudioContext?: typeof AudioContext;
+            };
+            const AudioContextConstructor =
+                window.AudioContext ?? audioWindow.webkitAudioContext;
+            if (!AudioContextConstructor) {
+                throw new Error("Web Audio API is not supported on this device");
+            }
+            audioContextRef.current = new AudioContextConstructor();
         }
 
         return audioContextRef.current;
     }, []);
 
-    const togglePlayback = useCallback(() => {
-        if (isPlaying) {
-            setIsPlaying(false);
-            return;
+    const ensureAudioContext = useCallback(async (): Promise<AudioContext> => {
+        const audioContext = getAudioContext();
+        if (audioContext.state === "suspended") {
+            await audioContext.resume();
         }
 
-        void ensureAudioContext()
-            .then(() => setIsPlaying(true))
-            .catch((error: unknown) => {
-                console.error("Unable to start metronome audio", error);
-            });
-    }, [ensureAudioContext, isPlaying, setIsPlaying]);
+        return audioContext;
+    }, [getAudioContext]);
 
     const scheduleBeat = useCallback(
         (audioContext: AudioContext, beatTime: number, beatIndex: number) => {
@@ -688,6 +684,34 @@ export default function Metronome({
         },
         [accentInterval, subdivisionCount],
     );
+
+    const togglePlayback = useCallback(() => {
+        if (isPlaying) {
+            setIsPlaying(false);
+            return;
+        }
+
+        try {
+            const audioContext = getAudioContext();
+            const immediateTime = audioContext.currentTime + 0.01;
+            beatIndexRef.current = 0;
+            scheduleBeat(audioContext, immediateTime, beatIndexRef.current);
+            beatIndexRef.current += 1;
+            nextBeatTimeRef.current =
+                immediateTime + beatDurationRef.current;
+            hasPlayedOnceRef.current = true;
+            setIsPlaying(true);
+
+            if (audioContext.state === "suspended") {
+                void audioContext.resume().catch((error: unknown) => {
+                    console.error("Unable to resume metronome audio", error);
+                    setIsPlaying(false);
+                });
+            }
+        } catch (error: unknown) {
+            console.error("Unable to start metronome audio", error);
+        }
+    }, [getAudioContext, isPlaying, scheduleBeat, setIsPlaying]);
 
     const applyDecreaseStep = useCallback(() => {
         if (practiceMode && currentPulse > 1) {
@@ -922,16 +946,17 @@ export default function Metronome({
                 // Seed the scheduler just inside the lookahead window so the
                 // first beat is actually enqueued before the interval ticks.
                 if (!hasPlayedOnceRef.current) {
-                    // Play an immediate beat on the very first play press.
-                    const immediateTime = audioContext.currentTime + 0.001;
+                    const immediateTime = audioContext.currentTime + 0.01;
                     beatIndexRef.current = 0;
                     scheduleBeat(audioContext, immediateTime, beatIndexRef.current);
                     hasPlayedOnceRef.current = true;
                     beatIndexRef.current += 1;
                     nextBeatTimeRef.current = immediateTime + beatDurationRef.current;
                 } else {
-                    nextBeatTimeRef.current = audioContext.currentTime + 0.05;
-                    beatIndexRef.current = 0;
+                    if (nextBeatTimeRef.current <= audioContext.currentTime) {
+                        nextBeatTimeRef.current = audioContext.currentTime + 0.05;
+                        beatIndexRef.current = 0;
+                    }
                 }
 
                 const scheduleWindow = () => {

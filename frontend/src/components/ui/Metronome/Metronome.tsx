@@ -637,6 +637,19 @@ export default function Metronome({
         return audioContextRef.current;
     }, []);
 
+    const togglePlayback = useCallback(() => {
+        if (isPlaying) {
+            setIsPlaying(false);
+            return;
+        }
+
+        void ensureAudioContext()
+            .then(() => setIsPlaying(true))
+            .catch((error: unknown) => {
+                console.error("Unable to start metronome audio", error);
+            });
+    }, [ensureAudioContext, isPlaying, setIsPlaying]);
+
     const scheduleBeat = useCallback(
         (audioContext: AudioContext, beatTime: number, beatIndex: number) => {
             const oscillator = audioContext.createOscillator();
@@ -941,8 +954,8 @@ export default function Metronome({
                     scheduleWindow,
                     25,
                 );
-            } catch {
-                // ignore audio errors
+            } catch (error: unknown) {
+                console.error("Unable to schedule metronome audio", error);
             }
         })();
 
@@ -1713,7 +1726,7 @@ export default function Metronome({
                     aria-label={
                         isPlaying ? "Pause metronome" : "Play metronome"
                     }
-                    onClick={() => setIsPlaying(!isPlaying)}
+                    onClick={togglePlayback}
                 >
                     {isPlaying ? (
                         <PauseIcon className="play-icon" />

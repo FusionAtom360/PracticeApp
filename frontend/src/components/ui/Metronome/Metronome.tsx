@@ -1624,10 +1624,15 @@ export default function Metronome({
                 </div>
             </div>
 
-            {practiceMode && streakDotCount > 1 && (
+            {practiceMode && (
                 <>
-                    <div className="practice-streak">
-                        {Array.from({ length: streakDotCount }).map(
+                    <div
+                        className={`practice-streak ${streakDotCount <= 1 ? "practice-streak--placeholder" : ""}`}
+                        aria-hidden={streakDotCount <= 1}
+                    >
+                        {Array.from({
+                            length: streakDotCount > 1 ? streakDotCount : 0,
+                        }).map(
                             (_, index) => (
                                 <span
                                     key={`streak-dot-${index}`}

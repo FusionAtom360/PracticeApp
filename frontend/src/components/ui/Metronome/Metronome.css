@@ -365,7 +365,12 @@
     justify-content: center;
     align-items: center;
     gap: 0.5rem;
+    min-height: 0.75rem;
     font-weight: 600;
+}
+
+.practice-streak--placeholder {
+    visibility: hidden;
 }
 
 .streak-dot {

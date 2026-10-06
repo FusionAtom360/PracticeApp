@@ -302,7 +302,11 @@ export async function readMutationResponse<T>(response: Response, operation: str
         throw new MutationQueuedError(data.message);
     }
     if (!response.ok) {
-        throw new Error(`${operation}: ${response.status}`);
+        const serverMessage =
+            typeof data?.error === "string" ? data.error : null;
+        throw new Error(
+            `${operation}: ${serverMessage ?? response.status}`,
+        );
     }
     return data as T;
 }

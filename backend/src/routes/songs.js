@@ -48,8 +48,8 @@ export function createSongRouter() {
             if (!title || !composer) return res.status(400).json({ error: 'Title and composer are required', requestId: req.requestId });
             if (title.length > config.maxTitleLength || subtitle.length > config.maxSubtitleLength || composer.length > config.maxComposerLength) return res.status(400).json({ error: 'Text fields exceed their length limits', requestId: req.requestId });
             if (!Number.isInteger(measureCount) || measureCount < 1 || measureCount > config.maxMeasures || !Number.isFinite(initial) || !Number.isFinite(target) || initial < 1 || initial > config.maxTempo || target < 1 || target > config.maxTempo) return res.status(400).json({ error: 'Invalid measure or tempo values', requestId: req.requestId });
-            if (body.imageFile !== undefined && !parseFile(body.imageFile)) return res.status(400).json({ error: 'Invalid image payload', requestId: req.requestId });
-            if (body.audioFile !== undefined && !parseFile(body.audioFile)) return res.status(400).json({ error: 'Invalid audio payload', requestId: req.requestId });
+            if (body.imageFile != null && !parseFile(body.imageFile)) return res.status(400).json({ error: 'Invalid image payload', requestId: req.requestId });
+            if (body.audioFile != null && !parseFile(body.audioFile)) return res.status(400).json({ error: 'Invalid audio payload', requestId: req.requestId });
             await ensureMediaDirs();
             image = await saveMedia(parseFile(body.imageFile), config.imagesDir, 'image');
             audio = await saveMedia(parseFile(body.audioFile), config.audioDir, 'audio');

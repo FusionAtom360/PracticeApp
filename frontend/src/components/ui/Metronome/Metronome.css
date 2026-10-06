@@ -736,8 +736,51 @@
 }
 
 @media (max-width: 38rem) {
+    .metronome-shell {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        padding: 0.75rem;
+        gap: 0.75rem;
+        overflow: hidden;
+    }
+
+    .main-controls-row {
+        width: 100%;
+        grid-template-columns: 2.5rem minmax(0, 1fr) 2.5rem;
+    }
+
+    .tempo-circle {
+        min-width: 0;
+        width: min(11rem, 100%);
+    }
+
+    .tempo-adjust-btn {
+        width: 2.5rem;
+        height: 2.5rem;
+        font-size: 1.35rem;
+    }
+
     .play-controls {
         flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+        max-width: 100%;
+    }
+
+    .icon-control {
+        width: 2.75rem;
+        height: 2.75rem;
+    }
+
+    .practice-action-btn {
+        width: 4rem;
+        height: 4rem;
+    }
+
+    .play-control-btn {
+        width: 4.75rem;
+        height: 4.75rem;
     }
 
     .transport-primary {

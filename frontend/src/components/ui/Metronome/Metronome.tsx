@@ -1142,9 +1142,15 @@ export default function Metronome({
     );
 
     const cyclePracticeMode = useCallback(() => {
-        const modes: PracticeMode[] = ["rapid", "speed", "stability", null];
-        const currentIndex = modes.indexOf(practiceMode);
-        const nextMode = modes[(currentIndex + 1) % modes.length];
+        const modes: Array<Exclude<PracticeMode, null>> = [
+            "rapid",
+            "speed",
+            "stability",
+        ];
+        const currentIndex =
+            practiceMode === null ? -1 : modes.indexOf(practiceMode);
+        const nextMode =
+            modes[(currentIndex < 0 ? 0 : currentIndex + 1) % modes.length];
         void applyPracticeMode(nextMode);
     }, [applyPracticeMode, practiceMode]);
 

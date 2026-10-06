@@ -98,6 +98,56 @@ export function createSongRouter() {
         }
     });
 
+    router.patch('/:id/measures', async (req, res) => {
+        try {
+            const updates = req.body?.measures;
+            if (!Array.isArray(updates) || updates.length < 1 || updates.length > config.maxMeasures) {
+                return res.status(400).json({ error: 'Invalid measure update batch', requestId: req.requestId });
+            }
+
+            const numbers = new Set();
+            for (const update of updates) {
+                const number = Number(update?.number);
+                if (!Number.isInteger(number) || number < 1 || numbers.has(number)) {
+                    return res.status(400).json({ error: 'Invalid measure update batch', requestId: req.requestId });
+                }
+                numbers.add(number);
+                for (const field of ['initial', 'target', 'ignore_tempo', 'mode']) {
+                    if (update[field] === undefined) continue;
+                    if (field === 'mode' && !['rapid', 'speed', 'stability'].includes(update[field])) {
+                        return res.status(400).json({ error: 'Invalid measure mode', requestId: req.requestId });
+                    }
+                }
+            }
+
+            const { data: song, error: songError } = await supabase
+                .from('songs')
+                .select('id')
+                .eq('id', req.params.id)
+                .eq('owner_id', req.user.id)
+                .single();
+            if (songError || !song) return songNotFound(res);
+
+            for (const update of updates) {
+                const patch = {};
+                for (const field of ['initial', 'target', 'ignore_tempo', 'mode']) {
+                    if (update[field] !== undefined) patch[field] = update[field];
+                }
+                const { error } = await supabase
+                    .from('measures')
+                    .update(patch)
+                    .eq('song_id', req.params.id)
+                    .eq('number', Number(update.number));
+                if (error) throw error;
+            }
+
+            res.json({ song: publicSong(req, await getSongs(req.user.id, true, req.params.id), true) });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Failed to update measures', requestId: req.requestId });
+        }
+    });
+
     router.patch('/:id/measures/:measureNumber', async (req, res) => {
         try {
             const { data: measure, error } = await supabase.from('measures').select('id, songs!inner(owner_id)').eq('song_id', req.params.id).eq('songs.owner_id', req.user.id).eq('number', Number(req.params.measureNumber)).single();

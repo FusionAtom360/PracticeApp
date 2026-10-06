@@ -402,6 +402,24 @@ export async function updateMeasure(songId: string, measureNumber: number, input
     return data.song;
 }
 
+export async function updateMeasures(
+    songId: string,
+    updates: Array<{ number: number } & MeasureUpdateInput>,
+) {
+    const apiUrl = createApiUrl(`/songs/${encodeURIComponent(songId)}/measures`);
+    const response = await fetch(apiUrl, {
+        method: "PATCH",
+        headers: await mutationHeaders(),
+        body: JSON.stringify({ measures: updates }),
+    });
+    const data = await readMutationResponse<{ song?: Song }>(
+        response,
+        "Failed to update measures",
+    );
+    if (!data.song) throw new Error("Failed to update measures");
+    return data.song;
+}
+
 export async function createSong(input: CreateSongInput) {
     if (input.measureCount < 1 || input.measureCount > MAX_MEASURES || !Number.isInteger(input.measureCount)) {
         throw new Error(`Number of measures must be between 1 and ${MAX_MEASURES}.`);

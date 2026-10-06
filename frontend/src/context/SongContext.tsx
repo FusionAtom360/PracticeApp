@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
-import { authHeaders, createApiUrl, fetchSongs, readMutationResponse, updateMeasure, updateSong, type Song, type SongUpdateInput } from "../lib/songs";
+import { authHeaders, createApiUrl, fetchSongs, readMutationResponse, updateMeasure, updateMeasures, updateSong, type Song, type SongUpdateInput } from "../lib/songs";
 
 const SELECTED_BY_SONG_STORAGE_KEY = "practiceapp.selectedMeasuresBySong";
 const GLOBAL_KEY = "__global__";
@@ -35,6 +35,7 @@ interface SongContextType {
     addMetronomeEvent: (id: string, outcome: 'success' | 'failure', bpm: number, measureNumbers: number[], elapsedSeconds: number) => Promise<void>;
     updateSongOnServer: (songId: string, input: SongUpdateInput) => Promise<void>;
     updateMeasureOnServer: (songId: string, measureNumber: number, input: Parameters<typeof updateMeasure>[2]) => Promise<void>;
+    updateMeasuresOnServer: (songId: string, updates: Array<{ number: number } & Parameters<typeof updateMeasure>[2]>) => Promise<void>;
     reloadSongs: () => Promise<void>;
     selectedMeasures: number[];
     setSelectedMeasures: (start: number, end: number) => void;
@@ -455,6 +456,10 @@ export function SongProvider({ children }: { children: ReactNode }) {
             updateSongOnServer: updateSongOnServerFn,
             updateMeasureOnServer: async (songId, measureNumber, input) => {
                 const updatedSong = await updateMeasure(songId, measureNumber, input);
+                setSongs((current) => current.map((song) => song.id === songId ? { ...song, ...updatedSong } : song));
+            },
+            updateMeasuresOnServer: async (songId, updates) => {
+                const updatedSong = await updateMeasures(songId, updates);
                 setSongs((current) => current.map((song) => song.id === songId ? { ...song, ...updatedSong } : song));
             },
             reloadSongs,

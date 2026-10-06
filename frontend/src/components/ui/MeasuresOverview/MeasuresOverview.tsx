@@ -21,7 +21,7 @@ interface MeasuresOverviewProps {
 }
 
 const MeasuresOverview: React.FC<MeasuresOverviewProps> = ({ song }) => {
-	const { updateMeasureOnServer, selectedMeasures, setSelectedMeasures, clearSelectedMeasures, setActiveSong, reloadSongs } = useSongs();
+	const { updateMeasureOnServer, updateMeasuresOnServer, selectedMeasures, setSelectedMeasures, clearSelectedMeasures, setActiveSong, reloadSongs } = useSongs();
 	const navigate = useNavigate();
 	const [editingMeasure, setEditingMeasure] = useState<Measure | null>(null);
 	const [firstSelectedNumber, setFirstSelectedNumber] = useState<number | null>(null);
@@ -132,12 +132,20 @@ const MeasuresOverview: React.FC<MeasuresOverviewProps> = ({ song }) => {
 
 			const measureNumbers = selectedMeasures.length > 0 ? selectedMeasures : (updatedMeasure.number ? [updatedMeasure.number] : []);
 			if (measureNumbers.length === 0) return;
-			await Promise.all(measureNumbers.map((measureNumber) => updateMeasureOnServer(song.id, measureNumber, {
+			const update = {
 				initial: updatedMeasure.current,
 				target: updatedMeasure.target,
 				ignore_tempo: updatedMeasure.ignoreTempo,
 				mode: updatedMeasure.mode,
-			})));
+			};
+			if (measureNumbers.length === 1) {
+				await updateMeasureOnServer(song.id, measureNumbers[0], update);
+			} else {
+				await updateMeasuresOnServer(
+					song.id,
+					measureNumbers.map((number) => ({ number, ...update })),
+				);
+			}
 			setIsEditDialogOpen(false);
 		} finally {
 			setIsSaving(false);

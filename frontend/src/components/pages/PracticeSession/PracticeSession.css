@@ -103,8 +103,9 @@
 
 .practice-grid {
     display: flex;
-justify-content: center;
-align-items: center;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
 }
 
 @media (max-width: 640px) {

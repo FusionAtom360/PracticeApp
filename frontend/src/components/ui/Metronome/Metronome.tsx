@@ -1638,40 +1638,11 @@ export default function Metronome({
             )}
 
             <div className="play-controls">
-                <Button
-                    variant="ghost"
-                    size="md"
-                    className="icon-control"
-                    aria-label={showBPM ? "Hide BPM" : "Show BPM"}
-                    onClick={() => setShowBPM((s) => !s)}
-                >
-                    {showBPM ? (
-                        <VisibilityIcon fontSize="small" aria-hidden="true" />
-                    ) : (
-                        <VisibilityOffIcon
-                            fontSize="small"
-                            aria-hidden="true"
-                        />
-                    )}
-                </Button>
-                {practiceMode && !isFreeMode && (
-                    <Button
-                        variant="primary"
-                        size="md"
-                        className="practice-action-btn practice-fail-btn"
-                        onClick={handleFailure}
-                        disabled={isLogging}
-                        aria-label="Mark as failure"
-                    >
-                        <CloseIcon fontSize="large" aria-hidden="true" />
-                    </Button>
-                )}
-
                 {!isFreeMode ? (
                     <Button
                         variant="ghost"
                         size="md"
-                        className="icon-control mode-cycle-control"
+                        className="icon-control mode-cycle-control transport-secondary"
                         onClick={cyclePracticeMode}
                         disabled={isLogging}
                         aria-label={
@@ -1690,16 +1661,44 @@ export default function Metronome({
                     <Button
                         variant="ghost"
                         size="md"
-                        className="icon-control mode-cycle-control"
+                        className="icon-control mode-cycle-control transport-secondary"
                         disabled
                         aria-hidden="true"
                     />
+                )}
+                <Button
+                    variant="ghost"
+                    size="md"
+                    className="icon-control transport-secondary"
+                    aria-label={showBPM ? "Hide BPM" : "Show BPM"}
+                    onClick={() => setShowBPM((s) => !s)}
+                >
+                    {showBPM ? (
+                        <VisibilityIcon fontSize="small" aria-hidden="true" />
+                    ) : (
+                        <VisibilityOffIcon
+                            fontSize="small"
+                            aria-hidden="true"
+                        />
+                    )}
+                </Button>
+                {practiceMode && !isFreeMode && (
+                    <Button
+                        variant="primary"
+                        size="md"
+                        className="practice-action-btn practice-fail-btn transport-primary"
+                        onClick={handleFailure}
+                        disabled={isLogging}
+                        aria-label="Mark as failure"
+                    >
+                        <CloseIcon fontSize="large" aria-hidden="true" />
+                    </Button>
                 )}
 
                 <Button
                     variant="warm"
                     size="lg"
-                    className="play-control-btn"
+                    className="play-control-btn transport-primary"
                     aria-label={
                         isPlaying ? "Pause metronome" : "Play metronome"
                     }
@@ -1712,12 +1711,24 @@ export default function Metronome({
                     )}
                 </Button>
 
-                
+                {practiceMode && !isFreeMode && (
+                    <Button
+                        variant="primary"
+                        size="md"
+                        className="practice-action-btn practice-success-btn transport-primary"
+                        onClick={handleSuccess}
+                        disabled={isLogging}
+                        aria-label="Mark as success"
+                    >
+                        <CheckIcon fontSize="large" aria-hidden="true" />
+                    </Button>
+                )}
+                <span className="transport-mobile-break" aria-hidden="true" />
 
                 <Button
                     variant="ghost"
                     size="md"
-                    className="icon-control cycle-control"
+                    className="icon-control cycle-control transport-secondary"
                     onClick={cycleSubdivision}
                     aria-label={`Subdivide each beat ${subdivisionCount} times`}
                 >
@@ -1730,7 +1741,7 @@ export default function Metronome({
                 <Button
                     variant="ghost"
                     size="md"
-                    className="icon-control cycle-control"
+                    className="icon-control cycle-control transport-secondary"
                     onClick={cycleAccent}
                     aria-label={
                         accentInterval === null
@@ -1746,19 +1757,6 @@ export default function Metronome({
                         {accentInterval === null ? "Off" : `×${accentInterval}`}
                     </span>
                 </Button>
-
-                {practiceMode && !isFreeMode && (
-                    <Button
-                        variant="primary"
-                        size="md"
-                        className="practice-action-btn practice-success-btn"
-                        onClick={handleSuccess}
-                        disabled={isLogging}
-                        aria-label="Mark as success"
-                    >
-                        <CheckIcon fontSize="large" aria-hidden="true" />
-                    </Button>
-                )}
             </div>
 
             <div className="practice-clock" aria-label="Practice clock">

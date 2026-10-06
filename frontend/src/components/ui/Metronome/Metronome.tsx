@@ -660,7 +660,7 @@ export default function Metronome({
             oscillator.frequency.value = isAccented ? 1000 : 800;
             oscillator.type = "sine";
 
-            gainNode.gain.setValueAtTime(isAccented ? 1.5 : 0.85, beatTime);
+            gainNode.gain.setValueAtTime(3, beatTime);
             gainNode.gain.exponentialRampToValueAtTime(0.01, beatTime + 0.12);
 
             oscillator.start(beatTime);

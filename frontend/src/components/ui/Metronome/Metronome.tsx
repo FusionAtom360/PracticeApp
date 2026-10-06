@@ -3,8 +3,6 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import PauseIcon from "@mui/icons-material/Pause";
-// import StopIcon from "@mui/icons-material/Stop";
-import SettingsIcon from "@mui/icons-material/Settings";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import type { Measure } from "../../../lib/songs";
@@ -39,8 +37,25 @@ function getTempoMarking(pulse: number): string {
             return "";
         case 16:
             return "";
+        case 32:
+            return "";
         default:
             return "";
+    }
+}
+
+const SUBDIVISION_OPTIONS = [1, 2, 3, 4, 6];
+const ACCENT_OPTIONS = [1, 2, 3, 4, 6];
+const ACCENT_STATES: Array<number | null> = [null, ...ACCENT_OPTIONS];
+
+function readFreePracticeNumber(key: string, fallback: number): number {
+    if (typeof window === "undefined") return fallback;
+
+    try {
+        const stored = Number.parseInt(window.localStorage.getItem(key) ?? "", 10);
+        return Number.isFinite(stored) ? stored : fallback;
+    } catch {
+        return fallback;
     }
 }
 
@@ -259,7 +274,14 @@ export default function Metronome({
     }, [songId, practiceScopeKey]);
 
     const [currentPulse, setCurrentPulse] = useState(4); // always default to quarter on mount
-
+    const [subdivisionCount, setSubdivisionCount] = useState(() =>
+        readFreePracticeNumber("practice-free-subdivision", 1),
+    );
+    const [accentInterval, setAccentInterval] = useState<number | null>(() => {
+        const stored = readFreePracticeNumber("practice-free-accent", 4);
+        if (stored === 0) return null;
+        return ACCENT_STATES.includes(stored) ? stored : 4;
+    });
     const initialTempo = useMemo(() => {
         if (isFreeMode) {
             const savedQuarter = localStorage.getItem("practice-free-bpm");
@@ -282,7 +304,6 @@ export default function Metronome({
     const [practiceMode, setPracticeMode] = useState<PracticeMode>(
         getMostConservativeMode(selectedMeasures, measure),
     );
-    const [showSettingsDialog, setShowSettingsDialog] = useState(false);
     const [showFailureDialog, setShowFailureDialog] = useState(false);
     const [streak, setStreak] = useState(0);
     const [errorStreak, setErrorStreak] = useState(0);
@@ -322,6 +343,7 @@ export default function Metronome({
     const suppressDecClickRef = useRef(false);
     const suppressIncClickRef = useRef(false);
     const beatDurationRef = useRef<number>(60 / initialTempo);
+    const beatIndexRef = useRef(0);
     const hasInitializedFromMeasureRef = useRef<string | null>(null);
     const hasPlayedOnceRef = useRef(false);
     const practiceClockSecondsRef = useRef(0);
@@ -423,6 +445,14 @@ export default function Metronome({
                 // Persist as quarter-note BPM (rounded).
                 const quarter = Math.round(currentBPM * (4 / currentPulse));
                 localStorage.setItem("practice-free-bpm", String(quarter));
+                localStorage.setItem(
+                    "practice-free-subdivision",
+                    String(subdivisionCount),
+                );
+                localStorage.setItem(
+                    "practice-free-accent",
+                    String(accentInterval ?? 0),
+                );
             } else if (
                 practiceTempoStorageKey &&
                 (selectedMeasures.length > 0 || measure)
@@ -432,7 +462,7 @@ export default function Metronome({
         } catch {
             // ignore storage failures
         }
-    }, [isFreeMode, currentBPM, currentPulse, measure, practiceTempoStorageKey, selectedMeasures.length]);
+    }, [accentInterval, currentBPM, currentPulse, isFreeMode, measure, practiceTempoStorageKey, selectedMeasures.length, subdivisionCount]);
 
     useEffect(() => {
         let nextStreak = 0;
@@ -537,8 +567,8 @@ export default function Metronome({
     }, [isFreeMode, measure, practiceScopeKey, practiceTempoStorageKey, selectedMeasures, targetTempo]);
 
     useEffect(() => {
-        beatDurationRef.current = 60 / currentBPM;
-    }, [currentBPM]);
+        beatDurationRef.current = 60 / currentBPM / subdivisionCount;
+    }, [currentBPM, subdivisionCount]);
 
     const clearVisualTimeouts = useCallback(() => {
         for (const id of visualTimeoutIdsRef.current) {
@@ -608,37 +638,42 @@ export default function Metronome({
     }, []);
 
     const scheduleBeat = useCallback(
-        (audioContext: AudioContext, beatTime: number) => {
+        (audioContext: AudioContext, beatTime: number, beatIndex: number) => {
             const oscillator = audioContext.createOscillator();
             const gainNode = audioContext.createGain();
 
             oscillator.connect(gainNode);
             gainNode.connect(audioContext.destination);
 
-            oscillator.frequency.value = 800;
+            const isAccented =
+                accentInterval !== null &&
+                beatIndex % (accentInterval * subdivisionCount) === 0;
+            oscillator.frequency.value = isAccented ? 1000 : 800;
             oscillator.type = "sine";
 
-            gainNode.gain.setValueAtTime(1.5, beatTime);
+            gainNode.gain.setValueAtTime(isAccented ? 1.5 : 0.85, beatTime);
             gainNode.gain.exponentialRampToValueAtTime(0.01, beatTime + 0.12);
 
             oscillator.start(beatTime);
             oscillator.stop(beatTime + 0.12);
 
-            const flashDelay = Math.max(
-                0,
-                (beatTime - audioContext.currentTime) * 1000,
-            );
-            const flashTimer = window.setTimeout(() => {
-                setBeatFlash(true);
-                const clearTimer = window.setTimeout(() => {
-                    setBeatFlash(false);
-                }, 120);
-                visualTimeoutIdsRef.current.push(clearTimer);
-            }, flashDelay);
+            if (beatIndex % subdivisionCount === 0) {
+                const flashDelay = Math.max(
+                    0,
+                    (beatTime - audioContext.currentTime) * 1000,
+                );
+                const flashTimer = window.setTimeout(() => {
+                    setBeatFlash(true);
+                    const clearTimer = window.setTimeout(() => {
+                        setBeatFlash(false);
+                    }, 120);
+                    visualTimeoutIdsRef.current.push(clearTimer);
+                }, flashDelay);
 
-            visualTimeoutIdsRef.current.push(flashTimer);
+                visualTimeoutIdsRef.current.push(flashTimer);
+            }
         },
-        [],
+        [accentInterval, subdivisionCount],
     );
 
     const applyDecreaseStep = useCallback(() => {
@@ -673,6 +708,24 @@ export default function Metronome({
 
     const applyIncreaseBPM = useCallback(() => {
         setCurrentBPM((b) => Math.min(300, b + 1));
+    }, []);
+
+    const cycleSubdivision = useCallback(() => {
+        setSubdivisionCount((current) => {
+            const currentIndex = SUBDIVISION_OPTIONS.indexOf(current);
+            return SUBDIVISION_OPTIONS[
+                (currentIndex + 1) % SUBDIVISION_OPTIONS.length
+            ];
+        });
+    }, []);
+
+    const cycleAccent = useCallback(() => {
+        setAccentInterval((current) => {
+            const currentIndex = ACCENT_STATES.indexOf(current);
+            return ACCENT_STATES[
+                (currentIndex + 1) % ACCENT_STATES.length
+            ];
+        });
     }, []);
 
     const startTapMode = useCallback(() => {
@@ -858,11 +911,14 @@ export default function Metronome({
                 if (!hasPlayedOnceRef.current) {
                     // Play an immediate beat on the very first play press.
                     const immediateTime = audioContext.currentTime + 0.001;
-                    scheduleBeat(audioContext, immediateTime);
+                    beatIndexRef.current = 0;
+                    scheduleBeat(audioContext, immediateTime, beatIndexRef.current);
                     hasPlayedOnceRef.current = true;
+                    beatIndexRef.current += 1;
                     nextBeatTimeRef.current = immediateTime + beatDurationRef.current;
                 } else {
                     nextBeatTimeRef.current = audioContext.currentTime + 0.05;
+                    beatIndexRef.current = 0;
                 }
 
                 const scheduleWindow = () => {
@@ -870,7 +926,12 @@ export default function Metronome({
                         nextBeatTimeRef.current <
                         audioContext.currentTime + 0.1
                     ) {
-                        scheduleBeat(audioContext, nextBeatTimeRef.current);
+                        scheduleBeat(
+                            audioContext,
+                            nextBeatTimeRef.current,
+                            beatIndexRef.current,
+                        );
+                        beatIndexRef.current += 1;
                         nextBeatTimeRef.current += beatDurationRef.current;
                     }
                 };
@@ -1079,6 +1140,22 @@ export default function Metronome({
         },
         [isFreeMode, measure, selectedMeasures, setMeasureMode, songId],
     );
+
+    const cyclePracticeMode = useCallback(() => {
+        const modes: PracticeMode[] = ["rapid", "speed", "stability", null];
+        const currentIndex = modes.indexOf(practiceMode);
+        const nextMode = modes[(currentIndex + 1) % modes.length];
+        void applyPracticeMode(nextMode);
+    }, [applyPracticeMode, practiceMode]);
+
+    const modeDotCount =
+        practiceMode === "rapid"
+            ? 1
+            : practiceMode === "speed"
+              ? 2
+              : practiceMode === "stability"
+                ? 3
+                : 0;
 
     return (
         <div className="metronome-shell">
@@ -1590,6 +1667,35 @@ export default function Metronome({
                     </Button>
                 )}
 
+                {!isFreeMode ? (
+                    <Button
+                        variant="ghost"
+                        size="md"
+                        className="icon-control mode-cycle-control"
+                        onClick={cyclePracticeMode}
+                        disabled={isLogging}
+                        aria-label={
+                            practiceMode
+                                ? `Practice mode: ${practiceMode}. Change mode`
+                                : "Enable rapid practice mode"
+                        }
+                    >
+                        <span className="mode-dots" aria-hidden="true">
+                            {Array.from({ length: modeDotCount }).map((_, index) => (
+                                <span key={index} className="mode-dot" />
+                            ))}
+                        </span>
+                    </Button>
+                ) : (
+                    <Button
+                        variant="ghost"
+                        size="md"
+                        className="icon-control mode-cycle-control"
+                        disabled
+                        aria-hidden="true"
+                    />
+                )}
+
                 <Button
                     variant="warm"
                     size="lg"
@@ -1606,6 +1712,41 @@ export default function Metronome({
                     )}
                 </Button>
 
+                
+
+                <Button
+                    variant="ghost"
+                    size="md"
+                    className="icon-control cycle-control"
+                    onClick={cycleSubdivision}
+                    aria-label={`Subdivide each beat ${subdivisionCount} times`}
+                >
+                    <span className="settings-glyph" aria-hidden="true">
+                        {getTempoMarking(Math.min(32, currentPulse * 2))}
+                    </span>
+                    <span className="cycle-control-label">×{subdivisionCount}</span>
+                </Button>
+
+                <Button
+                    variant="ghost"
+                    size="md"
+                    className="icon-control cycle-control"
+                    onClick={cycleAccent}
+                    aria-label={
+                        accentInterval === null
+                            ? "Turn accents on"
+                            : `Accent every ${accentInterval} beats`
+                    }
+                    aria-pressed={accentInterval !== null}
+                >
+                    <span className="settings-glyph" aria-hidden="true">
+                        {getTempoMarking(currentPulse)}
+                    </span>
+                    <span className="cycle-control-label">
+                        {accentInterval === null ? "Off" : `×${accentInterval}`}
+                    </span>
+                </Button>
+
                 {practiceMode && !isFreeMode && (
                     <Button
                         variant="primary"
@@ -1618,15 +1759,6 @@ export default function Metronome({
                         <CheckIcon fontSize="large" aria-hidden="true" />
                     </Button>
                 )}
-                <Button
-                    variant="ghost"
-                    size="md"
-                    className="icon-control"
-                    aria-label="Settings"
-                    onClick={() => setShowSettingsDialog(true)}
-                >
-                    <SettingsIcon fontSize="small" aria-hidden="true" />
-                </Button>
             </div>
 
             <div className="practice-clock" aria-label="Practice clock">
@@ -1660,9 +1792,9 @@ export default function Metronome({
             </DialogBox>
 
             <DialogBox
-                isOpen={showSettingsDialog}
+                isOpen={false}
                 title="Settings"
-                onClose={() => setShowSettingsDialog(false)}
+                onClose={() => undefined}
             >
                 <div className="dialog-settings-content">
                     {!isFreeMode && (

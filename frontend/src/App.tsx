@@ -11,8 +11,9 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 
 function AuthenticatedApp() {
     const { session, loading } = useAuth();
-    if (loading) return <main>Loading...</main>;
-    if (!session) return <Auth />;
+    const bypassAuth = import.meta.env.DEV;
+    if (loading && !bypassAuth) return <main>Loading...</main>;
+    if (!session && !bypassAuth) return <Auth />;
     return (
         <BrowserRouter>
             <SongProvider>

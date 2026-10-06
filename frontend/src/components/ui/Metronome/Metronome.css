@@ -319,6 +319,47 @@
     transform: scale(0.95);
 }
 
+.cycle-control {
+    flex-direction: column;
+    gap: 0.1rem;
+    padding: 0.25rem;
+}
+
+.cycle-control .settings-glyph {
+    font-size: 1.2rem;
+}
+
+.cycle-control-label {
+    font-size: 0.65rem;
+    line-height: 1;
+}
+
+.mode-cycle-control {
+    gap: 0.25rem;
+}
+
+.mode-dots {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    min-width: 1rem;
+    min-height: 0.5rem;
+}
+
+.mode-dot {
+    width: 0.32rem;
+    height: 0.32rem;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.settings-glyph {
+    font-family: 'Leland', serif;
+    font-size: 1.55rem;
+    line-height: 1;
+    transform: translateY(0.5rem);
+}
+
 .practice-streak {
     display: flex;
     justify-content: center;

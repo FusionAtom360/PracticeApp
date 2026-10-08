@@ -45,7 +45,7 @@ function getTempoMarking(pulse: number): string {
 }
 
 function toQuarterNoteBPM(displayBPM: number, pulse: number): number {
-    return Math.round(displayBPM * (pulse / 4));
+    return Math.round(displayBPM * (4 / pulse));
 }
 
 function fromQuarterNoteBPM(quarterNoteBPM: number, pulse: number): number {

@@ -44,6 +44,14 @@ function getTempoMarking(pulse: number): string {
     }
 }
 
+function toQuarterNoteBPM(displayBPM: number, pulse: number): number {
+    return Math.round(displayBPM * (pulse / 4));
+}
+
+function fromQuarterNoteBPM(quarterNoteBPM: number, pulse: number): number {
+    return Math.max(20, Math.round(quarterNoteBPM * (pulse / 4)));
+}
+
 const SUBDIVISION_OPTIONS = [1, 2, 3, 4, 6];
 const ACCENT_OPTIONS = [1, 2, 3, 4, 6];
 const ACCENT_STATES: Array<number | null> = [null, ...ACCENT_OPTIONS];
@@ -288,15 +296,15 @@ export default function Metronome({
             const quarter = savedQuarter ? Number.parseInt(savedQuarter, 10) : NaN;
             if (Number.isFinite(quarter) && quarter > 0) {
                 // Convert stored quarter-note BPM to displayed BPM for current pulse
-                return Math.max(20, Math.round(quarter * (currentPulse / 4)));
+                return fromQuarterNoteBPM(quarter, currentPulse);
             }
             return 120;
         }
 
-        return (
+        const storedQuarter =
             readStoredPracticeBPM(practiceTempoStorageKey) ??
-            getPracticeStartBPM(selectedMeasures, measure, targetTempo)
-        );
+            getPracticeStartBPM(selectedMeasures, measure, targetTempo);
+        return fromQuarterNoteBPM(storedQuarter, currentPulse);
     }, [isFreeMode, measure, practiceTempoStorageKey, selectedMeasures, targetTempo, currentPulse]);
 
     const [currentBPM, setCurrentBPM] = useState<number>(initialTempo);
@@ -443,7 +451,7 @@ export default function Metronome({
         try {
             if (isFreeMode) {
                 // Persist as quarter-note BPM (rounded).
-                const quarter = Math.round(currentBPM * (4 / currentPulse));
+                const quarter = toQuarterNoteBPM(currentBPM, currentPulse);
                 localStorage.setItem("practice-free-bpm", String(quarter));
                 localStorage.setItem(
                     "practice-free-subdivision",
@@ -457,7 +465,10 @@ export default function Metronome({
                 practiceTempoStorageKey &&
                 (selectedMeasures.length > 0 || measure)
             ) {
-                localStorage.setItem(practiceTempoStorageKey, String(Math.round(currentBPM)));
+                localStorage.setItem(
+                    practiceTempoStorageKey,
+                    String(toQuarterNoteBPM(currentBPM, currentPulse)),
+                );
             }
         } catch {
             // ignore storage failures
@@ -561,10 +572,10 @@ export default function Metronome({
 
         const seedBPM = getPracticeStartBPM(selectedMeasures, measure, targetTempo);
         queueMicrotask(() => {
-            setCurrentBPM(seedBPM);
+            setCurrentBPM(fromQuarterNoteBPM(seedBPM, currentPulse));
         });
         hasInitializedFromMeasureRef.current = scopeKey;
-    }, [isFreeMode, measure, practiceScopeKey, practiceTempoStorageKey, selectedMeasures, targetTempo]);
+    }, [currentPulse, isFreeMode, measure, practiceScopeKey, practiceTempoStorageKey, selectedMeasures, targetTempo]);
 
     useEffect(() => {
         beatDurationRef.current = 60 / currentBPM / subdivisionCount;
@@ -1024,7 +1035,7 @@ export default function Metronome({
             isLoggingRef.current = true;
             setIsLogging(true);
             // Persist practice events as quarter-note BPM values without blocking UI feedback.
-            const storedQuarter = Math.round(currentBPM * (4 / currentPulse));
+            const storedQuarter = toQuarterNoteBPM(currentBPM, currentPulse);
             void onPracticeEvent(outcome, storedQuarter, elapsedSeconds, measureNumbers)
                 .then(() => {
                     lastPracticeLogRef.current = now;
